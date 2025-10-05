@@ -444,9 +444,14 @@ function saveGravitationalSortSettings() {
     closeGravitationalSortSettingsModal();
 }
 
+
+
+
 function openDlaSettingsModal() {
     if (app.isBreathing() || app.isLifePlaying()) return;
     const rules = app.getDlaRules();
+
+    // עדכון המתגים והטקסטים הקיימים
     app.dom.dlaColorGeneticsToggle.checked = rules.colorGenetics;
     app.dom.dlaInjectFromEdgesToggle.checked = rules.injectFromEdges;
     app.dom.dlaSettingsModal.querySelector('#dlaSettingsTitle').textContent = app.getText('dla_modal_title');
@@ -454,16 +459,25 @@ function openDlaSettingsModal() {
     app.dom.dlaSettingsModal.querySelector('#dlaColorGeneticsDesc').textContent = app.getText('dla_genetics_desc');
     app.dom.dlaSettingsModal.querySelector('#dlaInjectFromEdgesLabel').textContent = app.getText('dla_edges_label');
     app.dom.dlaSettingsModal.querySelector('#dlaInjectFromEdgesDesc').textContent = app.getText('dla_edges_desc');
+
+    // עדכון המתג והטקסטים החדשים שהוספנו
+    app.dom.dlaFastModeToggle.checked = rules.fastMode;
+    app.dom.dlaSettingsModal.querySelector('#dlaFastModeLabel').textContent = app.getText('dla_fastmode_label');
+    app.dom.dlaSettingsModal.querySelector('#dlaFastModeDesc').textContent = app.getText('dla_fastmode_desc');
+
+    // עדכון כפתורים והצגת המודל
     app.dom.btnDlaSettingsSave.textContent = app.getText('dla_modal_save_close');
     app.dom.btnDlaSettingsCancel.textContent = app.getText('dla_modal_cancel');
     app.dom.dlaSettingsModal.style.display = 'flex';
     setTimeout(() => app.dom.dlaSettingsModal.classList.add('modal-visible'), 10);
 }
 
+
 function saveDlaSettings() {
     const newRules = {
         colorGenetics: app.dom.dlaColorGeneticsToggle.checked,
         injectFromEdges: app.dom.dlaInjectFromEdgesToggle.checked,
+        fastMode: app.dom.dlaFastModeToggle.checked,
     };
     app.setDlaRules(newRules);
     closeDlaSettingsModal();
@@ -475,7 +489,7 @@ export function initializeModals(appContext) {
     // Save Modal
     app.dom.btnModalClose.addEventListener('click', closeModal);
     app.dom.saveModal.addEventListener('click', (e) => { if (e.target === app.dom.saveModal) { closeModal(); } });
-    app.dom.btnSaveImage.addEventListener('click', app.handleSaveImage);
+    app.dom.btnSaveImage.addEventListener('click', () => app.downloadImage());
     app.dom.btnSaveProjectIdea.addEventListener('click', app.handleSaveProject);
     app.dom.btnLoadProjectIdea.addEventListener('click', app.handleLoadProject);
     app.dom.projectFileInput.addEventListener('change', app.onProjectFileSelected);
@@ -483,8 +497,6 @@ export function initializeModals(appContext) {
     // Breathe Modal
     app.dom.btnBreatheModalClose.addEventListener('click', closeBreatheModal);
     app.dom.breatheModal.addEventListener('click', (e) => { if (e.target === app.dom.breatheModal) { closeBreatheModal(); } });
-    // app.dom.btnStartSoloBreathe.addEventListener('click', () => { closeBreatheModal(); app.startBreathingEffect(false); });
-    // app.dom.btnStartGroupBreathe.addEventListener('click', () => { closeBreatheModal(); app.startBreathingEffect(true); });
 
     // Resize Modal
     app.dom.btnConfirmResize.addEventListener('click', handleConfirmResize);
@@ -553,4 +565,3 @@ export function initializeModals(appContext) {
         populatePaletteModal
     };
 }
-

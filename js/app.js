@@ -54,7 +54,6 @@ import { initializeModals } from './ui-modals.js';
       let isRainbowModeActive = false;
       let selectedColorIndex = -1;
       let colorPickerPage = 0;
-      let generatedImageFile = null;
       let longPressTimer = null;
       let wasLongPress = false;
       
@@ -125,7 +124,7 @@ import { initializeModals } from './ui-modals.js';
             v: tileState.v !== undefined ? tileState.v : tileState.k
         }));
         
-        renderBoard(); 
+        renderToScreen(null); 
       }
 
       function pushHistory(state) {
@@ -182,7 +181,7 @@ import { initializeModals } from './ui-modals.js';
             boardState = new Array(n * n).fill(null).map(() => ({ k: 0, prevK: null, animStart: 0, isGold: false, v: 0 }));
             hasPerformedInitialAutofill = false;
           }
-          renderBoard();
+          renderToScreen(null);
       }
 
       function animationLoop(timestamp) {
@@ -200,7 +199,7 @@ import { initializeModals } from './ui-modals.js';
               }
           });
 
-          renderBoard(now);
+          renderToScreen(now);
 
           if (isStillAnimating) {
               animationLoopId = requestAnimationFrame(animationLoop);
@@ -214,14 +213,21 @@ import { initializeModals } from './ui-modals.js';
               animationLoopId = requestAnimationFrame(animationLoop);
           }
       }
+      
+      function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
+          if (!targetCtx) return;
 
-      function renderBoard(timestamp = performance.now()) {
-          if (!ctx) return;
-          const width = canvas.clientWidth;
+          if (separatorPx > 0) {
+              targetCtx.fillStyle = '#000000';
+              targetCtx.fillRect(0, 0, width, height);
+          } else {
+              targetCtx.clearRect(0, 0, width, height);
+          }
+
+          if (boardState.length === 0) return;
+          
           const totalGapSize = (n - 1) * separatorPx;
           const tileSize = (width - totalGapSize) / n;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          if (boardState.length === 0) return;
           
           const currentPalette = palette();
           const paletteAsRgb = currentPalette.map(hexToRgb);
@@ -233,7 +239,7 @@ import { initializeModals } from './ui-modals.js';
               let finalColor;
               if (tileData.isGold) {
                   finalColor = C.GOLD;
-              } else if (tileData.prevK !== null) {
+              } else if (tileData.prevK !== null && timestamp) {
                   const elapsed = timestamp - tileData.animStart;
                   const progress = Math.min(elapsed / ANIMATION_DURATION, 1.0);
                   
@@ -249,14 +255,25 @@ import { initializeModals } from './ui-modals.js';
                   finalColor = getPaletteColor(tileData.k);
               }
 
-              ctx.fillStyle = finalColor;
+              targetCtx.fillStyle = finalColor;
               const row = Math.floor(i / n);
               const col = i % n;
               const x = col * (tileSize + separatorPx);
               const y = row * (tileSize + separatorPx);
               
-              ctx.fillRect(x - 0.5, y - 0.5, tileSize + 1, tileSize + 1);
+              // --- התיקון הסופי והנכון ---
+              // מחזירים את הטריק המקורי שעבד, אבל רק כשהמפריד הוא 0
+              if (separatorPx === 0) {
+                  targetCtx.fillRect(x - 0.5, y - 0.5, tileSize + 1, tileSize + 1);
+              } else {
+                  targetCtx.fillRect(x, y, tileSize, tileSize);
+              }
           }
+      }
+
+      function renderToScreen(timestamp) {
+        if (!ctx || !canvas) return;
+        renderBoard(ctx, canvas.clientWidth, canvas.clientHeight, timestamp);
       }
       
       function updatePaletteHeader() {
@@ -271,9 +288,7 @@ import { initializeModals } from './ui-modals.js';
       function applySeparator() {
           dom.btnGap.title = getText('tooltip_gap');
           dom.btnGap.setAttribute('aria-label', getText('tooltip_gap'));
-          dom.board.style.gap = `${separatorPx}px`; 
-          dom.board.style.borderWidth = `${separatorPx > 0 ? separatorPx : 0}px`;
-          renderBoard(); 
+          renderToScreen(null); 
       }
 
       async function animateBoardTransition(actionFn) {
@@ -297,7 +312,7 @@ import { initializeModals } from './ui-modals.js';
           tile.v = tile.k;
           tile.prevK = null;
         });
-        renderBoard();
+        renderToScreen(null);
       }
 
       function cycleSeparator() {
@@ -461,7 +476,7 @@ import { initializeModals } from './ui-modals.js';
             activePaletteIndex = index;
             resetSelectedColor();
             updatePaletteHeader();
-            renderBoard();
+            renderToScreen(null);
         });
       }
 
@@ -506,7 +521,7 @@ import { initializeModals } from './ui-modals.js';
                 }
             }
         }
-        renderBoard();
+        renderToScreen(null);
       }
 
       function resizeGrid(increase = false) {
@@ -523,7 +538,6 @@ import { initializeModals } from './ui-modals.js';
         animateBoardTransition(() => performAction(() => _performResize(newSize)));
       }
       
-      // --- START: DLA Bug Fix ---
       function syncDlaCrystalState() {
           if (!dlaState) {
               initializeDla();
@@ -536,7 +550,6 @@ import { initializeModals } from './ui-modals.js';
               }
           });
       }
-      // --- END: DLA Bug Fix ---
 
       function gameLoop() {
         if (!isLifePlaying) return;
@@ -553,7 +566,7 @@ import { initializeModals } from './ui-modals.js';
                 dlaState = nextDlaState;
                 break;
         }
-        renderBoard();
+        renderToScreen(null);
         animationFrameId = requestAnimationFrame(gameLoop);
       }
 
@@ -577,7 +590,7 @@ import { initializeModals } from './ui-modals.js';
                 dlaState = nextDlaState;
                 break;
         }
-        renderBoard();
+        renderToScreen(null);
       }
       
       function pauseLife() {
@@ -658,7 +671,7 @@ import { initializeModals } from './ui-modals.js';
             initialWalkers.push({ y: position.y, x: position.x });
         }
         dlaState = { crystal: initialCrystal, walkers: initialWalkers, isInitialized: true, isFinished: false, lastWalkerIndex: 0 };
-        renderBoard();
+        renderToScreen(null);
       }
 
       function armSimulation(simulationName) {
@@ -701,11 +714,13 @@ import { initializeModals } from './ui-modals.js';
           setBrushMode(!isBrushModeOn);
       }
 
-      async function savePNG_Optimized() {
+      function openSaveModalWithPreview() {
         dom.btnSave.disabled = true;
         canvas.toBlob((blob) => {
-            if (!blob) { dom.btnSave.disabled = false; return; }
-            generatedImageFile = new File([blob], 'board.png', { type: 'image/png' });
+            if (!blob) { 
+                dom.btnSave.disabled = false; 
+                return; 
+            }
             dom.imagePreview.src = URL.createObjectURL(blob);
             dom.fileNameInput.value = C.PALETTES[activePaletteIndex]?.name || getText('saveModal_defaultFilename');
             dom.saveModal.classList.add('modal-visible');
@@ -713,272 +728,61 @@ import { initializeModals } from './ui-modals.js';
         }, 'image/png');
       }
 
-      function getSymmetricIndices(index) {
-          if (index === -1) return [];
-          if (symmetryMode === 'off') return [index];
-          const row = Math.floor(index / n);
-          const col = index % n;
-          const N = n - 1;
-          const indices = new Set([index]);
-          if (symmetryMode === 'horizontal' || symmetryMode === 'mandala' || symmetryMode === 'kaleidoscope') indices.add(row * n + (N - col));
-          if (symmetryMode === 'vertical' || symmetryMode === 'mandala' || symmetryMode === 'kaleidoscope') indices.add((N - row) * n + col);
-          if (symmetryMode === 'mandala' || symmetryMode === 'kaleidoscope') indices.add((N - row) * n + (N - col));
-          if (symmetryMode === 'kaleidoscope') Array.from(indices).map(idx => ({ r: Math.floor(idx / n), c: idx % n })).forEach(pt => indices.add(pt.c * n + pt.r));
-          return Array.from(indices);
-      }
-      
-      function updateSymmetryButtonUI() {
-          const parts = {
-              top: dom.btnSymmetry.querySelector('.part.top'), bottom: dom.btnSymmetry.querySelector('.part.bottom'),
-              left: dom.btnSymmetry.querySelector('.part.left'), right: dom.btnSymmetry.querySelector('.part.right'),
-              centerDot: dom.btnSymmetry.querySelector('.part.center-dot'),
-          };
-          const activeColor = C.GOLD, inactiveColor = 'transparent';
-          parts.top.style.stroke = inactiveColor; parts.bottom.style.stroke = inactiveColor;
-          parts.left.style.stroke = inactiveColor; parts.right.style.stroke = inactiveColor;
-          parts.centerDot.style.fill = inactiveColor;
-          if (symmetryMode === 'vertical') { parts.top.style.stroke = activeColor; parts.bottom.style.stroke = activeColor; } 
-          else if (symmetryMode === 'horizontal') { parts.left.style.stroke = activeColor; parts.right.style.stroke = activeColor; } 
-          else if (symmetryMode === 'mandala') { parts.top.style.stroke = activeColor; parts.bottom.style.stroke = activeColor; parts.left.style.stroke = activeColor; parts.right.style.stroke = activeColor; } 
-          else if (symmetryMode === 'kaleidoscope') { parts.top.style.stroke = activeColor; parts.bottom.style.stroke = activeColor; parts.left.style.stroke = activeColor; parts.right.style.stroke = activeColor; parts.centerDot.style.fill = activeColor; }
-          let titleKey;
-          switch (symmetryMode) {
-              case 'vertical': titleKey = 'symmetry_vertical'; break;
-              case 'horizontal': titleKey = 'symmetry_horizontal'; break;
-              case 'mandala': titleKey = 'symmetry_mandala'; break;
-              case 'kaleidoscope': titleKey = 'symmetry_kaleidoscope'; break;
-              default: titleKey = 'symmetry_off';
-          }
-          dom.btnSymmetry.setAttribute('aria-label', getText(titleKey));
-          dom.btnSymmetry.title = getText('tooltip_symmetry');
-      }
-      
-      function updateSymmetryUI() { updateSymmetryButtonUI(); }
-      
-      function cycleSymmetryMode() {
-          performAction(() => {
-              const currentIndex = C.SYMMETRY_MODES.indexOf(symmetryMode);
-              symmetryMode = C.SYMMETRY_MODES[(currentIndex + 1) % C.SYMMETRY_MODES.length];
-              updateSymmetryUI();
-          });
-      }
-
-      const pointerState = { id: null, downIndex: -1, downX: 0, downY: 0, longPressTimer: null, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null };
-      
-      function getTileIndexFromCoords(x, y) {
-        if (!canvas) return -1;
-        const rect = canvas.getBoundingClientRect();
-        const canvasX = x - rect.left;
-        const canvasY = y - rect.top;
-        const totalGapSize = (n - 1) * separatorPx;
-        const tileSize = (canvas.clientWidth - totalGapSize) / n;
-        const effectiveTileSize = tileSize + separatorPx;
-        const col = Math.floor(canvasX / effectiveTileSize);
-        const row = Math.floor(canvasY / effectiveTileSize);
-        const xInTile = canvasX % effectiveTileSize;
-        const yInTile = canvasY % effectiveTileSize;
-        if (xInTile > tileSize || yInTile > tileSize) return -1; 
-        if (row >= 0 && row < n && col >= 0 && col < n) return row * n + col;
-        return -1;
-      }
-      
-      function applyActionToTiles(indices, actionFn) {
-        let changed = false;
-        const now = performance.now();
-        indices.forEach(idx => {
-            if (boardState[idx]) {
-                const oldK = boardState[idx].k;
-                const oldGold = boardState[idx].isGold;
-                actionFn(boardState[idx]);
-                if (boardState[idx].k !== oldK || boardState[idx].isGold !== oldGold) {
-                    boardState[idx].prevK = oldK;
-                    boardState[idx].animStart = now;
-                    changed = true; 
-                }
-            }
-        });
-        if (changed) startAnimationLoop();
-      }
-
-      function handleDragPaint(targetIndex) {
-        if (targetIndex === -1 || targetIndex === pointerState.lastPaintedIndex) return;
-        pointerState.lastPaintedIndex = targetIndex;
-        const targetIndices = getSymmetricIndices(targetIndex);
-        if (isRainbowModeActive) {
-            applyActionToTiles(targetIndices, tile => {
-                tile.isGold = false;
-                tile.k = Math.floor(Math.random() * paletteLen());
-            });
-        } else if (selectedColorIndex !== -1) {
-            applyActionToTiles(targetIndices, tile => {
-                tile.isGold = false;
-                tile.k = selectedColorIndex;
-            });
-        } else if (pointerState.dragSourceIndex !== null) {
-            const sourceK = boardState[pointerState.dragSourceIndex].k;
-            applyActionToTiles(targetIndices, tile => {
-                tile.isGold = false;
-                tile.k = sourceK;
-            });
-        }
-      }
-
-      function onPointerDown(e) {
-        if (isLifePlaying) return;
-        const index = getTileIndexFromCoords(e.clientX, e.clientY);
-        if (index === -1) return;
-        e.target.setPointerCapture(e.pointerId);
-        Object.assign(pointerState, { id: e.pointerId, downIndex: index, downX: e.clientX, downY: e.clientY, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: getCurrentState() });
-        pointerState.longPressTimer = setTimeout(() => {
-            if (pointerState.isDragging) return;
-            pointerState.suppressClick = true;
-            if (selectedColor || isRainbowModeActive) {
-                performAction(resetSelectedColor);
-            } else {
-                modals.openColorPickerModal(index);
-            }
-        }, C.LONG_PRESS_SHOW_MS);
-        if (!isBrushModeOn) { pointerState.dragSourceIndex = index; }
-      }
-
-      function onPointerMove(e) {
-        if (pointerState.id !== e.pointerId) return;
-        const currentIndex = getTileIndexFromCoords(e.clientX, e.clientY);
-        if (!pointerState.isDragging) {
-            const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
-            if (dist >= 8) {
-                clearTimeout(pointerState.longPressTimer);
-                pointerState.longPressTimer = null;
-                pointerState.isDragging = true;
-                pointerState.suppressClick = true;
-                if (isBrushModeOn) {
-                    if (selectedColorIndex === -1) { pointerState.dragSourceIndex = pointerState.downIndex; }
-                    handleDragPaint(pointerState.downIndex);
-                }
-            }
-        }
-        if (pointerState.isDragging && isBrushModeOn) {
-            handleDragPaint(currentIndex); 
-        }
-      }
-
-      function onPointerUp(e) {
-        if (pointerState.id !== e.pointerId) return;
-        clearTimeout(pointerState.longPressTimer);
-        const upIndex = getTileIndexFromCoords(e.clientX, e.clientY);
-
-        if (pointerState.isDragging) {
-            if (!isBrushModeOn && pointerState.dragSourceIndex !== null && upIndex !== -1) {
-                const sourceData = { ...boardState[pointerState.dragSourceIndex] };
-                const targetIndices = getSymmetricIndices(upIndex);
-                applyActionToTiles(targetIndices, tile => {
-                    tile.k = sourceData.k;
-                    tile.isGold = sourceData.isGold;
-                });
-            }
-        } else if (!pointerState.suppressClick && upIndex !== -1) {
-            const targetIndices = getSymmetricIndices(upIndex);
-            if (isRainbowModeActive) {
-                applyActionToTiles(targetIndices, tile => {
-                    tile.isGold = false;
-                    tile.k = Math.floor(Math.random() * paletteLen());
-                });
-            } else if (selectedColorIndex !== -1) {
-                applyActionToTiles(targetIndices, tile => {
-                    tile.isGold = false;
-                    tile.k = selectedColorIndex;
-                });
-            } else {
-                applyActionToTiles(targetIndices, tile => {
-                    if (!tile.isGold) {
-                        tile.k = (tile.k + 1) % paletteLen();
-                    } else {
-                        tile.isGold = false;
-                    }
-                });
-            }
-        }
-        const afterState = getCurrentState();
-        if (pointerState.beforeState && !areStatesEqual(pointerState.beforeState, afterState)) {
-             pushHistory({ before: pointerState.beforeState, after: afterState }); 
-             hasPerformedInitialAutofill = true;
-        }
-        Object.assign(pointerState, { id: null, downIndex: -1, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null });
-      }
-      
-      function updateLayout() {
-        const shell = dom.appShell;
-        if (window.innerWidth < 768) { 
-            shell.style.width = ''; 
-        } else {
-          const controlsHeight = dom.controlsContainer.offsetHeight;
-          const viewportHeight = window.innerHeight;
-          const topMargin = parseInt(window.getComputedStyle(shell.parentElement).paddingTop, 10);
-          const availableHeight = viewportHeight - controlsHeight - (topMargin * 2);
-          const newWidth = Math.min(720, window.innerWidth * 0.85, availableHeight);
-          shell.style.width = `${newWidth}px`;
-        }
-        if (!canvas) return;
-        setTimeout(() => {
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-            renderBoard();
-        }, 50);
-      }
-      
-       function createRainbowIconSVG(currentPalette) {
-        const p = currentPalette || palette();
-        const c1 = p[0] || '#FFD700'; const c2 = p[Math.floor(p.length / 4)] || '#42A5F5';
-        const c3 = p[Math.floor(p.length / 2)] || '#F44336'; const c4 = p[Math.floor(p.length * 3 / 4)] || '#66BB6A';
-        return `<svg viewBox="0 0 24 24" fill="none" stroke="none" style="width: var(--icon-size); height: var(--icon-size);">
-            <rect x="4" y="4" width="8" height="8" fill="${c1}" rx="1"/><rect x="12" y="4" width="8" height="8" fill="${c2}" rx="1"/>
-            <rect x="4" y="12" width="8" height="8" fill="${c3}" rx="1"/><rect x="12" y="12" width="8" height="8" fill="${c4}" rx="1"/>
-        </svg>`;
-    }
-    
-    function updateGlowEffect() {
-        if (!dom.board) return;
-        if (isRainbowModeActive) { dom.board.classList.add('glowing-border-rainbow'); dom.board.classList.remove('glowing-border'); } 
-        else if (selectedColor) { dom.root.style.setProperty('--glow-color', selectedColor); dom.board.classList.add('glowing-border'); dom.board.classList.remove('glowing-border-rainbow'); } 
-        else { dom.board.classList.remove('glowing-border', 'glowing-border-rainbow'); }
-    }
-
-    function updateColorPickerButtonUI() {
-        if (!dom.btnColorPicker.querySelector('circle') && !isRainbowModeActive) dom.btnColorPicker.innerHTML = originalColorPickerIconHTML;
-        const circle = dom.btnColorPicker.querySelector('svg circle');
-        if (isRainbowModeActive) dom.btnColorPicker.innerHTML = createRainbowIconSVG();
-        else if (selectedColor) { if(circle) { circle.style.fill = selectedColor; circle.style.stroke = selectedColor === '#000000' ? '#424242' : selectedColor; }} 
-        else { if(circle) { circle.style.fill = '#000'; circle.style.stroke = '#fff'; } }
-    }
-      
-    function navigateColorPages(isNext) {
-        const totalPages = Math.ceil(C.PALETTES[activePaletteIndex].colors.length / C.COLORS_PER_PAGE);
-        if (totalPages <= 1) return;
-        if (isNext) {
-            colorPickerPage = (colorPickerPage + 1) % totalPages;
-        } else {
-            colorPickerPage = (colorPickerPage - 1 + totalPages) % totalPages;
-        }
-    }
-      
-      async function handleSaveImage() {
-        if (!canvas) return;
-        canvas.toBlob((blob) => {
-            if (!blob) return;
-            generatedImageFile = new File([blob], getSanitizedFileName('png'), { type: 'image/png' });
-            dom.imagePreview.src = URL.createObjectURL(blob);
-            dom.fileNameInput.value = C.PALETTES[activePaletteIndex]?.name || getText('saveModal_defaultFilename');
-            modals.openSaveModal();
-        }, 'image/png');
-      }
-
       function getSanitizedFileName(extension) {
         let defaultName = C.PALETTES[activePaletteIndex]?.originalName === 'Default' ? getText('saveModal_defaultFilename') : C.PALETTES[activePaletteIndex]?.name;
         let fileName = dom.fileNameInput.value.trim() || defaultName || 'Creation';
         return fileName.replace(/[<>:"/\\|?*]/g, '_') + `.${extension}`;
+      }
+
+      function downloadHighQualityImage() {
+        const exportSize = 4096;
+        const borderSize = Math.round(exportSize * 0.01); 
+        const drawingAreaSize = exportSize - (borderSize * 2);
+
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = exportSize;
+        offscreenCanvas.height = exportSize;
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+
+        const originalButtonText = dom.btnSaveImage.innerHTML;
+        dom.btnSaveImage.innerHTML = `
+            <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        `;
+        dom.btnSaveImage.disabled = true;
+        
+        setTimeout(() => {
+            offscreenCtx.fillStyle = '#000000';
+            offscreenCtx.fillRect(0, 0, exportSize, exportSize);
+
+            offscreenCtx.save();
+            offscreenCtx.translate(borderSize, borderSize);
+            
+            renderBoard(offscreenCtx, drawingAreaSize, drawingAreaSize, null);
+
+            offscreenCtx.restore();
+    
+            offscreenCanvas.toBlob((blob) => {
+                if (blob) {
+                    const highQualityFile = new File([blob], getSanitizedFileName('png'), { type: 'image/png' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(highQualityFile);
+                    link.download = highQualityFile.name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                } else {
+                    alert("Error creating high-quality image.");
+                }
+                
+                dom.btnSaveImage.innerHTML = originalButtonText;
+                dom.btnSaveImage.disabled = false;
+                modals.closeModal();
+            }, 'image/png');
+        }, 50);
       }
       
       async function handleSaveProject() {
@@ -1027,8 +831,8 @@ import { initializeModals } from './ui-modals.js';
                 selectedColor = currentPalette[lightestIndex];
                 selectedColorIndex = lightestIndex;
                 isRainbowModeActive = false;
-                symmetryMode = 'kaleidoscope'; // This line was missing
-                updateSymmetryUI(); // And this one to update the button
+                symmetryMode = 'kaleidoscope';
+                updateSymmetryUI();
                 updateColorPickerButtonUI();
                 updateGlowEffect();
             });
@@ -1185,6 +989,255 @@ import { initializeModals } from './ui-modals.js';
         wasLongPress = false;
       }
 
+      function getTileIndexFromCoords(x, y) {
+        if (!canvas) return -1;
+        const rect = canvas.getBoundingClientRect();
+        const canvasX = x - rect.left;
+        const canvasY = y - rect.top;
+        const totalGapSize = (n - 1) * separatorPx;
+        const tileSize = (canvas.clientWidth - totalGapSize) / n;
+        const effectiveTileSize = tileSize + separatorPx;
+        const col = Math.floor(canvasX / effectiveTileSize);
+        const row = Math.floor(canvasY / effectiveTileSize);
+        const xInTile = canvasX % effectiveTileSize;
+        const yInTile = canvasY % effectiveTileSize;
+        if (xInTile > tileSize || yInTile > tileSize) return -1; 
+        if (row >= 0 && row < n && col >= 0 && col < n) return row * n + col;
+        return -1;
+      }
+      
+      function applyActionToTiles(indices, actionFn) {
+        let changed = false;
+        const now = performance.now();
+        indices.forEach(idx => {
+            if (boardState[idx]) {
+                const oldK = boardState[idx].k;
+                const oldGold = boardState[idx].isGold;
+                actionFn(boardState[idx]);
+                if (boardState[idx].k !== oldK || boardState[idx].isGold !== oldGold) {
+                    boardState[idx].prevK = oldK;
+                    boardState[idx].animStart = now;
+                    changed = true; 
+                }
+            }
+        });
+        if (changed) startAnimationLoop();
+      }
+
+      function handleDragPaint(targetIndex) {
+        if (targetIndex === -1 || targetIndex === pointerState.lastPaintedIndex) return;
+        pointerState.lastPaintedIndex = targetIndex;
+        const targetIndices = getSymmetricIndices(targetIndex);
+        if (isRainbowModeActive) {
+            applyActionToTiles(targetIndices, tile => {
+                tile.isGold = false;
+                tile.k = Math.floor(Math.random() * paletteLen());
+            });
+        } else if (selectedColorIndex !== -1) {
+            applyActionToTiles(targetIndices, tile => {
+                tile.isGold = false;
+                tile.k = selectedColorIndex;
+            });
+        } else if (pointerState.dragSourceIndex !== null) {
+            const sourceK = boardState[pointerState.dragSourceIndex].k;
+            applyActionToTiles(targetIndices, tile => {
+                tile.isGold = false;
+                tile.k = sourceK;
+            });
+        }
+      }
+      const pointerState = { id: null, downIndex: -1, downX: 0, downY: 0, longPressTimer: null, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null };
+      function onPointerDown(e) {
+        if (isLifePlaying) return;
+        const index = getTileIndexFromCoords(e.clientX, e.clientY);
+        if (index === -1) return;
+        e.target.setPointerCapture(e.pointerId);
+        Object.assign(pointerState, { id: e.pointerId, downIndex: index, downX: e.clientX, downY: e.clientY, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: getCurrentState() });
+        pointerState.longPressTimer = setTimeout(() => {
+            if (pointerState.isDragging) return;
+            pointerState.suppressClick = true;
+            if (selectedColor || isRainbowModeActive) {
+                performAction(resetSelectedColor);
+            } else {
+                modals.openColorPickerModal(index);
+            }
+        }, C.LONG_PRESS_SHOW_MS);
+        if (!isBrushModeOn) { pointerState.dragSourceIndex = index; }
+      }
+
+      function onPointerMove(e) {
+        if (pointerState.id !== e.pointerId) return;
+        const currentIndex = getTileIndexFromCoords(e.clientX, e.clientY);
+        if (!pointerState.isDragging) {
+            const dist = Math.hypot(e.clientX - pointerState.downX, e.clientY - pointerState.downY);
+            if (dist >= 8) {
+                clearTimeout(pointerState.longPressTimer);
+                pointerState.longPressTimer = null;
+                pointerState.isDragging = true;
+                pointerState.suppressClick = true;
+                if (isBrushModeOn) {
+                    if (selectedColorIndex === -1) { pointerState.dragSourceIndex = pointerState.downIndex; }
+                    handleDragPaint(pointerState.downIndex);
+                }
+            }
+        }
+        if (pointerState.isDragging && isBrushModeOn) {
+            handleDragPaint(currentIndex); 
+        }
+      }
+
+      function onPointerUp(e) {
+        if (pointerState.id !== e.pointerId) return;
+        clearTimeout(pointerState.longPressTimer);
+        const upIndex = getTileIndexFromCoords(e.clientX, e.clientY);
+
+        if (pointerState.isDragging) {
+            if (!isBrushModeOn && pointerState.dragSourceIndex !== null && upIndex !== -1) {
+                const sourceData = { ...boardState[pointerState.dragSourceIndex] };
+                const targetIndices = getSymmetricIndices(upIndex);
+                applyActionToTiles(targetIndices, tile => {
+                    tile.k = sourceData.k;
+                    tile.isGold = sourceData.isGold;
+                });
+            }
+        } else if (!pointerState.suppressClick && upIndex !== -1) {
+            const targetIndices = getSymmetricIndices(upIndex);
+            if (isRainbowModeActive) {
+                applyActionToTiles(targetIndices, tile => {
+                    tile.isGold = false;
+                    tile.k = Math.floor(Math.random() * paletteLen());
+                });
+            } else if (selectedColorIndex !== -1) {
+                applyActionToTiles(targetIndices, tile => {
+                    tile.isGold = false;
+                    tile.k = selectedColorIndex;
+                });
+            } else {
+                applyActionToTiles(targetIndices, tile => {
+                    if (!tile.isGold) {
+                        tile.k = (tile.k + 1) % paletteLen();
+                    } else {
+                        tile.isGold = false;
+                    }
+                });
+            }
+        }
+        const afterState = getCurrentState();
+        if (pointerState.beforeState && !areStatesEqual(pointerState.beforeState, afterState)) {
+             pushHistory({ before: pointerState.beforeState, after: afterState }); 
+             hasPerformedInitialAutofill = true;
+        }
+        Object.assign(pointerState, { id: null, downIndex: -1, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null });
+      }
+      
+      function updateLayout() {
+        const shell = dom.appShell;
+        if (window.innerWidth < 768) { 
+            shell.style.width = ''; 
+        } else {
+          const controlsHeight = dom.controlsContainer.offsetHeight;
+          const viewportHeight = window.innerHeight;
+          const topMargin = parseInt(window.getComputedStyle(shell.parentElement).paddingTop, 10);
+          const availableHeight = viewportHeight - controlsHeight - (topMargin * 2);
+          const newWidth = Math.min(720, window.innerWidth * 0.85, availableHeight);
+          shell.style.width = `${newWidth}px`;
+        }
+        if (!canvas) return;
+        setTimeout(() => {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            renderToScreen(null);
+        }, 50);
+      }
+      
+       function createRainbowIconSVG(currentPalette) {
+        const p = currentPalette || palette();
+        const c1 = p[0] || '#FFD700'; const c2 = p[Math.floor(p.length / 4)] || '#42A5F5';
+        const c3 = p[Math.floor(p.length / 2)] || '#F44336'; const c4 = p[Math.floor(p.length * 3 / 4)] || '#66BB6A';
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="none" style="width: var(--icon-size); height: var(--icon-size);">
+            <rect x="4" y="4" width="8" height="8" fill="${c1}" rx="1"/><rect x="12" y="4" width="8" height="8" fill="${c2}" rx="1"/>
+            <rect x="4" y="12" width="8" height="8" fill="${c3}" rx="1"/><rect x="12" y="12" width="8" height="8" fill="${c4}" rx="1"/>
+        </svg>`;
+    }
+    
+    function updateGlowEffect() {
+        if (!dom.board) return;
+        if (isRainbowModeActive) { dom.board.classList.add('glowing-border-rainbow'); dom.board.classList.remove('glowing-border'); } 
+        else if (selectedColor) { dom.root.style.setProperty('--glow-color', selectedColor); dom.board.classList.add('glowing-border'); dom.board.classList.remove('glowing-border-rainbow'); } 
+        else { dom.board.classList.remove('glowing-border', 'glowing-border-rainbow'); }
+    }
+
+    function updateColorPickerButtonUI() {
+        if (!dom.btnColorPicker.querySelector('circle') && !isRainbowModeActive) dom.btnColorPicker.innerHTML = originalColorPickerIconHTML;
+        const circle = dom.btnColorPicker.querySelector('svg circle');
+        if (isRainbowModeActive) dom.btnColorPicker.innerHTML = createRainbowIconSVG();
+        else if (selectedColor) { if(circle) { circle.style.fill = selectedColor; circle.style.stroke = selectedColor === '#000000' ? '#424242' : selectedColor; }} 
+        else { if(circle) { circle.style.fill = '#000'; circle.style.stroke = '#fff'; } }
+    }
+      
+    function navigateColorPages(isNext) {
+        const totalPages = Math.ceil(C.PALETTES[activePaletteIndex].colors.length / C.COLORS_PER_PAGE);
+        if (totalPages <= 1) return;
+        if (isNext) {
+            colorPickerPage = (colorPickerPage + 1) % totalPages;
+        } else {
+            colorPickerPage = (colorPickerPage - 1 + totalPages) % totalPages;
+        }
+    }
+      
+    function getSymmetricIndices(index) {
+          if (index === -1) return [];
+          if (symmetryMode === 'off') return [index];
+          const row = Math.floor(index / n);
+          const col = index % n;
+          const N = n - 1;
+          const indices = new Set([index]);
+          if (symmetryMode === 'horizontal' || symmetryMode === 'mandala' || symmetryMode === 'kaleidoscope') indices.add(row * n + (N - col));
+          if (symmetryMode === 'vertical' || symmetryMode === 'mandala' || symmetryMode === 'kaleidoscope') indices.add((N - row) * n + col);
+          if (symmetryMode === 'mandala' || symmetryMode === 'kaleidoscope') indices.add((N - row) * n + (N - col));
+          if (symmetryMode === 'kaleidoscope') Array.from(indices).map(idx => ({ r: Math.floor(idx / n), c: idx % n })).forEach(pt => indices.add(pt.c * n + pt.r));
+          return Array.from(indices);
+      }
+      
+      function updateSymmetryButtonUI() {
+          const parts = {
+              top: dom.btnSymmetry.querySelector('.part.top'), bottom: dom.btnSymmetry.querySelector('.part.bottom'),
+              left: dom.btnSymmetry.querySelector('.part.left'), right: dom.btnSymmetry.querySelector('.part.right'),
+              centerDot: dom.btnSymmetry.querySelector('.part.center-dot'),
+          };
+          const activeColor = C.GOLD, inactiveColor = 'transparent';
+          parts.top.style.stroke = inactiveColor; parts.bottom.style.stroke = inactiveColor;
+          parts.left.style.stroke = inactiveColor; parts.right.style.stroke = inactiveColor;
+          parts.centerDot.style.fill = inactiveColor;
+          if (symmetryMode === 'vertical') { parts.top.style.stroke = activeColor; parts.bottom.style.stroke = activeColor; } 
+          else if (symmetryMode === 'horizontal') { parts.left.style.stroke = activeColor; parts.right.style.stroke = activeColor; } 
+          else if (symmetryMode === 'mandala') { parts.top.style.stroke = activeColor; parts.bottom.style.stroke = activeColor; parts.left.style.stroke = activeColor; parts.right.style.stroke = activeColor; } 
+          else if (symmetryMode === 'kaleidoscope') { parts.top.style.stroke = activeColor; parts.bottom.style.stroke = activeColor; parts.left.style.stroke = activeColor; parts.right.style.stroke = activeColor; parts.centerDot.style.fill = activeColor; }
+          let titleKey;
+          switch (symmetryMode) {
+              case 'vertical': titleKey = 'symmetry_vertical'; break;
+              case 'horizontal': titleKey = 'symmetry_horizontal'; break;
+              case 'mandala': titleKey = 'symmetry_mandala'; break;
+              case 'kaleidoscope': titleKey = 'symmetry_kaleidoscope'; break;
+              default: titleKey = 'symmetry_off';
+          }
+          dom.btnSymmetry.setAttribute('aria-label', getText(titleKey));
+          dom.btnSymmetry.title = getText('tooltip_symmetry');
+      }
+      
+      function updateSymmetryUI() { updateSymmetryButtonUI(); }
+      
+      function cycleSymmetryMode() {
+          performAction(() => {
+              const currentIndex = C.SYMMETRY_MODES.indexOf(symmetryMode);
+              symmetryMode = C.SYMMETRY_MODES[(currentIndex + 1) % C.SYMMETRY_MODES.length];
+              updateSymmetryUI();
+          });
+      }
+
       async function initializeApp() {
         const splashScreen = document.getElementById('splashScreen'), splashText = document.getElementById('splashText');
         initializeLanguage();
@@ -1207,9 +1260,10 @@ import { initializeModals } from './ui-modals.js';
             getGameOfLifeRules: () => gameOfLifeRules, setGameOfLifeRules: (r) => { gameOfLifeRules = r; },
             getGravitationalSortRules: () => gravitationalSortRules, setGravitationalSortRules: (r) => { gravitationalSortRules = r; },
             getDlaRules: () => dlaRules, setDlaRules: (r) => { dlaRules = r; },
-            handleSaveImage, handleSaveProject, handleLoadProject, onProjectFileSelected,
+            handleSaveProject, handleLoadProject, onProjectFileSelected,
             pointerState,
-            resetWasLongPress
+            resetWasLongPress,
+            downloadImage: downloadHighQualityImage
         };
         modals = initializeModals(contextForModals);
         
@@ -1238,7 +1292,7 @@ import { initializeModals } from './ui-modals.js';
         dom.btnSpecialReset.addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(() => performAction(specialReset))));
         dom.btnResizeUp.addEventListener('click', (e) => handleCtrlClick(e, () => resizeGrid(true)));
         dom.btnResizeDown.addEventListener('click', (e) => handleCtrlClick(e, () => resizeGrid(false)));
-        dom.btnSave.addEventListener('click', (e) => handleCtrlClick(e, savePNG_Optimized));
+        dom.btnSave.addEventListener('click', (e) => handleCtrlClick(e, openSaveModalWithPreview));
         dom.btnGap.addEventListener('click', (e) => handleCtrlClick(e, cycleSeparator));
         dom.btnBrushMode.addEventListener('click', (e) => handleCtrlClick(e, toggleBrushMode));
         dom.btnUndo.addEventListener('click', (e) => handleCtrlClick(e, undo));

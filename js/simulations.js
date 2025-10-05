@@ -354,75 +354,141 @@ function getRandomEdgePosition(n) {
 }
 
 
+
 export function runDlaGeneration({ n, currentBoardState, currentPalette, dlaState, dlaRules }) {
-    if (!dlaState || !dlaState.isInitialized) return { nextBoardState: currentBoardState, nextDlaState: dlaState };
 
-    const pLen = currentPalette.length;
-    const batchSize = 100;
-    let processedCount = 0;
-    
-    // Create copies to modify
-    const nextBoardState = currentBoardState.map(tile => ({...tile}));
-    const nextDlaState = { ...dlaState, walkers: [...dlaState.walkers] };
+    // --- בורר אלגוריתמים ראשי ---
+    // בודק באיזה מצב המשתמש בחר בתפריט ההגדרות
+    if (dlaRules.fastMode) {
+        // --- אלגוריתם "מילוי חכם" (מהיר) ---
+        const nextBoardState = currentBoardState.map(tile => ({ ...tile }));
+        const darkestIndex = 0;
+        const pLen = currentPalette.length;
 
-    if (nextDlaState.lastWalkerIndex === undefined) nextDlaState.lastWalkerIndex = 0;
-
-    while (processedCount < batchSize && nextDlaState.walkers.length > 0) {
-        const walkerIndex = nextDlaState.lastWalkerIndex;
-        let walker = nextDlaState.walkers[walkerIndex];
-
-        const dx = Math.floor(Math.random() * 3) - 1;
-        const dy = Math.floor(Math.random() * 3) - 1;
-        walker.x = Math.max(0, Math.min(n - 1, walker.x + dx));
-        walker.y = Math.max(0, Math.min(n - 1, walker.y + dy));
-
-        let stuck = false;
-        for (let ny = -1; ny <= 1; ny++) {
-            for (let nx = -1; nx <= 1; nx++) {
-                if (nx === 0 && ny === 0) continue;
-                const neighborY = walker.y + ny;
-                const neighborX = walker.x + nx;
-                if (neighborX >= 0 && neighborX < n && neighborY >= 0 && neighborY < n) {
-                    if (nextDlaState.crystal.has(neighborY * n + neighborX)) {
-                        stuck = true;
-                        break;
+        const borderTilesIndices = [];
+        for (let i = 0; i < n * n; i++) {
+            if (currentBoardState[i].k === darkestIndex) {
+                const row = Math.floor(i / n);
+                const col = i % n;
+                let isBorder = false;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            if (currentBoardState[nr * n + nc].k !== darkestIndex) {
+                                borderTilesIndices.push(i);
+                                isBorder = true;
+                                break;
+                            }
+                        }
                     }
+                    if (isBorder) break;
                 }
             }
-            if (stuck) break;
         }
 
-        if (stuck) {
-            const currentWalkerBoardIndex = walker.y * n + walker.x;
-            if (!nextDlaState.crystal.has(currentWalkerBoardIndex)) {
-                nextDlaState.crystal.add(currentWalkerBoardIndex);
-            
-                let colorIndex;
+        if (borderTilesIndices.length > 0) {
+            const originalNonBlackCount = (n * n) - borderTilesIndices.length;
+            borderTilesIndices.forEach((tileIndex, i) => {
+                let newK;
                 if (dlaRules.colorGenetics) {
-                    const parentColors = getStickingNeighborColors({ walker, n, dlaState: nextDlaState, currentBoardState, currentPalette });
-                    if (parentColors.length > 0) {
-                        const geneticColor = getGeneticColor(parentColors, 'average');
-                        colorIndex = findClosestColorIndex(geneticColor, currentPalette);
+                    const row = Math.floor(tileIndex / n);
+                    const col = Math.floor(tileIndex % n);
+                    const neighborColors = [];
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = row + dr;
+                            const nc = col + dc;
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                const neighbor = currentBoardState[nr * n + nc];
+                                if (neighbor.k !== darkestIndex) { neighborColors.push(currentPalette[neighbor.k]); }
+                            }
+                        }
+                    }
+                    if (neighborColors.length > 0) {
+                        const geneticColor = getGeneticColor(neighborColors, 'average');
+                        newK = findClosestColorIndex(geneticColor, currentPalette);
+                    } else { newK = darkestIndex; }
+                } else {
+                    newK = (originalNonBlackCount + i) % pLen;
+                }
+                nextBoardState[tileIndex].k = newK;
+                nextBoardState[tileIndex].v = newK;
+            });
+        }
+        return { nextBoardState, nextDlaState: dlaState }; // מחזיר בפורמט תואם
+
+    } else {
+        // --- אלגוריתם "Walkers" מקורי (איטי ואורגני) ---
+        if (!dlaState || !dlaState.isInitialized) return { nextBoardState: currentBoardState, nextDlaState: dlaState };
+
+        const pLen = currentPalette.length;
+        const batchSize = 100;
+        let processedCount = 0;
+
+        const nextBoardState = currentBoardState.map(tile => ({...tile}));
+        const nextDlaState = { ...dlaState, walkers: [...dlaState.walkers] };
+
+        if (nextDlaState.lastWalkerIndex === undefined) nextDlaState.lastWalkerIndex = 0;
+
+        while (processedCount < batchSize && nextDlaState.walkers.length > 0) {
+            const walkerIndex = nextDlaState.lastWalkerIndex;
+            let walker = nextDlaState.walkers[walkerIndex];
+
+            const dx = Math.floor(Math.random() * 3) - 1;
+            const dy = Math.floor(Math.random() * 3) - 1;
+            walker.x = Math.max(0, Math.min(n - 1, walker.x + dx));
+            walker.y = Math.max(0, Math.min(n - 1, walker.y + dy));
+
+            let stuck = false;
+            for (let ny = -1; ny <= 1; ny++) {
+                for (let nx = -1; nx <= 1; nx++) {
+                    if (nx === 0 && ny === 0) continue;
+                    const neighborY = walker.y + ny;
+                    const neighborX = walker.x + nx;
+                    if (neighborX >= 0 && neighborX < n && neighborY >= 0 && neighborY < n) {
+                        if (nextDlaState.crystal.has(neighborY * n + neighborX)) {
+                            stuck = true;
+                            break;
+                        }
+                    }
+                }
+                if (stuck) break;
+            }
+
+            if (stuck) {
+                const currentWalkerBoardIndex = walker.y * n + walker.x;
+                if (!nextDlaState.crystal.has(currentWalkerBoardIndex)) {
+                    nextDlaState.crystal.add(currentWalkerBoardIndex);
+
+                    let colorIndex;
+                    if (dlaRules.colorGenetics) {
+                        const parentColors = getStickingNeighborColors({ walker, n, dlaState: nextDlaState, currentBoardState, currentPalette });
+                        if (parentColors.length > 0) {
+                            const geneticColor = getGeneticColor(parentColors, 'average');
+                            colorIndex = findClosestColorIndex(geneticColor, currentPalette);
+                        } else {
+                            colorIndex = (nextDlaState.crystal.size - 1) % pLen;
+                        }
                     } else {
                         colorIndex = (nextDlaState.crystal.size - 1) % pLen;
                     }
-                } else {
-                    colorIndex = (nextDlaState.crystal.size - 1) % pLen;
+
+                    nextBoardState[currentWalkerBoardIndex].k = colorIndex;
+                    nextBoardState[currentWalkerBoardIndex].v = colorIndex;
+                    nextBoardState[currentWalkerBoardIndex].isGold = false;
                 }
-                
-                // Modify the nextBoardState copy
-                nextBoardState[currentWalkerBoardIndex].k = colorIndex;
-                nextBoardState[currentWalkerBoardIndex].v = colorIndex;
-                nextBoardState[currentWalkerBoardIndex].isGold = false;
+
+                nextDlaState.walkers[walkerIndex] = dlaRules.injectFromEdges ? getRandomEdgePosition(n) : getRandomGridPosition(n);
             }
-            
-            // Respawn walker
-            nextDlaState.walkers[walkerIndex] = dlaRules.injectFromEdges ? getRandomEdgePosition(n) : getRandomGridPosition(n);
+
+            nextDlaState.lastWalkerIndex = (nextDlaState.lastWalkerIndex + 1) % nextDlaState.walkers.length;
+            processedCount++;
         }
 
-        nextDlaState.lastWalkerIndex = (nextDlaState.lastWalkerIndex + 1) % nextDlaState.walkers.length;
-        processedCount++;
+        return { nextBoardState, nextDlaState };
     }
-
-    return { nextBoardState, nextDlaState };
 }

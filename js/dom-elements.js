@@ -124,4 +124,5 @@ export const dom = {
   dlaInjectFromEdgesToggle: document.getElementById('dlaInjectFromEdgesToggle'),
   btnDlaSettingsSave: document.getElementById('btnDlaSettingsSave'),
   btnDlaSettingsCancel: document.getElementById('btnDlaSettingsCancel'),
+dlaFastModeToggle: document.getElementById('dlaFastModeToggle'),
 };

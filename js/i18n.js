@@ -138,7 +138,11 @@ resizeModal_prompt: { en: "Enter a number between 1 and 150.", he: "בין 1 ל-
   dla_edges_label: { en: "Spawn from Edges", he: "לידה מהקצוות", ru: "Появление с краёв", nl: "Verschijnen vanaf de randen" },
   dla_edges_desc: { en: "Particles start from the grid borders.", he: "חלקיקים מתחילים את דרכם מגבולות הלוח.", ru: "Частицы начинают с границ сетки.", nl: "Deeltjes starten vanaf de rasterranden." },
   dla_modal_save_close: { en: "Save & Close", he: "שמור וסגור", ru: "Сохранить и закрыть", nl: "Opslaan & Sluiten" },
-  dla_modal_cancel: { en: "Cancel", he: "ביטול", ru: "Отмена", nl: "Annuleren" }
+dla_modal_cancel: { en: "Cancel", he: "ביטול", ru: "Отмена", nl: "Annuleren" },
+  // הוסף את שתי השורות האלה
+  dla_fastmode_label: { en: "Fast Fill Mode", he: "מצב מילוי מהיר", ru: "Быстрое заполнение", nl: "Snelle Vulmodus" },
+  dla_fastmode_desc: { en: "Uses a faster algorithm for filling gaps.", he: "משתמש באלגוריתם מהיר למילוי חללים.", ru: "Использует быстрый алгоритм для заполнения.", nl: "Gebruikt een sneller algoritme om gaten te vullen." }
+
 };
 
 export function getCurrentLang() {

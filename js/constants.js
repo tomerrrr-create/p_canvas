@@ -8,6 +8,13 @@ export const PALETTES = [
 
 
 {
+    originalName: "Nature",
+    emoji: '🌍',
+    colors: ["#2E160B", "#3B1D0E", "#442111", "#4B2612", "#532B14", "#5B3016", "#633518", "#6B3A1A", "#73401C", "#7B441E", "#834920", "#8B4E22", "#935324", "#9B5826", "#A35D28", "#AB622A", "#B3672C", "#BB6C2E", "#C37130", "#CB7632", "#D37B34", "#DB8036", "#E38538", "#EB8A3A", "#F0933F", "#F49C44", "#F8A549", "#FCAD4E", "#FFB653", "#FFBF58", "#FFC95D", "#FFD262", "#8B6E3B", "#7B7534", "#6C7B2D", "#5C8226", "#4D891F", "#3D9018", "#2E9711", "#249E16", "#1CA61C", "#14AD21", "#0CB527", "#06BD2D", "#04C937", "#08D540", "#0CE149", "#10ED52", "#14F95B", "#1CF664", "#24F36D", "#2CF076", "#34ED7F", "#3CEA88", "#44E791", "#4CE49A", "#54E1A3", "#5CDEAC", "#64DBB5", "#6CD8BE", "#74D5C7", "#7CD2D0", "#84CFD9", "#8CCCE2", "#58B7D5", "#52ACD3", "#4CA1D1", "#4696CF", "#408BCD", "#3A80CB", "#3475C9", "#2E6AC7", "#2860C5", "#2356C3", "#1E4CC1", "#1942BF", "#1438BD", "#0F2EBA", "#0A24B8", "#051AB6", "#071EBB", "#0A22C0", "#0E26C5", "#122ACA", "#162ECF", "#1A32D4", "#1E36D9", "#223ADE", "#263EE3", "#2A42E8", "#2E46ED", "#324AF2", "#364EF7", "#3A52FC", "#3E56FF", "#425AFF", "#4979FF", "#5187FF", "#5995FF", "#61A3FF", "#69B1FF", "#71BFFF", "#79CDFF", "#81DBFF", "#89E9FF", "#91F7FF", "#99FAFF", "#A1F5FF", "#A9F0FF", "#B1EBFF", "#B9E6FF", "#C1E1FF", "#C9DCFF", "#D1D7FF", "#D9D2FF", "#E1CDFF", "#E9D8FF", "#F1E3FF", "#F9EEFF", "#FFF9FF", "#FFF7F7", "#FFF5EF", "#FFF3E7", "#FFF1DF", "#FFEFD7", "#FFECCF", "#FFEAC7", "#FFE8BF"]
+},
+
+
+{
         originalName: "Emerald Grove",
         emoji: '🌿',
         colors: ["#E8FFF5", "#E1FDF0", "#DAFBEB", "#D3F9E6", "#CCF7E1", "#C5F5DC", "#BEF3D7", "#B7F1D2", "#B0EFCD", "#A9EDC8", "#A2EBC3", "#9BE9BE", "#94E7B9", "#8DE5B4", "#86E3AF", "#7FE1AA", "#78DFA5", "#71DDA0", "#6AD89A", "#63D394", "#5CCE8E", "#55C988", "#4EC482", "#47BF7C", "#40BA76", "#39B570", "#32B06A", "#2BAA64", "#24A55E", "#1DA058", "#169B52", "#10964C", "#0A9146", "#088C42", "#07873E", "#06823A", "#057D36", "#047832", "#03732E", "#026E2A", "#016926", "#016422", "#015F1E", "#015A1A", "#015516", "#015012", "#014B0E", "#01460A", "#014206", "#013E04", "#013A03", "#013703", "#013403", "#013103", "#012E03", "#012B03", "#012803", "#012503", "#012203", "#011F03", "#011C03", "#011A03", "#011803", "#00180E"]
@@ -196,6 +203,8 @@ export const defaultErosionRules = {
 };
 
 export const defaultDlaRules = {
-    colorGenetics: false,
-    injectFromEdges: false
+    colorGenetics: true,
+    injectFromEdges: false,
+    fastMode: false // הוספנו את השורה הזו
 };
+
