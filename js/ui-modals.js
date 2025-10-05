@@ -497,6 +497,21 @@ export function initializeModals(appContext) {
     // Breathe Modal
     app.dom.btnBreatheModalClose.addEventListener('click', closeBreatheModal);
     app.dom.breatheModal.addEventListener('click', (e) => { if (e.target === app.dom.breatheModal) { closeBreatheModal(); } });
+    
+    // --- START: MODIFIED Breathe button listeners for gentle start ---
+    app.dom.btnStartSoloBreathe.addEventListener('click', () => {
+        closeBreatheModal();
+        setTimeout(() => {
+            app.startBreatheAnimation('solo');
+        }, 1000); // Increased delay to 1 second
+    });
+    app.dom.btnStartGroupBreathe.addEventListener('click', () => {
+        closeBreatheModal();
+        setTimeout(() => {
+            app.startBreatheAnimation('group');
+        }, 1000); // Increased delay to 1 second
+    });
+    // --- END: MODIFIED Breathe button listeners ---
 
     // Resize Modal
     app.dom.btnConfirmResize.addEventListener('click', handleConfirmResize);

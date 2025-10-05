@@ -14,6 +14,21 @@ import { initializeModals } from './ui-modals.js';
       const ANIMATION_DURATION = 200; // ms
       let animationLoopId = null;
 
+      // --- Breathe Animation State ---
+      let isBreathing = false;
+      let breatheStartTime = 0;
+      let breatheMode = 'solo'; // 'solo' or 'group'
+
+      // --- Color Helper for Breathing ---
+      function adjustBrightness(hex, factor) {
+        const rgb = hexToRgb(hex);
+        if (!rgb) return 'rgb(0,0,0)';
+        const r = Math.round(Math.max(0, Math.min(255, rgb[0] * factor)));
+        const g = Math.round(Math.max(0, Math.min(255, rgb[1] * factor)));
+        const b = Math.round(Math.max(0, Math.min(255, rgb[2] * factor)));
+        return `rgb(${r},${g},${b})`;
+      }
+
       function hexToRgb(hex) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0];
@@ -49,7 +64,7 @@ import { initializeModals } from './ui-modals.js';
       let hasTriggeredFirstNudge = false;
       let hasUsedRandomize = false;
       let isAnimating = false;
-      let isBreathing = false;
+      // isBreathing is now defined globally at the top
       let isSimModeActive = false;
       let selectedColor = null;
       let isRainbowModeActive = false;
@@ -202,7 +217,7 @@ import { initializeModals } from './ui-modals.js';
 
           renderToScreen(now);
 
-          if (isStillAnimating) {
+          if (isStillAnimating || isBreathing) {
               animationLoopId = requestAnimationFrame(animationLoop);
           } else {
               animationLoopId = null; 
@@ -238,7 +253,34 @@ import { initializeModals } from './ui-modals.js';
               if (!tileData) continue;
 
               let finalColor;
-              if (tileData.isGold) {
+
+              if (isBreathing && !tileData.isGold) {
+                  const BREATHE_SPEED = 0.0015;
+                  const elapsed = timestamp - breatheStartTime;
+                  let wave;
+
+                  if (breatheMode === 'solo') {
+                      // --- MODIFIED: Use the pre-calculated random offset ---
+                      wave = Math.sin(elapsed * BREATHE_SPEED + tileData.breatheOffset);
+                  } else { // 'group' mode
+                      wave = Math.sin(elapsed * BREATHE_SPEED + tileData.k * 0.8);
+                  }
+                  
+// ... (חישוב ה-wave נשאר זהה) ...
+
+const FADE_IN_DURATION = 2000; // 2 שניות לכניסה עדינה
+const fadeInProgress = Math.min(elapsed / FADE_IN_DURATION, 1.0);
+
+// הנוסחה הקודמת, מנוסחת מחדש לנוחות:
+const animatedFactor = 0.7 + wave * 0.3; 
+
+// נוסחת האינטרפולציה: מערבבים בין בהירות מלאה (1.0) לבין הבהירות המונפשת
+const brightnessFactor = (1.0 * (1 - fadeInProgress)) + (animatedFactor * fadeInProgress);
+
+const originalColor = getPaletteColor(tileData.k);
+finalColor = adjustBrightness(originalColor, brightnessFactor);
+
+              } else if (tileData.isGold) {
                   finalColor = C.GOLD;
               } else if (tileData.prevK !== null && timestamp) {
                   const elapsed = timestamp - tileData.animStart;
@@ -273,6 +315,28 @@ import { initializeModals } from './ui-modals.js';
       function renderToScreen(timestamp) {
         if (!ctx || !canvas) return;
         renderBoard(ctx, canvas.clientWidth, canvas.clientHeight, timestamp);
+      }
+
+      function startBreatheAnimation(mode) {
+          if (isLifePlaying) return;
+          
+          // --- MODIFIED: Assign a random offset to each tile on start ---
+          boardState.forEach(tile => {
+              // Multiply by 2 * PI to get a random starting point anywhere in the sine wave cycle
+              tile.breatheOffset = Math.random() * 2 * Math.PI;
+          });
+
+          isBreathing = true;
+          breatheMode = mode;
+          breatheStartTime = performance.now();
+          dom.btnExitBreathe.classList.add('visible');
+          startAnimationLoop();
+      }
+
+      function stopBreatheAnimation() {
+          isBreathing = false;
+          dom.btnExitBreathe.classList.remove('visible');
+          renderToScreen(null);
       }
       
       function updatePaletteHeader() {
@@ -705,7 +769,7 @@ import { initializeModals } from './ui-modals.js';
           armedSimulation = simulationName;
           if (simulationName === 'breathe') {
               modals.openBreatheModal();
-              armedSimulation = null;
+              armedSimulation = null; // Don't keep it armed, just open modal
               return;
           }
           if (simulationName === 'dla') {
@@ -1067,7 +1131,7 @@ import { initializeModals } from './ui-modals.js';
       }
       const pointerState = { id: null, downIndex: -1, downX: 0, downY: 0, longPressTimer: null, suppressClick: false, isDragging: false, dragSourceIndex: null, lastPaintedIndex: -1, beforeState: null };
       function onPointerDown(e) {
-        if (isLifePlaying) return;
+        if (isLifePlaying || isBreathing) return;
         const index = getTileIndexFromCoords(e.clientX, e.clientY);
         if (index === -1) return;
         e.target.setPointerCapture(e.pointerId);
@@ -1282,7 +1346,8 @@ import { initializeModals } from './ui-modals.js';
             handleSaveProject, handleLoadProject, onProjectFileSelected,
             pointerState,
             resetWasLongPress,
-            downloadImage: downloadHighQualityImage
+            downloadImage: downloadHighQualityImage,
+            startBreatheAnimation: startBreatheAnimation,
         };
         modals = initializeModals(contextForModals);
         
@@ -1332,6 +1397,7 @@ import { initializeModals } from './ui-modals.js';
         dom.btnNudgeBrighter.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(1)));
         dom.btnNudgeDarker.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(-1)));
         dom.btnLangToggle.addEventListener('click', toggleLanguage);
+        dom.btnExitBreathe.addEventListener('click', stopBreatheAnimation);
         
         document.querySelectorAll('.ctrl').forEach(btn => { 
             btn.addEventListener('pointerdown', handlePointerDownCtrl); 
