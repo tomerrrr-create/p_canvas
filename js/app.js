@@ -9,6 +9,7 @@ import { initializeModals } from './ui-modals.js';
 (function() {
       let canvas, ctx;
       let boardState = []; 
+      let simulationStartState = null; // For saving simulation history
       
       const ANIMATION_DURATION = 200; // ms
       let animationLoopId = null;
@@ -261,8 +262,6 @@ import { initializeModals } from './ui-modals.js';
               const x = col * (tileSize + separatorPx);
               const y = row * (tileSize + separatorPx);
               
-              // --- התיקון הסופי והנכון ---
-              // מחזירים את הטריק המקורי שעבד, אבל רק כשהמפריד הוא 0
               if (separatorPx === 0) {
                   targetCtx.fillRect(x - 0.5, y - 0.5, tileSize + 1, tileSize + 1);
               } else {
@@ -572,25 +571,34 @@ import { initializeModals } from './ui-modals.js';
 
       function stepForward() {
         if (isLifePlaying) return;
-
-        if (armedSimulation === 'dla') {
-            syncDlaCrystalState();
-        }
-
-        const context = { n, currentBoardState: boardState, currentPalette: palette(), gameOfLifeRules, gravitationalSortRules, erosionRules, dlaState, dlaRules };
-        let nextState;
-        switch(armedSimulation) {
-            case 'gameOfLife': nextState = Simulations.runGameOfLifeGeneration(context); boardState = nextState; break;
-            case 'brightnessEvo': nextState = Simulations.runBrightnessEvolution(context); boardState = nextState; break;
-            case 'gravitationalSort': nextState = Simulations.runGravitationalSortGeneration(context); boardState = nextState; break;
-            case 'erosion': nextState = Simulations.runErosionGeneration(context); boardState = nextState; break;
-            case 'dla': 
-                const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(context);
-                boardState = nextBoardState;
-                dlaState = nextDlaState;
-                break;
-        }
-        renderToScreen(null);
+        performAction(() => {
+            if (armedSimulation === 'dla') {
+                syncDlaCrystalState();
+            }
+      
+            const context = { n, currentBoardState: boardState, currentPalette: palette(), gameOfLifeRules, gravitationalSortRules, erosionRules, dlaState, dlaRules };
+            
+            switch(armedSimulation) {
+                case 'gameOfLife': 
+                    boardState = Simulations.runGameOfLifeGeneration(context); 
+                    break;
+                case 'brightnessEvo': 
+                    boardState = Simulations.runBrightnessEvolution(context); 
+                    break;
+                case 'gravitationalSort': 
+                    boardState = Simulations.runGravitationalSortGeneration(context); 
+                    break;
+                case 'erosion': 
+                    boardState = Simulations.runErosionGeneration(context); 
+                    break;
+                case 'dla': 
+                    const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(context);
+                    boardState = nextBoardState;
+                    dlaState = nextDlaState;
+                    break;
+            }
+            renderToScreen(null);
+        });
       }
       
       function pauseLife() {
@@ -598,6 +606,15 @@ import { initializeModals } from './ui-modals.js';
           isLifePlaying = false;
           cancelAnimationFrame(animationFrameId);
           animationFrameId = null;
+
+          if (simulationStartState) {
+              const simulationEndState = getCurrentState();
+              if (!areStatesEqual(simulationStartState, simulationEndState)) {
+                  pushHistory({ before: simulationStartState, after: simulationEndState });
+              }
+              simulationStartState = null; // Reset for the next session
+          }
+
           dom.iconPlay.style.display = 'block';
           dom.iconPause.style.display = 'none';
           if (armedSimulation) dom.btnStepForward.disabled = false;
@@ -619,6 +636,8 @@ import { initializeModals } from './ui-modals.js';
           if (armedSimulation === 'dla') {
               syncDlaCrystalState();
           }
+
+          simulationStartState = getCurrentState();
 
           isLifePlaying = true;
           dom.iconPlay.style.display = 'none';
@@ -1335,4 +1354,3 @@ import { initializeModals } from './ui-modals.js';
       initializeApp();
 
 })();
-
