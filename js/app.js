@@ -1018,7 +1018,7 @@ import { initializeModals } from './ui-modals.js';
       function prepareBoardForSimMode() {
         animateBoardTransition(() => {
             performAction(() => {
-                if (n !== 75) _performResize(75);
+                if (n !== 149) _performResize(149);
                 separatorPx = 0; 
                 applySeparator();
                 goDark();
