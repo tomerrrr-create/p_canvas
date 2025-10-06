@@ -33,12 +33,9 @@
     <div class="w-full max-w-[720px] mx-auto app-shell">
       
       <div class="relative">
-        <!-- START: --- Structural Change --- -->
         <div id="board" class="bg-black border-black" aria-label="Color Grid">
             <canvas id="boardCanvas" role="img"></canvas>
         </div>
-        <!-- END: --- Structural Change --- -->
-        
         <div id="boardOverlay" class="absolute inset-0 bg-black opacity-0 pointer-events-none"></div>
         
         <div id="longPressOverlay" class="absolute inset-0 pointer-events-none"></div>
@@ -208,17 +205,16 @@
           </button>
 
 <button id="btnNudgeBrighter" class="ctrl">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 6l-4 4h8l-4-4z m0 12v-8"></path>
-              </svg>
-          </button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 5 C 8 12, 8 20, 17 20"></path>
+    </svg>
+</button>
 
-          <button id="btnNudgeDarker" class="ctrl">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 18l-4-4h8l-4 4z m0-12v8"></path>
-              </svg>
-          </button>
-
+<button id="btnNudgeDarker" class="ctrl">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 4 V 20 C 20 20, 20 4, 9 4 Z"></path>
+    </svg>
+</button>
 
       </div>
       
@@ -469,6 +465,17 @@
           <button id="btnDlaSettingsSave" class="text-black font-bold py-2 px-4 rounded-lg" style="background-color: var(--gold);"></button>
         </div>
       </div>
+    </div>
+  </div>
+  
+  <div id="advancedColorMappingModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50" style="display: none;">
+    <div class="relative bg-[#1c1c1c] rounded-lg p-6 w-full max-w-md flex flex-col gap-4">
+      <button id="btnAdaptModalClose" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      <h2 id="adaptModalTitle" class="text-xl font-bold text-center text-gray-200"></h2>
+      <p id="adaptModalDesc" class="text-sm text-gray-400 text-center"></p>
+      <button id="btnAdaptColors" class="w-full text-black font-bold py-2 px-4 rounded-lg" style="background-color: var(--gold);"></button>
     </div>
   </div>
   <script type="module" src="js/ui-modals.js"></script>

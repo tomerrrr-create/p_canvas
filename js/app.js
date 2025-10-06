@@ -470,6 +470,25 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
             startAnimationLoop();
         });
       }
+
+      // Phase 1 Addition: New function to adapt colors
+      function adaptColors() {
+        performAction(() => {
+          const len = paletteLen();
+          const now = performance.now();
+          boardState.forEach(tile => {
+            if (!tile.isGold) {
+              const newK = norm(tile.k); // Use norm to get the visually correct index
+              if (tile.k !== newK) {
+                // We don't animate this change, we snap it to fix the state
+                tile.k = newK;
+                tile.v = newK;
+              }
+            }
+          });
+          renderToScreen(null); // Re-render immediately with the corrected state
+        });
+      }
       
       function nudgeColors(direction) {
         performAction(() => {
@@ -927,6 +946,11 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
         const btn = e.currentTarget;
         longPressTimer = setTimeout(() => {
             wasLongPress = true;
+            // Phase 1 Addition: Long press on Invert button
+            if (btn.id === 'btnInvert') {
+                modals.openAdvancedColorMappingModal();
+                return;
+            }
             if (btn.id === 'btnColorPicker') {
               const darkestColor = palette()[0];
               selectedColor = darkestColor;
@@ -1326,6 +1350,7 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
         initializeLanguage();
         onLanguageChange(updateAllUIText);
         
+        // Phase 1 Addition: Add adaptColors to the context for modals
         const contextForModals = {
             dom, C, getText, performAction, getSymmetricIndices, applyActionToTiles,
             getN: () => n, isBreathing: () => isBreathing, isLifePlaying: () => isLifePlaying,
@@ -1348,6 +1373,7 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
             resetWasLongPress,
             downloadImage: downloadHighQualityImage,
             startBreatheAnimation: startBreatheAnimation,
+            adaptColors, // Pass the new function to the modals context
         };
         modals = initializeModals(contextForModals);
         

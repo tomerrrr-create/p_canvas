@@ -7,18 +7,9 @@ export const PALETTES = [
     // --- Group 1: The Foundations ---
 
 
-{
-    originalName: "Nature",
-    emoji: '🌍',
-    colors: ["#2E160B", "#3B1D0E", "#442111", "#4B2612", "#532B14", "#5B3016", "#633518", "#6B3A1A", "#73401C", "#7B441E", "#834920", "#8B4E22", "#935324", "#9B5826", "#A35D28", "#AB622A", "#B3672C", "#BB6C2E", "#C37130", "#CB7632", "#D37B34", "#DB8036", "#E38538", "#EB8A3A", "#F0933F", "#F49C44", "#F8A549", "#FCAD4E", "#FFB653", "#FFBF58", "#FFC95D", "#FFD262", "#8B6E3B", "#7B7534", "#6C7B2D", "#5C8226", "#4D891F", "#3D9018", "#2E9711", "#249E16", "#1CA61C", "#14AD21", "#0CB527", "#06BD2D", "#04C937", "#08D540", "#0CE149", "#10ED52", "#14F95B", "#1CF664", "#24F36D", "#2CF076", "#34ED7F", "#3CEA88", "#44E791", "#4CE49A", "#54E1A3", "#5CDEAC", "#64DBB5", "#6CD8BE", "#74D5C7", "#7CD2D0", "#84CFD9", "#8CCCE2", "#58B7D5", "#52ACD3", "#4CA1D1", "#4696CF", "#408BCD", "#3A80CB", "#3475C9", "#2E6AC7", "#2860C5", "#2356C3", "#1E4CC1", "#1942BF", "#1438BD", "#0F2EBA", "#0A24B8", "#051AB6", "#071EBB", "#0A22C0", "#0E26C5", "#122ACA", "#162ECF", "#1A32D4", "#1E36D9", "#223ADE", "#263EE3", "#2A42E8", "#2E46ED", "#324AF2", "#364EF7", "#3A52FC", "#3E56FF", "#425AFF", "#4979FF", "#5187FF", "#5995FF", "#61A3FF", "#69B1FF", "#71BFFF", "#79CDFF", "#81DBFF", "#89E9FF", "#91F7FF", "#99FAFF", "#A1F5FF", "#A9F0FF", "#B1EBFF", "#B9E6FF", "#C1E1FF", "#C9DCFF", "#D1D7FF", "#D9D2FF", "#E1CDFF", "#E9D8FF", "#F1E3FF", "#F9EEFF", "#FFF9FF", "#FFF7F7", "#FFF5EF", "#FFF3E7", "#FFF1DF", "#FFEFD7", "#FFECCF", "#FFEAC7", "#FFE8BF"]
-},
 
 
-{
-        originalName: "Emerald Grove",
-        emoji: '🌿',
-        colors: ["#E8FFF5", "#E1FDF0", "#DAFBEB", "#D3F9E6", "#CCF7E1", "#C5F5DC", "#BEF3D7", "#B7F1D2", "#B0EFCD", "#A9EDC8", "#A2EBC3", "#9BE9BE", "#94E7B9", "#8DE5B4", "#86E3AF", "#7FE1AA", "#78DFA5", "#71DDA0", "#6AD89A", "#63D394", "#5CCE8E", "#55C988", "#4EC482", "#47BF7C", "#40BA76", "#39B570", "#32B06A", "#2BAA64", "#24A55E", "#1DA058", "#169B52", "#10964C", "#0A9146", "#088C42", "#07873E", "#06823A", "#057D36", "#047832", "#03732E", "#026E2A", "#016926", "#016422", "#015F1E", "#015A1A", "#015516", "#015012", "#014B0E", "#01460A", "#014206", "#013E04", "#013A03", "#013703", "#013403", "#013103", "#012E03", "#012B03", "#012803", "#012503", "#012203", "#011F03", "#011C03", "#011A03", "#011803", "#00180E"]
-    },
+
 
     {
         originalName: "Journey",
@@ -72,7 +63,6 @@ export const PALETTES = [
         emoji: '☁️', 
         colors: ["#303F9F", "#0D47A1", "#304FFE", "#3F51B5", "#01579B", "#1565C0", "#3D5AFE", "#2962FF", "#1976D2", "#0277BD", "#2979FF", "#1E88E5", "#0288D1", "#0091EA", "#039BE5", "#03A9F4", "#00B0FF", "#29B6F6", "#4FC3F7", "#40C4FF", "#81D4FA", "#B3E5FC", "#E1F5FE"]
     },
-    // --- Group 4: Themed & Gentle ---
 
 { 
         originalName: "Tel Aviv Sunset",
@@ -103,6 +93,13 @@ export const PALETTES = [
     },
 
 {
+        originalName: "Emerald Grove",
+        emoji: '🌿',
+        colors: ["#E8FFF5", "#E1FDF0", "#DAFBEB", "#D3F9E6", "#CCF7E1", "#C5F5DC", "#BEF3D7", "#B7F1D2", "#B0EFCD", "#A9EDC8", "#A2EBC3", "#9BE9BE", "#94E7B9", "#8DE5B4", "#86E3AF", "#7FE1AA", "#78DFA5", "#71DDA0", "#6AD89A", "#63D394", "#5CCE8E", "#55C988", "#4EC482", "#47BF7C", "#40BA76", "#39B570", "#32B06A", "#2BAA64", "#24A55E", "#1DA058", "#169B52", "#10964C", "#0A9146", "#088C42", "#07873E", "#06823A", "#057D36", "#047832", "#03732E", "#026E2A", "#016926", "#016422", "#015F1E", "#015A1A", "#015516", "#015012", "#014B0E", "#01460A", "#014206", "#013E04", "#013A03", "#013703", "#013403", "#013103", "#012E03", "#012B03", "#012803", "#012503", "#012203", "#011F03", "#011C03", "#011A03", "#011803", "#00180E"]
+    },
+
+
+{
         originalName: "Elemental Gems",
         emoji: '💎',
         colors: ["#0F0F0F", "#1C1C1C", "#2A2A2A", "#383838", "#464646", "#545454", "#626262", "#707070", "#7E7E7E", "#8C8C8C", "#9A9A9A", "#A8A8A8", "#B6B6B6", "#C4C4C4", "#D2D2D2", "#E0E0E0", "#EEEDED", "#F9F9F9", "#FFFDFB", "#B08D57", "#C29D69", "#D4AF7A", "#E6C18B", "#F8D39C", "#4F7942", "#3A6351", "#2F5233", "#5E8C61", "#7BAE7F", "#99D6A6", "#135E82", "#1C7A9B", "#2799B9", "#3AB3D0", "#56CFE1", "#72EFDD", "#5A3E85", "#6C4F96", "#7E60A7", "#9273B8", "#A687C9", "#BA9BDA", "#D0B0EB", "#E6C6FC", "#F0DBFF", "#FBF2FF"]
@@ -121,12 +118,18 @@ export const PALETTES = [
     },
 
 
-/*
+/* EXVLUDED PALLETES--------------EXCULDED
 {
         originalName: "Twilight Magic",
         emoji: '🌠',
         colors: ["#E6FAFF", "#E0F7FE", "#DAF4FD", "#D4F1FC", "#CEEEFB", "#C8EBFA", "#C2E8F9", "#BCE5F8", "#B6E2F7", "#B0DFF6", "#AADCF5", "#A4D9F4", "#9ED6F3", "#98D3F2", "#92D0F1", "#8CCDF0", "#86CAEF", "#80C7EE", "#7AC4ED", "#74C1EC", "#6EBEEB", "#68BBEA", "#62B8E9", "#5CB5E8", "#56B2E7", "#50AFE6", "#4AACE5", "#44A9E4", "#3EA6E3", "#38A3E2", "#32A0E1", "#2C9DE0", "#269ADF", "#2097DE", "#1A94DD", "#1491DC", "#0E8EDB", "#088BDA", "#0489D7", "#0888D3", "#1287CF", "#1C86CB", "#2685C7", "#3084C3", "#3A83BF", "#4482BB", "#4E81B7", "#5880B3", "#627FAF", "#6C7EAB", "#767DA7", "#807CA3", "#8A7B9F", "#947A9B", "#9E7997", "#A878A3", "#B277AF", "#BC76BB", "#C675C7", "#D074D3", "#DA73DF", "#E473EB", "#EE72F7", "#F8F1FF"]
     },
+{
+        originalName: "Healing",
+        emoji: '✨',
+        colors: ["#1A3A3A", "#FFFFFF", "#FADADD", "#F9C6C5", "#F7A3A2", "#E88282", "#FFDAB9", "#FFC3A0", "#FFFACD", "#FAFAD2", "#FFDEAD", "#F3D6A3", "#DEB887", "#D2B48C", "#F0FFF0", "#D3F2D3", "#B3E0B3", "#98D8AA", "#77C38B", "#58A16F", "#AFEEEE", "#A5E1E1", "#80D0C7", "#64BDB3", "#48A9A6", "#3E8E7E", "#E0FFFF", "#CDEAF5", "#B0E0E6", "#87CEEB", "#64A6C4", "#4682B4", "#E6E6FA", "#D8BFD8", "#C3B1E1", "#B19CD9", "#9370DB", "#7A68A6", "#F5F5DC", "#F5DEB3", "#D3D3D3", "#C0C0C0", "#A9A9A9", "#808080"]
+    },
+
 
 */
 
@@ -149,22 +152,22 @@ export const PALETTES = [
         colors: ["#4B0082", "#5A189A", "#682A7A", "#6A1E97", "#7B1E8A", "#743993", "#804090", "#854772", "#8C4888", "#8F588C", "#986089", "#9B5AA3", "#A0636A", "#9E6F80", "#AB6BB7", "#A97585", "#A8769C", "#AE7E82", "#B97F62", "#B885B1", "#B39178", "#B59095", "#C4927E", "#C69A7B", "#D29B5A", "#C59EAA", "#C2AA8E", "#C9AD70", "#DEAE77", "#D2B7A3", "#E1B674", "#D0C187", "#E3BF68", "#E0CF9C", "#E5D680", "#F0E595"] 
     },
     
-
-/*
-{
-        originalName: "Healing",
-        emoji: '✨',
-        colors: ["#1A3A3A", "#FFFFFF", "#FADADD", "#F9C6C5", "#F7A3A2", "#E88282", "#FFDAB9", "#FFC3A0", "#FFFACD", "#FAFAD2", "#FFDEAD", "#F3D6A3", "#DEB887", "#D2B48C", "#F0FFF0", "#D3F2D3", "#B3E0B3", "#98D8AA", "#77C38B", "#58A16F", "#AFEEEE", "#A5E1E1", "#80D0C7", "#64BDB3", "#48A9A6", "#3E8E7E", "#E0FFFF", "#CDEAF5", "#B0E0E6", "#87CEEB", "#64A6C4", "#4682B4", "#E6E6FA", "#D8BFD8", "#C3B1E1", "#B19CD9", "#9370DB", "#7A68A6", "#F5F5DC", "#F5DEB3", "#D3D3D3", "#C0C0C0", "#A9A9A9", "#808080"]
-    },
-
-*/
-    // --- Group 5: Abstract & Elemental ---
     { 
         originalName: "Brown Noise", 
         iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><polygon points="7,3 17,3 21,21 3,21" style="fill:#FFD700;" /></svg>', 
         colors: ["#3E2F00", "#523F00", "#665000", "#7A6000", "#8E7000", "#A28000", "#B69000", "#CAA000", "#DEB000", "#F2C000", "#F4C306", "#F6C70C", "#F8CA12", "#FACC18", "#FCD01E", "#FED324", "#FFD52A", "#FFD700", "#FFD730", "#FFD936", "#FFDB3C", "#FFDD42", "#FFDF48", "#FFE14E", "#FFE354"] 
     },
-    { 
+    
+
+{
+    originalName: "Nature",
+    emoji: '🌍',
+    colors: ["#2E160B", "#3B1D0E", "#442111", "#4B2612", "#532B14", "#5B3016", "#633518", "#6B3A1A", "#73401C", "#7B441E", "#834920", "#8B4E22", "#935324", "#9B5826", "#A35D28", "#AB622A", "#B3672C", "#BB6C2E", "#C37130", "#CB7632", "#D37B34", "#DB8036", "#E38538", "#EB8A3A", "#F0933F", "#F49C44", "#F8A549", "#FCAD4E", "#FFB653", "#FFBF58", "#FFC95D", "#FFD262", "#8B6E3B", "#7B7534", "#6C7B2D", "#5C8226", "#4D891F", "#3D9018", "#2E9711", "#249E16", "#1CA61C", "#14AD21", "#0CB527", "#06BD2D", "#04C937", "#08D540", "#0CE149", "#10ED52", "#14F95B", "#1CF664", "#24F36D", "#2CF076", "#34ED7F", "#3CEA88", "#44E791", "#4CE49A", "#54E1A3", "#5CDEAC", "#64DBB5", "#6CD8BE", "#74D5C7", "#7CD2D0", "#84CFD9", "#8CCCE2", "#58B7D5", "#52ACD3", "#4CA1D1", "#4696CF", "#408BCD", "#3A80CB", "#3475C9", "#2E6AC7", "#2860C5", "#2356C3", "#1E4CC1", "#1942BF", "#1438BD", "#0F2EBA", "#0A24B8", "#051AB6", "#071EBB", "#0A22C0", "#0E26C5", "#122ACA", "#162ECF", "#1A32D4", "#1E36D9", "#223ADE", "#263EE3", "#2A42E8", "#2E46ED", "#324AF2", "#364EF7", "#3A52FC", "#3E56FF", "#425AFF", "#4979FF", "#5187FF", "#5995FF", "#61A3FF", "#69B1FF", "#71BFFF", "#79CDFF", "#81DBFF", "#89E9FF", "#91F7FF", "#99FAFF", "#A1F5FF", "#A9F0FF", "#B1EBFF", "#B9E6FF", "#C1E1FF", "#C9DCFF", "#D1D7FF", "#D9D2FF", "#E1CDFF", "#E9D8FF", "#F1E3FF", "#F9EEFF", "#FFF9FF", "#FFF7F7", "#FFF5EF", "#FFF3E7", "#FFF1DF", "#FFEFD7", "#FFECCF", "#FFEAC7", "#FFE8BF"]
+},
+
+
+
+{ 
         originalName: "Cosmos", 
         emoji: '🌌', 
         colors: ["#000000", "#0B0C10", "#00008B", "#1F2833", "#191970", "#263238", "#4B0082", "#37474F", "#483D8B", "#8A2BE2", "#BA55D3", "#9370DB", "#1E90FF", "#FF00FF", "#DA70D6", "#FF69B4", "#00BFFF", "#40E0D0", "#B0E0E6", "#FFFACD", "#F8F8FF", "#E0FFFF", "#FFFFFF"] 

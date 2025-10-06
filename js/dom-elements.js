@@ -124,5 +124,12 @@ export const dom = {
   dlaInjectFromEdgesToggle: document.getElementById('dlaInjectFromEdgesToggle'),
   btnDlaSettingsSave: document.getElementById('btnDlaSettingsSave'),
   btnDlaSettingsCancel: document.getElementById('btnDlaSettingsCancel'),
-dlaFastModeToggle: document.getElementById('dlaFastModeToggle'),
+  dlaFastModeToggle: document.getElementById('dlaFastModeToggle'),
+  
+  // Phase 1 Additions: Advanced Color Mapping Modal
+  advancedColorMappingModal: document.getElementById('advancedColorMappingModal'),
+  btnAdaptModalClose: document.getElementById('btnAdaptModalClose'),
+  adaptModalTitle: document.getElementById('adaptModalTitle'),
+  adaptModalDesc: document.getElementById('adaptModalDesc'),
+  btnAdaptColors: document.getElementById('btnAdaptColors'),
 };

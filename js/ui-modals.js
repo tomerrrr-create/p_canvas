@@ -77,6 +77,14 @@ function closeDlaSettingsModal() {
     app.resetWasLongPress();
 }
 
+// Phase 1 Addition
+function closeAdvancedColorMappingModal() {
+    app.dom.advancedColorMappingModal.classList.remove('modal-visible');
+    setTimeout(() => app.dom.advancedColorMappingModal.style.display = 'none', 300);
+    app.resetWasLongPress();
+}
+
+
 // --- Modal Management Functions ---
 
 function openBreatheModal() {
@@ -90,6 +98,16 @@ function openResizeModal() {
     app.dom.resizeModal.classList.add('modal-visible');
     app.dom.resizeInput.focus();
     app.dom.resizeInput.select();
+}
+
+// Phase 1 Addition
+function openAdvancedColorMappingModal() {
+    if (app.isBreathing() || app.isLifePlaying()) return;
+    app.dom.adaptModalTitle.textContent = app.getText('adaptModal_title');
+    app.dom.adaptModalDesc.textContent = app.getText('adaptModal_desc');
+    app.dom.btnAdaptColors.textContent = app.getText('adaptModal_confirmBtn');
+    app.dom.advancedColorMappingModal.style.display = 'flex';
+    setTimeout(() => app.dom.advancedColorMappingModal.classList.add('modal-visible'), 10);
 }
 
 function handleConfirmResize() {
@@ -565,6 +583,15 @@ export function initializeModals(appContext) {
     app.dom.btnDlaSettingsSave.addEventListener('click', saveDlaSettings);
     app.dom.btnDlaSettingsCancel.addEventListener('click', closeDlaSettingsModal);
 
+    // Phase 1 Addition: Advanced Color Mapping Modal
+    app.dom.btnAdaptModalClose.addEventListener('click', closeAdvancedColorMappingModal);
+    app.dom.advancedColorMappingModal.addEventListener('click', (e) => { if (e.target === app.dom.advancedColorMappingModal) { closeAdvancedColorMappingModal(); } });
+    app.dom.btnAdaptColors.addEventListener('click', () => {
+        app.adaptColors();
+        closeAdvancedColorMappingModal();
+    });
+
+
     return {
         openBreatheModal,
         openResizeModal,
@@ -574,6 +601,7 @@ export function initializeModals(appContext) {
         openGolSettingsModal,
         openGravitationalSortSettingsModal,
         openDlaSettingsModal,
+        openAdvancedColorMappingModal, // Phase 1 Addition
         closeModal,
         renderColorPickerContent,
         populateHelpModal,
