@@ -234,7 +234,6 @@ body {
 .sim-mode-active #btnTutorial,
 .sim-mode-active #btnSave,
 .sim-mode-active #btnSpecialReset,
-.sim-mode-active #btnPalette,
 .sim-mode-active #btnInvert {
   display: none;
 }
@@ -259,13 +258,17 @@ body {
 
 
 /* Center Panel */
-.sim-mode-active #btnPlayPauseLife   { grid-area: 1 / 4; }
-.sim-mode-active #btnStepForward     { display: inline-flex; grid-area: 1 / 5; }
+/* שורה ראשונה (השינוי שביקשת) */
+.sim-mode-active #btnStepForward     { display: inline-flex; grid-area: 1 / 3; } /* מיקום 1: צעד קדימה */
+.sim-mode-active #btnPalette        { grid-area: 1 / 4; }                      /* מיקום 2: החלף פלטה */
+.sim-mode-active #btnPlayPauseLife   { grid-area: 1 / 5; }                      /* מיקום 3: הפעל / השהה */
+
+/* שורות אחרות (נשארות ללא שינוי) */
 .sim-mode-active #btnGameOfLife      { grid-area: 2 / 3; }
-.sim-mode-active #btnShowBreatheMenu { grid-area: 2 / 4; }
+.sim-mode-active #btnShowBreatheMenu { grid-area: 3 / 4; }
 .sim-mode-active #btnBrightnessEvo   { grid-area: 2 / 5; }
 .sim-mode-active #btnGravitationalSort { grid-area: 3 / 3; }
-.sim-mode-active #btnDla             { grid-area: 3 / 4; }
+.sim-mode-active #btnDla             { grid-area: 2 / 4; }
 .sim-mode-active #btnErosion         { grid-area: 3 / 5; }
 .sim-mode-active #btnToggleSimMode   { grid-area: 4 / 4; }
 
@@ -282,8 +285,8 @@ body {
     display: none;
 }
 .sim-mode-active #btnUndo   { grid-area: 4 / 7; }
-.sim-mode-active #btnNudgeBrighter { grid-area: 2 / 1; }
-.sim-mode-active #btnNudgeDarker   { grid-area: 2 / 7; }
+.sim-mode-active #btnNudgeBrighter { grid-area: 2 / 1; } /* UPDATED and MOVED */
+.sim-mode-active #btnNudgeDarker   { grid-area: 2 / 7; } /* UPDATED and MOVED */
 
 
 #btnBrushMode svg path {
@@ -314,12 +317,12 @@ body {
 .glow-animation-separator svg {
   animation: glow-effect 2s ease-in-out infinite;
 }
-#saveModal, #breatheModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal {
+#saveModal, #breatheModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal, #advancedColorMappingModal {
   transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
   visibility: hidden;
   opacity: 0;
 }
-#saveModal.modal-visible, #breatheModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible {
+#saveModal.modal-visible, #breatheModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible, #advancedColorMappingModal.modal-visible {
   visibility: visible;
   opacity: 1;
 }

@@ -1075,7 +1075,7 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
                 pauseLife();
                 resetArmedState();
             }
-            const controlsToHide = [ dom.btnBrushMode, dom.btnGap, dom.btnResetBoard, dom.btnTutorial, dom.btnSave, dom.btnSpecialReset, dom.btnPalette, dom.btnInvert ];
+            const controlsToHide = [ dom.btnBrushMode, dom.btnGap, dom.btnResetBoard, dom.btnTutorial, dom.btnSave, dom.btnSpecialReset, dom.btnInvert ];
             controlsToHide.forEach(btn => btn.classList.toggle('control-hidden', isSimModeActive));
             dom.btnPlayPauseLife.classList.toggle('control-hidden', !isSimModeActive);
             dom.btnToggleSimMode.classList.toggle('active', isSimModeActive);
@@ -1113,14 +1113,25 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
         return -1;
       }
       
-      function applyActionToTiles(indices, actionFn) {
+
+function applyActionToTiles(indices, actionFn) {
         let changed = false;
         const now = performance.now();
         indices.forEach(idx => {
             if (boardState[idx]) {
                 const oldK = boardState[idx].k;
                 const oldGold = boardState[idx].isGold;
-                actionFn(boardState[idx]);
+                
+                actionFn(boardState[idx]); // The modification happens here
+
+                // --- START: BUG FIX ---
+                // If the action function changed the color index (k),
+                // we must also update the float value (v) to match it.
+                if (boardState[idx].k !== oldK) {
+                    boardState[idx].v = boardState[idx].k;
+                }
+                // --- END: BUG FIX ---
+
                 if (boardState[idx].k !== oldK || boardState[idx].isGold !== oldGold) {
                     boardState[idx].prevK = oldK;
                     boardState[idx].animStart = now;
@@ -1130,6 +1141,7 @@ finalColor = adjustBrightness(originalColor, brightnessFactor);
         });
         if (changed) startAnimationLoop();
       }
+
 
       function handleDragPaint(targetIndex) {
         if (targetIndex === -1 || targetIndex === pointerState.lastPaintedIndex) return;
