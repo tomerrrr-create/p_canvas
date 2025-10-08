@@ -787,13 +787,7 @@ function initializeDla() {
             }
         }
 
-// Calculate walker count using a direct, pre-calibrated formula.
-        let calculatedWalkers = Math.round(1.2 * n * Math.sqrt(n));
-
-        // IMPORTANT: Ensure we don't create more walkers than there are empty spaces.
-        const walkerCount = Math.min(calculatedWalkers, emptyIndices.length);
-
-
+        const walkerCount = n * 4;
         const initialWalkers = [];
         for (let i = 0; i < walkerCount; i++) {
             if (emptyIndices.length === 0) break; // Stop if no empty space is left
