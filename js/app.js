@@ -77,7 +77,8 @@ import { initializeModals } from './ui-modals.js';
       let animationFrameId = null;
       let armedSimulation = null;
       let symmetryMode = 'off';
-      
+     let brightnessEvoMode = 'brightness'; // ישמור את המצב הנבחר: 'brightness' או 'contrast'
+ 
       const isGold = (index) => boardState[index]?.isGold;
       const paletteLen = () => palette().length;
       const norm = (k, m = paletteLen()) => ((k % m) + m) % m;
@@ -230,6 +231,18 @@ import { initializeModals } from './ui-modals.js';
           }
       }
       
+function getBrightnessEvoMode() {
+          return brightnessEvoMode;
+      }
+
+      function setBrightnessEvoMode(mode) {
+          if (mode === 'brightness' || mode === 'contrast') {
+              brightnessEvoMode = mode;
+          }
+      }
+
+
+
 
 
 
@@ -644,7 +657,15 @@ function syncDlaCrystalState() {
         let nextState;
         switch(armedSimulation) {
             case 'gameOfLife': nextState = Simulations.runGameOfLifeGeneration(context); boardState = nextState; break;
-            case 'brightnessEvo': nextState = Simulations.runBrightnessEvolution(context); boardState = nextState; break;
+case 'brightnessEvo':
+    if (brightnessEvoMode === 'contrast') {
+        nextState = Simulations.runContrastGeneration(context);
+    } else {
+        nextState = Simulations.runBrightnessEvolution(context);
+    }
+    boardState = nextState;
+    break;
+
             case 'gravitationalSort': nextState = Simulations.runGravitationalSortGeneration(context); boardState = nextState; break;
             case 'erosion': nextState = Simulations.runErosionGeneration(context); boardState = nextState; break;
             case 'dla':
@@ -670,9 +691,14 @@ function syncDlaCrystalState() {
                 case 'gameOfLife': 
                     boardState = Simulations.runGameOfLifeGeneration(context); 
                     break;
-                case 'brightnessEvo': 
-                    boardState = Simulations.runBrightnessEvolution(context); 
-                    break;
+case 'brightnessEvo': 
+    if (brightnessEvoMode === 'contrast') {
+        boardState = Simulations.runContrastGeneration(context);
+    } else {
+        boardState = Simulations.runBrightnessEvolution(context);
+    }
+    break;
+
                 case 'gravitationalSort': 
                     boardState = Simulations.runGravitationalSortGeneration(context); 
                     break;
@@ -873,16 +899,22 @@ function initializeDla() {
         return fileName.replace(/[<>:"/\\|?*]/g, '_') + `.${extension}`;
       }
 
-      function downloadHighQualityImage() {
-        const exportSize = 4096;
-        const borderSize = Math.round(exportSize * 0.01); 
-        const drawingAreaSize = exportSize - (borderSize * 2);
 
-        const offscreenCanvas = document.createElement('canvas');
-        offscreenCanvas.width = exportSize;
-        offscreenCanvas.height = exportSize;
-        const offscreenCtx = offscreenCanvas.getContext('2d');
 
+
+// "כלי עזר" קטן שמבצע את ההורדה הישירה למחשב
+      function triggerDownload(file) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(file);
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+
+      // הפונקציה הראשית החדשה שמחליפה את הקודמת
+      async function shareOrDownloadImage() {
         const originalButtonText = dom.btnSaveImage.innerHTML;
         dom.btnSaveImage.innerHTML = `
             <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -892,37 +924,65 @@ function initializeDla() {
         `;
         dom.btnSaveImage.disabled = true;
         
-        setTimeout(() => {
+        // שלב א': יצירת התמונה באיכות גבוהה (נשאר ללא שינוי)
+        const exportSize = 4096;
+        const borderSize = Math.round(exportSize * 0.01); 
+        const drawingAreaSize = exportSize - (borderSize * 2);
+
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = exportSize;
+        offscreenCanvas.height = exportSize;
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+        
+        await new Promise(resolve => setTimeout(() => {
             offscreenCtx.fillStyle = '#000000';
             offscreenCtx.fillRect(0, 0, exportSize, exportSize);
-
             offscreenCtx.save();
             offscreenCtx.translate(borderSize, borderSize);
-            
             renderBoard(offscreenCtx, drawingAreaSize, drawingAreaSize, null);
-
             offscreenCtx.restore();
-    
-            offscreenCanvas.toBlob((blob) => {
-                if (blob) {
-                    const highQualityFile = new File([blob], getSanitizedFileName('png'), { type: 'image/png' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(highQualityFile);
-                    link.download = highQualityFile.name;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(link.href);
-                } else {
-                    alert("Error creating high-quality image.");
+            resolve();
+        }, 50));
+        
+        const blob = await new Promise(resolve => offscreenCanvas.toBlob(resolve, 'image/png'));
+        
+        if (!blob) {
+            alert("Error creating high-quality image.");
+            dom.btnSaveImage.innerHTML = originalButtonText;
+            dom.btnSaveImage.disabled = false;
+            return;
+        }
+
+        const fileName = getSanitizedFileName('png');
+        const imageFile = new File([blob], fileName, { type: 'image/png' });
+        const shareData = {
+            files: [imageFile],
+            title: fileName.replace('.png', ''),
+            text: 'נוצר באמצעות האפליקציה',
+        };
+
+        // שלב ב': בדיקה אם המכשיר תומך בשיתוף
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            // אם כן (מובייל) - פותחים את תפריט השיתוף
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Share API error:', err);
+                    triggerDownload(imageFile); // אם השיתוף נכשל, נבצע הורדה רגילה
                 }
-                
-                dom.btnSaveImage.innerHTML = originalButtonText;
-                dom.btnSaveImage.disabled = false;
-                modals.closeModal();
-            }, 'image/png');
-        }, 50);
+            }
+        } else {
+            // אם לא (דסקטופ) - מבצעים הורדה ישירה
+            triggerDownload(imageFile);
+        }
+        
+        dom.btnSaveImage.innerHTML = originalButtonText;
+        dom.btnSaveImage.disabled = false;
+        modals.closeModal();
       }
+
+
       
       async function handleSaveProject() {
           const stateString = JSON.stringify(getCurrentState(), null, 2);
@@ -1002,6 +1062,7 @@ function initializeDla() {
             if (btn.id === 'btnGameOfLife') { modals.openGolSettingsModal(); return; }
             if (btn.id === 'btnGravitationalSort') { modals.openGravitationalSortSettingsModal(); return; }
             if (btn.id === 'btnDla') { modals.openDlaSettingsModal(); return; }
+if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); return; }
             if (btn.id === 'btnPalette') { modals.openPaletteModal(); return; }
             if (btn.id === 'btnResizeUp' || btn.id === 'btnResizeDown') { modals.openResizeModal(); return; }
         }, C.LONG_PRESS_SHOW_MS);
@@ -1462,10 +1523,15 @@ function getTilesInRadius(centerIndex, radius) {
             getGameOfLifeRules: () => gameOfLifeRules, setGameOfLifeRules: (r) => { gameOfLifeRules = r; },
             getGravitationalSortRules: () => gravitationalSortRules, setGravitationalSortRules: (r) => { gravitationalSortRules = r; },
             getDlaRules: () => dlaRules, setDlaRules: (r) => { dlaRules = r; },
+
+getBrightnessEvoMode,
+            setBrightnessEvoMode,
+
+
             handleSaveProject, handleLoadProject, onProjectFileSelected,
             pointerState,
             resetWasLongPress,
-            downloadImage: downloadHighQualityImage,
+downloadImage: shareOrDownloadImage,
             startBreatheAnimation: startBreatheAnimation,
             adaptColors, // Pass the new function to the modals context
         };
