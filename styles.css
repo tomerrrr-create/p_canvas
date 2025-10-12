@@ -846,17 +846,19 @@ body {
     box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5);
 }
 
+/* --- Brightness Evolution Button States --- */
+#btnBrightnessEvo.mode-brightness svg {
+    stroke: var(--gold);
+}
+#btnBrightnessEvo.mode-contrast svg {
+    stroke: url(#contrastGradient);
+}
 
+/* --- DLA Button States --- */
+#btnDla.mode-genetics svg circle {
+    fill: var(--gold);
+}
+#btnDla.mode-no-genetics svg #dla-circle-top {
+    fill: var(--gold);
+}
 
-/* Styles for the new Brightness Evolution Modal */
-.evo-mode-btn:hover {
-  border-color: #888;
-}
-.evo-mode-btn.active {
-  border-color: var(--gold);
-  box-shadow: 0 0 8px var(--gold);
-  color: var(--gold);
-}
-.evo-mode-btn.active svg {
-  stroke: var(--gold);
-}
