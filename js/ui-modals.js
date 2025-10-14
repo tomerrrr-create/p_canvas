@@ -4,7 +4,7 @@ let lastWheelTime = 0;
 let touchStartX = 0;
 
 function handleTouchStart(e) {
-    touchכStartX = e.changedTouches[0].screenX;
+    touchStartX = e.changedTouches[0].screenX;
 }
 
 function handleTouchEnd(e) {
