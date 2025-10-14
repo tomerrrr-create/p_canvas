@@ -107,7 +107,7 @@ function openAdvancedColorMappingModal() {
 
 function handleConfirmResize() {
     let newSize = parseInt(app.dom.resizeInput.value, 10);
-    if (isNaN(newSize) || newSize < 1 || newSize > 150) {
+    if (isNaN(newSize) || newSize < 1 || newSize > 300) {
         app.dom.resizeInput.style.borderColor = 'red';
         setTimeout(() => { app.dom.resizeInput.style.borderColor = ''; }, 1000);
         return;
