@@ -38,10 +38,6 @@ function closeModal() {
     app.dom.imagePreview.src = '';
 }
 
-function closeBreatheModal() {
-    app.dom.breatheModal.classList.remove('modal-visible');
-}
-
 function closeResizeModal() {
     app.dom.resizeModal.classList.remove('modal-visible');
 }
@@ -81,11 +77,6 @@ function closeAdvancedColorMappingModal() {
 
 
 // --- Modal Management Functions ---
-
-function openBreatheModal() {
-    if (app.isLifePlaying()) return;
-    app.dom.breatheModal.classList.add('modal-visible');
-}
 
 function openResizeModal() {
     if (app.isBreathing()) return;
@@ -475,25 +466,6 @@ export function initializeModals(appContext) {
     app.dom.btnLoadProjectIdea.addEventListener('click', app.handleLoadProject);
     app.dom.projectFileInput.addEventListener('change', app.onProjectFileSelected);
 
-    // Breathe Modal
-    app.dom.btnBreatheModalClose.addEventListener('click', closeBreatheModal);
-    app.dom.breatheModal.addEventListener('click', (e) => { if (e.target === app.dom.breatheModal) { closeBreatheModal(); } });
-    
-    // --- START: MODIFIED Breathe button listeners for gentle start ---
-    app.dom.btnStartSoloBreathe.addEventListener('click', () => {
-        closeBreatheModal();
-        setTimeout(() => {
-            app.startBreatheAnimation('solo');
-        }, 1000); // Increased delay to 1 second
-    });
-    app.dom.btnStartGroupBreathe.addEventListener('click', () => {
-        closeBreatheModal();
-        setTimeout(() => {
-            app.startBreatheAnimation('group');
-        }, 1000); // Increased delay to 1 second
-    });
-    // --- END: MODIFIED Breathe button listeners ---
-
     // Resize Modal
     app.dom.btnConfirmResize.addEventListener('click', handleConfirmResize);
     app.dom.resizeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { handleConfirmResize(); } });
@@ -554,7 +526,6 @@ export function initializeModals(appContext) {
 
 
     return {
-        openBreatheModal,
         openResizeModal,
         openColorPickerModal,
         openHelpModal,

@@ -47,19 +47,12 @@
  <div id="simModeBackground"></div>   
        
 <button id="btnShowBreatheMenu" class="ctrl">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M16 20 C14 18 10 16 8 10" transform="rotate(5, 12, 12)"></path>
-        <circle cx="8.5" cy="8.5" r="2" fill="currentColor"></circle>
-        <circle cx="6.5" cy="7.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="7.5" cy="6.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="9.5" cy="6.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="10.5" cy="7.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="10.5" cy="9.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="9.5" cy="10.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"></circle>
-        <circle cx="6.5" cy="9.5" r="1.2" fill="currentColor"></circle>
-        
-        <path d="M12 14 Q10 13 9 15" stroke-width="1.2"></path>
+    <svg id="iconBreatheSolo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12 C3 6 9 6 12 12 S 15 18 21 12"></path>
+    </svg>
+    <svg id="iconBreatheGroup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+      <path d="M3 10 C3 4 9 4 12 10 S 15 16 21 10"></path>
+      <path d="M3 14 C3 8 9 8 12 14 S 15 20 21 14"></path>
     </svg>
 </button>
 
@@ -148,9 +141,10 @@
             </svg>
           </button>
 
-          <button id="btnErosion" class="ctrl">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 12Q9 6 12 12T21 12"></path>
+
+<button id="btnErosion" class="ctrl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 15 L12 9 L18 15"></path>
               </svg>
           </button>
 
@@ -230,10 +224,6 @@
 
       </div>
       
-      <div id="breatheExitContainer">
-        <button id="btnExitBreathe"></button>
-      </div>
-
     </div>
   </div>
 
@@ -269,24 +259,6 @@
       </div>
 
       <input type="file" id="projectFileInput" accept=".json, .cga" style="display: none;" />
-    </div>
-  </div>
-
-  <div id="breatheModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
-    <div class="bg-[#1c1c1c] rounded-lg p-6 max-w-xs w-full text-center relative">
-        <button id="btnBreatheModalClose" class="absolute top-3 right-3 text-gray-400 hover:text-white">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <button id="btnStartSoloBreathe" class="breathe-option-btn">
-               <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 C3 6 9 6 12 12 S 15 18 21 12"></path></svg>
-               <span id="breatheSoloLabel" class="text-sm mt-2 text-gray-300"></span>
-            </button>
-            <button id="btnStartGroupBreathe" class="breathe-option-btn">
-              <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 C3 4 9 4 12 10 S 15 16 21 10"></path><path d="M3 14 C3 8 9 8 12 14 S 15 20 21 14"></path></svg>
-              <span id="breatheGroupLabel" class="text-sm mt-2 text-gray-300"></span>
-            </button>
-        </div>
     </div>
   </div>
 

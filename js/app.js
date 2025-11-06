@@ -15,9 +15,9 @@ import { initializeModals } from './ui-modals.js';
       let animationLoopId = null;
 
       // --- Breathe Animation State ---
-      let isBreathing = false;
+      let isBreathing = false; // This variable is now effectively replaced by (isLifePlaying && armedSimulation === 'breathe')
       let breatheStartTime = 0;
-      let breatheMode = 'solo'; // 'solo' or 'group'
+      let breatheEvoMode = 'off'; // 'off', 'solo' or 'group'
 
       // --- Color Helper for Breathing ---
       function adjustBrightness(hex, factor) {
@@ -80,7 +80,8 @@ import { initializeModals } from './ui-modals.js';
 let brightnessEvoMode = 'off'; // ישמור את המצב הנבחר: 'off', 'brightness', או 'contrast'
 let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
  
-
+      // breatheEvoMode is defined at the top
+      
       const isGold = (index) => boardState[index]?.isGold;
       const paletteLen = () => palette().length;
       const norm = (k, m = paletteLen()) => ((k % m) + m) % m;
@@ -220,7 +221,7 @@ let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
 
           renderToScreen(now);
 
-          if (isStillAnimating || isBreathing) {
+          if (isStillAnimating || (isLifePlaying && armedSimulation === 'breathe')) {
               animationLoopId = requestAnimationFrame(animationLoop);
           } else {
               animationLoopId = null; 
@@ -260,13 +261,16 @@ function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
 
         let finalColor;
 
-        if (isBreathing && !tileData.isGold) {
+        if (isLifePlaying && armedSimulation === 'breathe' && !tileData.isGold) {
             const BREATHE_SPEED = 0.0015;
             const elapsed = timestamp - breatheStartTime;
             let wave;
 
-            if (breatheMode === 'solo') {
-                wave = Math.sin(elapsed * BREATHE_SPEED + tileData.breatheOffset);
+            if (breatheEvoMode === 'solo') {
+const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;
+            const effectiveElapsed = (elapsed - tileData.startDelay + cycleDuration) % cycleDuration;
+            wave = Math.sin(effectiveElapsed * BREATHE_SPEED); // השתמש בזמן האפקטיבי, ללא צורך בהיסט פאזה
+
             } else { // 'group' mode
                 wave = Math.sin(elapsed * BREATHE_SPEED + tileData.k * 0.8);
             }
@@ -316,27 +320,8 @@ function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
         renderBoard(ctx, canvas.clientWidth, canvas.clientHeight, timestamp);
       }
 
-      function startBreatheAnimation(mode) {
-          if (isLifePlaying) return;
-          
-          // --- MODIFIED: Assign a random offset to each tile on start ---
-          boardState.forEach(tile => {
-              // Multiply by 2 * PI to get a random starting point anywhere in the sine wave cycle
-              tile.breatheOffset = Math.random() * 2 * Math.PI;
-          });
-
-          isBreathing = true;
-          breatheMode = mode;
-          breatheStartTime = performance.now();
-          dom.btnExitBreathe.classList.add('visible');
-          startAnimationLoop();
-      }
-
-      function stopBreatheAnimation() {
-          isBreathing = false;
-          dom.btnExitBreathe.classList.remove('visible');
-          renderToScreen(null);
-      }
+      // --- startBreatheAnimation and stopBreatheAnimation are now removed. ---
+      // Logic is merged into togglePlayPauseLife.
       
       function updatePaletteHeader() {
         const pal = C.PALETTES[activePaletteIndex];
@@ -666,6 +651,7 @@ const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(dlaContext
 boardState = nextBoardState;
 dlaState = nextDlaState;
 break;
+            case 'breathe': break; // This loop only handles discrete simulations. Breathe uses animationLoop.
 
         }
         renderToScreen(null);
@@ -673,7 +659,8 @@ break;
       }
 
       function stepForward() {
-        if (isLifePlaying) return;
+        if (isLifePlaying || armedSimulation === 'breathe') return;
+        
         performAction(() => {
             if (armedSimulation === 'dla') {
                 syncDlaCrystalState();
@@ -707,7 +694,7 @@ const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(dlaContext
 boardState = nextBoardState;
 dlaState = nextDlaState;
 break;
-
+                // No case for 'breathe' as it has no steps
             }
             renderToScreen(null);
         });
@@ -716,8 +703,9 @@ break;
       function pauseLife() {
           if (!isLifePlaying) return;
           isLifePlaying = false;
-          cancelAnimationFrame(animationFrameId);
+          cancelAnimationFrame(animationFrameId); // Stops gameLoop
           animationFrameId = null;
+          // animationLoop will stop itself on its next frame because isLifePlaying is false
 
           if (simulationStartState) {
               const simulationEndState = getCurrentState();
@@ -729,7 +717,7 @@ break;
 
           dom.iconPlay.style.display = 'block';
           dom.iconPause.style.display = 'none';
-          if (armedSimulation) dom.btnStepForward.disabled = false;
+          if (armedSimulation && armedSimulation !== 'breathe') dom.btnStepForward.disabled = false;
           dom.btnGameOfLife.disabled = false;
           dom.btnBrightnessEvo.disabled = false;
           dom.btnShowBreatheMenu.disabled = false;
@@ -743,8 +731,36 @@ break;
               pauseLife();
               return;
           }
-          if (!armedSimulation || armedSimulation === 'breathe') return;
+          if (!armedSimulation) return;
 
+          // --- Handle Breathe Simulation (uses animationLoop) ---
+          if (armedSimulation === 'breathe') {
+
+
+const BREATHE_SPEED = 0.0015;
+            const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;            boardState.forEach(tile => {
+                tile.startDelay = Math.random() * cycleDuration; 
+            });
+
+
+              breatheStartTime = performance.now();
+              isLifePlaying = true;
+              
+              dom.iconPlay.style.display = 'none';
+              dom.iconPause.style.display = 'block';
+              dom.btnStepForward.disabled = true;
+              dom.btnGameOfLife.disabled = true;
+              dom.btnBrightnessEvo.disabled = true;
+              dom.btnShowBreatheMenu.disabled = true;
+              dom.btnGravitationalSort.disabled = true;
+              dom.btnErosion.disabled = true;
+              dom.btnDla.disabled = true;
+              
+              startAnimationLoop(); // Start the smooth animation loop
+              return; // Exit here, don't start gameLoop
+          }
+
+          // --- Handle Discrete Simulations (uses gameLoop) ---
           if (armedSimulation === 'dla') {
               syncDlaCrystalState();
           }
@@ -848,11 +864,13 @@ function armSimulation(simulationName) {
     armedSimulation = null;
     brightnessEvoMode = 'off';
     dlaMode = 'off';
+    breatheEvoMode = 'off';
     
     const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla];
     simButtons.forEach(btn => btn.classList.remove('simulation-active'));
     updateBrightnessEvoButtonUI(); // Update UI to reflect the reset
     updateDlaButtonUI();           // Update UI to reflect the reset
+    updateBreatheEvoButtonUI();    // Update UI to reflect the reset
     
     dom.btnPlayPauseLife.disabled = true;
     dom.btnStepForward.disabled = true;
@@ -870,6 +888,9 @@ function armSimulation(simulationName) {
             dlaMode = 'genetics'; // Default to the first 'on' state
             initializeDla();
         }
+        if (simulationName === 'breathe') {
+            breatheEvoMode = 'solo'; // Default to the first 'on' state
+        }
 
         const buttonToActivate = simButtons.find(btn => btn.id.toLowerCase().includes(simulationName.toLowerCase()));
         if (buttonToActivate) {
@@ -878,9 +899,15 @@ function armSimulation(simulationName) {
         
         updateBrightnessEvoButtonUI(); // Update UI with the new state
         updateDlaButtonUI();           // Update UI with the new state
+        updateBreatheEvoButtonUI();    // Update UI with the new state
 
         dom.btnPlayPauseLife.disabled = false;
         dom.btnStepForward.disabled = false;
+
+        // Disable step forward specifically for breathe
+        if (simulationName === 'breathe') {
+            dom.btnStepForward.disabled = true;
+        }
     }
 }
 
@@ -889,7 +916,7 @@ function armSimulation(simulationName) {
       function setBrushMode(isBrushOn) {
           isBrushModeOn = isBrushOn;
           dom.btnBrushMode.classList.toggle('brush-on', isBrushOn);
-          const newTitle = isBrushModeOn ? getText('brushMode_paint') : getText('brushMode_copy');
+          const newTitle = isBrushOn ? getText('brushMode_paint') : getText('brushMode_copy');
           dom.btnBrushMode.title = newTitle;
           dom.btnBrushMode.setAttribute('aria-label', newTitle);
           if (pointerState.dragSourceIndex !== null) pointerState.dragSourceIndex = null;
@@ -1049,6 +1076,15 @@ function armSimulation(simulationName) {
                 const lightestIndex = currentPalette.length - 1;
                 selectedColor = currentPalette[lightestIndex];
                 selectedColorIndex = lightestIndex;
+
+brushSize = 3;
+const brushSizeSlider = document.getElementById('brushSizeSlider');
+                const brushSizeValue = document.getElementById('brushSizeValue');
+                if (brushSizeSlider) brushSizeSlider.value = brushSize;
+                if (brushSizeValue) brushSizeValue.textContent = brushSize;
+
+
+
                 isRainbowModeActive = false;
                 symmetryMode = 'kaleidoscope';
                 updateSymmetryUI();
@@ -1109,8 +1145,6 @@ if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); re
         dom.btnSaveImage.title = getText('saveModal_saveImage');
         dom.btnSaveProjectIdea.title = getText('saveModal_saveIdea');
         dom.btnLoadProjectIdea.title = getText('saveModal_loadIdea');
-        dom.breatheSoloLabel.textContent = getText('breatheModal_solo');
-        dom.breatheGroupLabel.textContent = getText('breatheModal_group');
         dom.resizeModalTitle.textContent = getText('resizeModal_title');
         dom.resizeModalPrompt.textContent = getText('resizeModal_prompt');
         dom.btnConfirmResize.textContent = getText('resizeModal_confirm');
@@ -1212,6 +1246,8 @@ if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); re
  updateDlaButtonUI();
    dlaMode = 'off';
     updateDlaButtonUI();
+    breatheEvoMode = 'off';
+    updateBreatheEvoButtonUI();
 
 
       }
@@ -1594,6 +1630,53 @@ function cycleDlaMode() {
 }
 
 
+// --- NEW: Breathe Simulation UI and Cycling ---
+function updateBreatheEvoButtonUI() {
+    dom.btnShowBreatheMenu.classList.remove('mode-solo', 'mode-group', 'simulation-active');
+
+    if (breatheEvoMode === 'solo') {
+        dom.btnShowBreatheMenu.classList.add('mode-solo');
+        dom.iconBreatheSolo.style.display = 'block';
+        dom.iconBreatheGroup.style.display = 'none';
+        if (armedSimulation === 'breathe') {
+            dom.btnShowBreatheMenu.classList.add('simulation-active');
+        }
+    } else if (breatheEvoMode === 'group') {
+        dom.btnShowBreatheMenu.classList.add('mode-group');
+        dom.iconBreatheSolo.style.display = 'none';
+        dom.iconBreatheGroup.style.display = 'block';
+        if (armedSimulation === 'breathe') {
+            dom.btnShowBreatheMenu.classList.add('simulation-active');
+        }
+    } else { // 'off'
+        dom.iconBreatheSolo.style.display = 'block';
+        dom.iconBreatheGroup.style.display = 'none';
+    }
+}
+
+function cycleBreatheEvoMode() {
+    if (isLifePlaying) {
+        pauseLife();
+    }
+
+    const oldMode = breatheEvoMode;
+    const sequence = ['off', 'solo', 'group'];
+    const currentIndex = sequence.indexOf(breatheEvoMode);
+    const nextIndex = (currentIndex + 1) % sequence.length;
+    breatheEvoMode = sequence[nextIndex];
+
+    if (oldMode === 'off' && breatheEvoMode !== 'off') {
+        armSimulation('breathe');
+    } else if (oldMode !== 'off' && breatheEvoMode === 'off') {
+        if (armedSimulation === 'breathe') {
+            armSimulation(null);
+        }
+    }
+    
+    updateBreatheEvoButtonUI();
+}
+// --- END: New Breathe Functions ---
+
 
       function cycleSymmetryMode() {
           performAction(() => {
@@ -1633,7 +1716,7 @@ function cycleDlaMode() {
             pointerState,
             resetWasLongPress,
 downloadImage: shareOrDownloadImage,
-            startBreatheAnimation: startBreatheAnimation,
+            // startBreatheAnimation is removed
             adaptColors, // Pass the new function to the modals context
         };
         modals = initializeModals(contextForModals);
@@ -1646,6 +1729,7 @@ downloadImage: shareOrDownloadImage,
         setBrushMode(true);
         updateSymmetryUI();
 updateBrightnessEvoButtonUI();
+        updateBreatheEvoButtonUI(); // Add this
         updateColorPickerButtonUI();
         updateGlowEffect();
         updateLayout();
@@ -1678,7 +1762,9 @@ updateBrightnessEvoButtonUI();
 
 dom.btnBrightnessEvo.addEventListener('click', (e) => handleCtrlClick(e, cycleBrightnessEvoMode));
 
-        dom.btnShowBreatheMenu.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('breathe')));
+
+dom.btnShowBreatheMenu.addEventListener('click', (e) => handleCtrlClick(e, cycleBreatheEvoMode));
+
         dom.btnGravitationalSort.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('gravitationalSort')));
         dom.btnErosion.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('erosion')));
 
@@ -1689,7 +1775,7 @@ dom.btnDla.addEventListener('click', (e) => handleCtrlClick(e, cycleDlaMode));
         dom.btnNudgeBrighter.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(1)));
         dom.btnNudgeDarker.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(-1)));
         dom.btnLangToggle.addEventListener('click', toggleLanguage);
-        dom.btnExitBreathe.addEventListener('click', stopBreatheAnimation);
+        // dom.btnExitBreathe.addEventListener('click', stopBreatheAnimation); // Removed
         
         document.querySelectorAll('.ctrl').forEach(btn => { 
             btn.addEventListener('pointerdown', handlePointerDownCtrl); 

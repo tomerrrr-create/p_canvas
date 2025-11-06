@@ -40,15 +40,15 @@ export const dom = {
   btnPlayPauseLife: document.getElementById('btnPlayPauseLife'),
   iconPlay: document.getElementById('iconPlay'),
   iconPause: document.getElementById('iconPause'),
+  iconBreatheSolo: document.getElementById('iconBreatheSolo'),
+  iconBreatheGroup: document.getElementById('iconBreatheGroup'),
   btnStepForward: document.getElementById('btnStepForward'),
-  btnExitBreathe: document.getElementById('btnExitBreathe'),
   btnNudgeBrighter: document.getElementById('btnNudgeBrighter'),
   btnNudgeDarker: document.getElementById('btnNudgeDarker'),
 
   
   // Modals & Overlays
   saveModal: document.getElementById('saveModal'),
-  breatheModal: document.getElementById('breatheModal'),
   colorPickerModal: document.getElementById('colorPickerModal'),
   helpModal: document.getElementById('helpModal'),
   resizeModal: document.getElementById('resizeModal'),
@@ -70,13 +70,6 @@ export const dom = {
   btnSaveProjectIdea: document.getElementById('btnSaveProjectIdea'),
   btnLoadProjectIdea: document.getElementById('btnLoadProjectIdea'),
   projectFileInput: document.getElementById('projectFileInput'),
-
-  // Breathe Modal Elements
-  btnBreatheModalClose: document.getElementById('btnBreatheModalClose'),
-  btnStartSoloBreathe: document.getElementById('btnStartSoloBreathe'),
-  btnStartGroupBreathe: document.getElementById('btnStartGroupBreathe'),
-  breatheSoloLabel: document.getElementById('breatheSoloLabel'),
-  breatheGroupLabel: document.getElementById('breatheGroupLabel'),
 
   // Color Picker Modal Elements
   colorPickerHeader: document.getElementById('colorPickerHeader'),
