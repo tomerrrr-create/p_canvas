@@ -97,11 +97,10 @@ export const dom = {
   paletteModalTitle: document.getElementById('paletteModalTitle'),
   
   // Game of Life Settings Modal Elements
-  golSurvivalMin: document.getElementById('golSurvivalMin'),
-  golSurvivalMax: document.getElementById('golSurvivalMax'),
-  golBirth: document.getElementById('golBirth'),
-  golLiveCellDef: document.getElementById('golLiveCellDef'),
-  golColorGenetics: document.getElementById('golColorGenetics'),
+  // === START MODIFICATION ===
+  golSurvivalChipsContainer: document.getElementById('golSurvivalChipsContainer'),
+  golBirthChipsContainer: document.getElementById('golBirthChipsContainer'),
+  // === END MODIFICATION ===
   btnGolSettingsSave: document.getElementById('btnGolSettingsSave'),
   btnGolSettingsCancel: document.getElementById('btnGolSettingsCancel'),
   btnGolSettingsReset: document.getElementById('btnGolSettingsReset'),

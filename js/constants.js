@@ -195,11 +195,8 @@ export const SIZES = [299, 249, 199, 149, 101, 75, 65, 55, 49, 35, 27, 21, 15, 1
 
 // --- Default Simulation Rules ---
 export const defaultGameOfLifeRules = {
-    survivalMin: 3, 
-    survivalMax: 5,
-    birth: 3,
-    liveCellDef: 'notDarkest',
-    colorGenetics: 'average'
+    survival: [3, 4, 5],
+    birth: [3]
 };
 
 export const defaultGravitationalSortRules = {

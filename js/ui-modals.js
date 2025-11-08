@@ -57,6 +57,9 @@ function closePaletteModal() {
 
 function closeGolSettingsModal() {
     app.dom.gameOfLifeSettingsModal.classList.remove('modal-visible');
+    // --- START MODIFICATION ---
+    // (הסרת הקוד הישן שטיפל בגבולות האדומים של שדות הטקסט)
+    // --- END MODIFICATION ---
     setTimeout(() => app.dom.gameOfLifeSettingsModal.style.display = 'none', 300);
     app.resetWasLongPress();
 }
@@ -391,26 +394,122 @@ function populateHelpModal() {
     contentDiv.appendChild(shortcutsContainer);
 }
 
+// --- START: New Preset Button Logic ---
+
+// 1. אובייקט עזר שמכיל את החוקים של כל פריסט
+const PRESET_RULES = {
+  'btnGolPresetHarmonic': { survival: [3, 4, 5], birth: [3] },
+  'btnGolPresetClassic': { survival: [2, 3], birth: [3] },
+  'btnGolPresetHive': { survival: [2, 3, 4, 5], birth: [4] },
+  'btnGolPresetGeometric': { survival: [1, 2, 3, 4, 8], birth: [2] },
+  'btnGolPresetLivingTexture': { survival: [3, 4, 6, 7, 8], birth: [3, 6, 7, 8] },
+  'btnGolPresetMystery': { survival: [2, 3, 4, 5], birth: [4, 5, 6, 7] },
+  'btnGolPresetAmoeba': { survival: [1, 3, 5, 8], birth: [3, 5, 7] },
+  'btnGolPresetPaint': { survival: [1, 2, 3, 4, 5, 6, 7, 8], birth: [1, 2, 3, 4, 5, 6, 7, 8] },
+  'btnGolPresetCoral': { survival: [4, 5, 6, 7, 8], birth: [3] }
+};
+
+// 2. הפונקציה החדשה שבודקת ומעדכנת את כפתורי הפריסט
+function updateActivePresetButton() {
+  // קח את כל הצ'יפים הפעילים כרגע
+  const currentSurvival = [];
+  app.dom.golSurvivalChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+    currentSurvival.push(parseInt(chip.dataset.number, 10));
+  });
+  
+  const currentBirth = [];
+  app.dom.golBirthChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+    currentBirth.push(parseInt(chip.dataset.number, 10));
+  });
+
+  // פונקציית עזר להשוואת שני מערכים
+  const arraysAreEqual = (a, b) => 
+    a.length === b.length && a.every((val, index) => val === b[index]);
+
+  // סדר את המערכים הנוכחיים לצורך השוואה
+  currentSurvival.sort((a,b) => a - b);
+  currentBirth.sort((a,b) => a - b);
+
+  // עבור על כל הפריסטים המוכרים
+  for (const [buttonId, rules] of Object.entries(PRESET_RULES)) {
+    const presetButton = document.getElementById(buttonId);
+    if (!presetButton) continue;
+
+    // השווה את החוקים הנוכחיים לחוקי הפריסט (הם כבר ממוינים)
+    const survivalMatch = arraysAreEqual(currentSurvival, rules.survival);
+    const birthMatch = arraysAreEqual(currentBirth, rules.birth);
+
+    // הדלק או כבה את הכפתור בהתאם
+    if (survivalMatch && birthMatch) {
+      presetButton.classList.add('active');
+    } else {
+      presetButton.classList.remove('active');
+    }
+  }
+}
+
+// 3. עדכון פונקציית applyGolPreset הקיימת
+function applyGolPreset(survivalArray, birthArray) {
+    // עדכון צ'יפים של הישרדות
+    app.dom.golSurvivalChipsContainer.querySelectorAll('.gol-chip-btn').forEach(chip => {
+        const num = parseInt(chip.dataset.number, 10);
+        chip.classList.toggle('active', survivalArray.includes(num));
+    });
+
+    // עדכון צ'יפים של לידה
+    app.dom.golBirthChipsContainer.querySelectorAll('.gol-chip-btn').forEach(chip => {
+        const num = parseInt(chip.dataset.number, 10);
+        chip.classList.toggle('active', birthArray.includes(num));
+    });
+    
+    // קריאה לפונקציית הבדיקה החדשה
+    updateActivePresetButton();
+}
+// --- END: New Preset Button Logic ---
+
+
+
+
 function openGolSettingsModal() {
     if (app.isBreathing() || app.isLifePlaying()) return;
+    
+    // --- START: MODIFICATION ---
+    // במקום להגדיר טקסט, נפעיל את הפונקציה שמעדכנת את הכפתורים
     const rules = app.getGameOfLifeRules();
-    app.dom.golSurvivalMin.value = rules.survivalMin;
-    app.dom.golSurvivalMax.value = rules.survivalMax;
-    app.dom.golBirth.value = rules.birth;
-    app.dom.golLiveCellDef.value = rules.liveCellDef;
-    app.dom.golColorGenetics.value = rules.colorGenetics;
+    applyGolPreset(rules.survival, rules.birth);
+updateActivePresetButton();
+    // --- END: MODIFICATION ---
+    
     app.dom.gameOfLifeSettingsModal.style.display = 'flex';
     setTimeout(() => app.dom.gameOfLifeSettingsModal.classList.add('modal-visible'), 10);
 }
 
+
+// --- START: MODIFICATION ---
+// הסרת פונקציית הוולידציה הישנה, אין בה צורך יותר
+// function validateRuleString(ruleString) { ... }
+// --- END: MODIFICATION ---
+
+
 function saveGolSettings() {
+    // --- START MODIFICATION ---
+    // אין יותר ולידציה, רק איסוף נתונים מהכפתורים
+    const newSurvivalRules = [];
+    app.dom.golSurvivalChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+        newSurvivalRules.push(parseInt(chip.dataset.number, 10));
+    });
+
+    const newBirthRules = [];
+    app.dom.golBirthChipsContainer.querySelectorAll('.gol-chip-btn.active').forEach(chip => {
+        newBirthRules.push(parseInt(chip.dataset.number, 10));
+    });
+
     const newRules = {
-        survivalMin: parseInt(app.dom.golSurvivalMin.value, 10) || 0,
-        survivalMax: parseInt(app.dom.golSurvivalMax.value, 10) || 0,
-        birth: parseInt(app.dom.golBirth.value, 10) || 0,
-        liveCellDef: app.dom.golLiveCellDef.value,
-        colorGenetics: app.dom.golColorGenetics.value,
+        survival: newSurvivalRules,
+        birth: newBirthRules,
     };
+    // --- END MODIFICATION ---
+
     app.setGameOfLifeRules(newRules);
     closeGolSettingsModal();
 }
@@ -418,11 +517,11 @@ function saveGolSettings() {
 function resetGolSettings() {
     app.setGameOfLifeRules({ ...app.C.defaultGameOfLifeRules });
     const rules = app.getGameOfLifeRules();
-    app.dom.golSurvivalMin.value = rules.survivalMin;
-    app.dom.golSurvivalMax.value = rules.survivalMax;
-    app.dom.golBirth.value = rules.birth;
-    app.dom.golLiveCellDef.value = rules.liveCellDef;
-    app.dom.golColorGenetics.value = rules.colorGenetics;
+    
+    // --- START MODIFICATION ---
+    // עדכון הממשק הוויזואלי (הצ'יפים) במקום שדות הטקסט
+    applyGolPreset(rules.survival, rules.birth);
+    // --- END MODIFICATION ---
 }
 
 function openGravitationalSortSettingsModal() {
@@ -500,6 +599,27 @@ export function initializeModals(appContext) {
     app.dom.btnGolSettingsSave.addEventListener('click', saveGolSettings);
     app.dom.btnGolSettingsCancel.addEventListener('click', closeGolSettingsModal);
     app.dom.btnGolSettingsReset.addEventListener('click', resetGolSettings);
+
+    // --- START: MODIFICATION ---
+    // הוספת האזנה לכפתורי הצ'יפים החדשים
+    app.dom.gameOfLifeSettingsModal.querySelectorAll('.gol-chip-btn').forEach(chip => {
+        chip.addEventListener('click', () => {
+            chip.classList.toggle('active');
+updateActivePresetButton();
+        });
+    });
+
+    // עדכון כפתורי ההגדרות המוכנות (Presets) לשימוש בפונקציה החדשה
+    document.getElementById('btnGolPresetHarmonic').addEventListener('click', () => applyGolPreset([3, 4, 5], [3]));
+    document.getElementById('btnGolPresetClassic').addEventListener('click', () => applyGolPreset([2, 3], [3]));
+    document.getElementById('btnGolPresetHive').addEventListener('click', () => applyGolPreset([2, 3, 4, 5], [4]));
+    document.getElementById('btnGolPresetGeometric').addEventListener('click', () => applyGolPreset([1, 2, 3, 4, 8], [2]));
+    document.getElementById('btnGolPresetLivingTexture').addEventListener('click', () => applyGolPreset([3, 4, 6, 7, 8], [3, 6, 7, 8]));
+    document.getElementById('btnGolPresetMystery').addEventListener('click', () => applyGolPreset([2, 3, 4, 5], [4, 5, 6, 7]));
+    document.getElementById('btnGolPresetAmoeba').addEventListener('click', () => applyGolPreset([1, 3, 5, 8], [3, 5, 7]));
+    document.getElementById('btnGolPresetPaint').addEventListener('click', () => applyGolPreset([1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8]));
+    document.getElementById('btnGolPresetCoral').addEventListener('click', () => applyGolPreset([4, 5, 6, 7, 8], [3]));
+    // --- END: MODIFICATION ---
 
     // Gravitational Sort Settings Modal
     app.dom.gsDirectionButtons.forEach(btn => {
