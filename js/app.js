@@ -54,6 +54,7 @@ import { initializeModals } from './ui-modals.js';
       let gravitationalSortRules = { ...C.defaultGravitationalSortRules };
       let erosionRules = { ...C.defaultErosionRules };
       let dlaRules = { ...C.defaultDlaRules };
+      let contourRules = { ...C.defaultContourRules }; // <-- ADDED HERE
       let dlaState = null;
 
       let activePaletteIndex = 0;
@@ -113,7 +114,7 @@ let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
         if (!stateA || !stateB) return false;
         if (stateA.n !== stateB.n || stateA.activePaletteIndex !== stateB.activePaletteIndex || stateA.separatorPx !== stateB.separatorPx || stateA.symmetryMode !== stateB.symmetryMode || stateA.selectedColor !== stateB.selectedColor || stateA.isRainbowModeActive !== stateB.isRainbowModeActive || stateA.tiles.length !== stateB.tiles.length) return false;
         for (let i = 0; i < stateA.tiles.length; i++) {
-          if (stateA.tiles[i].k !== stateB.tiles[i].k || stateA.tiles[i].isGold !== stateB.tiles[i].isGold) return false;
+          if (stateA.tiles[i].k !== stateB.k || stateA.tiles[i].isGold !== stateB.isGold) return false;
         }
         return true;
       }
@@ -620,7 +621,7 @@ function syncDlaCrystalState() {
         if (tile.k > 0 && !tile.isGold) {
             dlaState.crystal.add(index);
         } else {
-            dlaState.emptyIndices.push(index);
+dlaState.emptyIndices.push(index);
         }
     });
 }
@@ -628,7 +629,7 @@ function syncDlaCrystalState() {
 
       function gameLoop() {
         if (!isLifePlaying) return;
-        const context = { n, currentBoardState: boardState, currentPalette: palette(), gameOfLifeRules, gravitationalSortRules, erosionRules, dlaState, dlaRules };
+        const context = { n, currentBoardState: boardState, currentPalette: palette(), gameOfLifeRules, gravitationalSortRules, erosionRules, dlaState, dlaRules, contourRules };
         let nextState;
         switch(armedSimulation) {
             case 'gameOfLife': nextState = Simulations.runGameOfLifeGeneration(context); boardState = nextState; break;
@@ -643,8 +644,12 @@ case 'brightnessEvo':
 
             case 'gravitationalSort': nextState = Simulations.runGravitationalSortGeneration(context); boardState = nextState; break;
             case 'erosion': nextState = Simulations.runErosionGeneration(context); boardState = nextState; break;
-            case 'dla':
+       case 'contour': 
+                nextState = Simulations.runContourGeneration(context); 
+                boardState = nextState; 
+                break;
 
+            case 'dla':
 const currentDlaRules = { ...dlaRules, colorGenetics: dlaMode === 'genetics' };
 const dlaContext = { ...context, dlaRules: currentDlaRules };
 const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(dlaContext);
@@ -666,7 +671,7 @@ break;
                 syncDlaCrystalState();
             }
       
-            const context = { n, currentBoardState: boardState, currentPalette: palette(), gameOfLifeRules, gravitationalSortRules, erosionRules, dlaState, dlaRules };
+            const context = { n, currentBoardState: boardState, currentPalette: palette(), gameOfLifeRules, gravitationalSortRules, erosionRules, dlaState, dlaRules, contourRules };
             
             switch(armedSimulation) {
                 case 'gameOfLife': 
@@ -686,8 +691,12 @@ case 'brightnessEvo':
                 case 'erosion': 
                     boardState = Simulations.runErosionGeneration(context); 
                     break;
-                case 'dla': 
+            
+case 'contour': 
+                boardState = Simulations.runContourGeneration(context); 
+                break;
 
+            case 'dla':
 const currentDlaRules = { ...dlaRules, colorGenetics: dlaMode === 'genetics' };
 const dlaContext = { ...context, dlaRules: currentDlaRules };
 const { nextBoardState, nextDlaState } = Simulations.runDlaGeneration(dlaContext);
@@ -724,7 +733,9 @@ break;
           dom.btnGravitationalSort.disabled = false;
           dom.btnErosion.disabled = false;
           dom.btnDla.disabled = false;
+dom.btnContour.disabled = false;
       }
+
       
       function togglePlayPauseLife() {
           if (isLifePlaying) {
@@ -755,7 +766,7 @@ const BREATHE_SPEED = 0.0015;
               dom.btnGravitationalSort.disabled = true;
               dom.btnErosion.disabled = true;
               dom.btnDla.disabled = true;
-              
+     dom.btnContour.disabled = true;         
               startAnimationLoop(); // Start the smooth animation loop
               return; // Exit here, don't start gameLoop
           }
@@ -777,6 +788,7 @@ const BREATHE_SPEED = 0.0015;
           dom.btnGravitationalSort.disabled = true;
           dom.btnErosion.disabled = true;
           dom.btnDla.disabled = true;
+dom.btnContour.disabled = true;
           gameLoop();
       }
       
@@ -866,7 +878,7 @@ function armSimulation(simulationName) {
     dlaMode = 'off';
     breatheEvoMode = 'off';
     
-    const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla];
+const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour];
     simButtons.forEach(btn => btn.classList.remove('simulation-active'));
     updateBrightnessEvoButtonUI(); // Update UI to reflect the reset
     updateDlaButtonUI();           // Update UI to reflect the reset
@@ -1117,6 +1129,7 @@ const brushSizeSlider = document.getElementById('brushSizeSlider');
             if (btn.id === 'btnToggleSimMode') { if (!isSimModeActive) toggleSimMode(); prepareBoardForSimMode(); return; }
             if (btn.id === 'btnGameOfLife') { modals.openGolSettingsModal(); return; }
             if (btn.id === 'btnGravitationalSort') { modals.openGravitationalSortSettingsModal(); return; }
+            if (btn.id === 'btnContour') { modals.openContourSettingsModal(); return; } // <-- ADDED HERE
 if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); return; }
             if (btn.id === 'btnPalette') { modals.openPaletteModal(); return; }
             if (btn.id === 'btnResizeUp' || btn.id === 'btnResizeDown') { modals.openResizeModal(); return; }
@@ -1173,7 +1186,8 @@ if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); re
         dom.btnGravitationalSort.title = getText('tooltip_gravitationalSort'); 
         dom.btnErosion.title = getText('tooltip_erosion');
         dom.btnDla.title = getText('tooltip_dla'); 
-        dom.btnLangToggle.textContent = getCurrentLang().toUpperCase();
+        dom.btnContour.title = getText('tooltip_contour');
+dom.btnLangToggle.textContent = getCurrentLang().toUpperCase();
         dom.btnBrushMode.title = isBrushModeOn ? getText('brushMode_paint') : getText('brushMode_copy');
 
         document.querySelectorAll('.ctrl').forEach(btn => { 
@@ -1237,7 +1251,9 @@ if (btn.id === 'btnBrightnessEvo') { modals.openBrightnessEvoSettingsModal(); re
       function resetArmedState() {
         armedSimulation = null;
         dlaState = null;
-        const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla];
+
+const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour];
+
         simButtons.forEach(btn => btn.classList.remove('simulation-active'));
         dom.btnPlayPauseLife.disabled = true;
         dom.btnStepForward.disabled = true;
@@ -1709,6 +1725,7 @@ function cycleBreatheEvoMode() {
             getGameOfLifeRules: () => gameOfLifeRules, setGameOfLifeRules: (r) => { gameOfLifeRules = r; },
             getGravitationalSortRules: () => gravitationalSortRules, setGravitationalSortRules: (r) => { gravitationalSortRules = r; },
             getDlaRules: () => dlaRules, setDlaRules: (r) => { dlaRules = r; },
+            getContourRules: () => contourRules, setContourRules: (r) => { contourRules = r; }, // <-- ADDED HERE
 
 
 
@@ -1770,6 +1787,8 @@ dom.btnShowBreatheMenu.addEventListener('click', (e) => handleCtrlClick(e, cycle
 
 dom.btnDla.addEventListener('click', (e) => handleCtrlClick(e, cycleDlaMode));
 
+
+dom.btnContour.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('contour')));
         dom.btnPlayPauseLife.addEventListener('click', (e) => handleCtrlClick(e, togglePlayPauseLife));
         dom.btnStepForward.addEventListener('click', (e) => handleCtrlClick(e, stepForward));
         dom.btnNudgeBrighter.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(1)));

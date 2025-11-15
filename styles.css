@@ -187,6 +187,7 @@ body {
 #btnGravitationalSort,
 #btnErosion,
 #btnDla,
+#btnContour, /* <-- ADDED HERE */
 #btnNudgeBrighter,
 #btnNudgeDarker {
     opacity: 0;
@@ -246,6 +247,7 @@ body {
 .sim-mode-active #btnGravitationalSort,
 .sim-mode-active #btnErosion,
 .sim-mode-active #btnDla,
+.sim-mode-active #btnContour, /* <-- ADDED HERE */
 .sim-mode-active #btnNudgeBrighter,
 .sim-mode-active #btnNudgeDarker {
     opacity: 1;
@@ -273,6 +275,7 @@ body {
 .sim-mode-active #btnDla             { grid-area: 2 / 4; }
 .sim-mode-active #btnErosion         { grid-area: 3 / 5; }
 .sim-mode-active #btnToggleSimMode   { grid-area: 4 / 4; }
+.sim-mode-active #btnContour         { grid-area: 4 / 5; } /* <-- ADDED HERE */
 
 
 /* Right Panel */
@@ -319,12 +322,12 @@ body {
 .glow-animation-separator svg {
   animation: glow-effect 2s ease-in-out infinite;
 }
-#saveModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal, #advancedColorMappingModal {
+#saveModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal, #advancedColorMappingModal, #contourSettingsModal {
   transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
   visibility: hidden;
   opacity: 0;
 }
-#saveModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible, #advancedColorMappingModal.modal-visible {
+#saveModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible, #advancedColorMappingModal.modal-visible, #contourSettingsModal.modal-visible {
   visibility: visible;
   opacity: 1;
 }
@@ -612,7 +615,8 @@ body {
 #btnShowBreatheMenu.simulation-active svg,
 #btnGravitationalSort.simulation-active svg,
 #btnErosion.simulation-active svg,
-#btnDla.simulation-active svg {
+#btnDla.simulation-active svg,
+#btnContour.simulation-active svg /* <-- ADDED HERE */ {
   stroke: var(--gold);
   stroke-width: 2.5; /* Make the icon lines thicker */
 }
@@ -685,7 +689,7 @@ body {
     box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5);
 }
 
-#btnGsSettingsSave:hover {
+#btnGsSettingsSave:hover, #btnContourSettingsSave:hover {
     background-color: #e6c200 !important;
 }
 
@@ -719,11 +723,12 @@ body {
 #btnBrightnessEvo svg,
 #btnShowBreatheMenu svg,
 #btnGravitationalSort svg,
-#btnErosion svg {
+#btnErosion svg,
+#btnContour svg /* <-- ADDED HERE */ {
     stroke: var(--sim-color); /* צובע את קווי המתאר של האייקון */
 }
 
-#btnShowBreatheMenu svg circle {
+#btnShowBfreatheMenu svg circle {
     fill: var(--sim-color); /* צובע את העיגולים המלאים באייקון הנשימה */
 }
 
@@ -894,3 +899,34 @@ body {
   transform: translateY(-2px); /* Lift it up slightly */
 }
 /* === END: New Preset Button Active Style === */
+}
+
+/* --- START: New Contour Settings Modal Styles --- */
+#contourSensitivitySlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #eaeaea;
+  cursor: pointer;
+  margin-top: -6px; /* Center thumb on the track */
+}
+#contourSensitivitySlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #eaeaea;
+  cursor: pointer;
+}
+#contourSensitivitySlider:focus {
+    outline: none;
+}
+#contourSensitivitySlider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5);
+}
+
+#btnContourSettingsSave:hover {
+    background-color: #e6c200 !important;
+}
+/* --- END: New Contour Settings Modal Styles --- */
