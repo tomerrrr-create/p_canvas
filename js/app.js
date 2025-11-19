@@ -1240,7 +1240,7 @@ dom.btnLangToggle.textContent = getCurrentLang().toUpperCase();
                 pauseLife();
                 resetArmedState();
             }
-            const controlsToHide = [ dom.btnBrushMode, dom.btnGap, dom.btnResetBoard, dom.btnTutorial, dom.btnSave, dom.btnSpecialReset, dom.btnInvert ];
+            const controlsToHide = [ dom.btnBrushMode, dom.btnGap, dom.btnResetBoard, dom.btnTutorial, dom.btnSpecialReset, dom.btnInvert ];
             controlsToHide.forEach(btn => btn.classList.toggle('control-hidden', isSimModeActive));
             dom.btnPlayPauseLife.classList.toggle('control-hidden', !isSimModeActive);
             dom.btnToggleSimMode.classList.toggle('active', isSimModeActive);

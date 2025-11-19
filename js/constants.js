@@ -216,7 +216,7 @@ export const defaultDlaRules = {
 
 // --- START: Added for Contour Settings ---
 export const defaultContourRules = {
-    sensitivity: 30, // Default sensitivity (30%) as requested in UX spec
-    lineColor: 'darkest' // Default line color as requested in UX spec
+    sensitivity: 75,
+    lineColor: 'darkest'
 };
 // --- END: Added for Contour Settings ---

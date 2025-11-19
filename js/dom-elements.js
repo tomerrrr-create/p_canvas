@@ -56,7 +56,7 @@ export const dom = {
   paletteModal: document.getElementById('paletteModal'),
   gameOfLifeSettingsModal: document.getElementById('gameOfLifeSettingsModal'),
   gravitationalSortSettingsModal: document.getElementById('gravitationalSortSettingsModal'),
-  contourSettingsModal: document.getElementById('contourSettingsModal'), // <-- ADDED HERE
+  contourSettingsModal: document.getElementById('contourSettingsModal'), 
 
 
 
@@ -99,10 +99,8 @@ export const dom = {
   paletteModalTitle: document.getElementById('paletteModalTitle'),
   
   // Game of Life Settings Modal Elements
-  // === START MODIFICATION ===
   golSurvivalChipsContainer: document.getElementById('golSurvivalChipsContainer'),
   golBirthChipsContainer: document.getElementById('golBirthChipsContainer'),
-  // === END MODIFICATION ===
   btnGolSettingsSave: document.getElementById('btnGolSettingsSave'),
   btnGolSettingsCancel: document.getElementById('btnGolSettingsCancel'),
   btnGolSettingsReset: document.getElementById('btnGolSettingsReset'),
@@ -130,6 +128,7 @@ export const dom = {
   contourSensitivityLabelLow: document.getElementById('contourSensitivityLabelLow'),
   contourSensitivitySlider: document.getElementById('contourSensitivitySlider'),
   contourSensitivityLabelHigh: document.getElementById('contourSensitivityLabelHigh'),
+  contourSensitivityValue: document.getElementById('contourSensitivityValue'), // <-- ADDED HERE (New Element)
   contourColorLabel: document.getElementById('contourColorLabel'),
   btnContourColorDark: document.getElementById('btnContourColorDark'),
   btnContourColorLight: document.getElementById('btnContourColorLight'),

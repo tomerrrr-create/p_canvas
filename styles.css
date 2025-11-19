@@ -235,7 +235,6 @@ body {
 .sim-mode-active #btnGap,
 .sim-mode-active #btnResetBoard,
 .sim-mode-active #btnTutorial,
-.sim-mode-active #btnSave,
 .sim-mode-active #btnSpecialReset,
 .sim-mode-active #btnInvert {
   display: none;
@@ -262,21 +261,23 @@ body {
 
 
 /* Center Panel */
-/* שורה ראשונה (השינוי שביקשת) */
 .sim-mode-active #btnStepForward     { display: inline-flex; grid-area: 1 / 3; } /* מיקום 1: צעד קדימה */
 .sim-mode-active #btnPalette        { grid-area: 1 / 4; }                      /* מיקום 2: החלף פלטה */
 .sim-mode-active #btnPlayPauseLife   { grid-area: 1 / 5; }                      /* מיקום 3: הפעל / השהה */
 
-/* שורות אחרות (נשארות ללא שינוי) */
-.sim-mode-active #btnGameOfLife      { grid-area: 2 / 3; }
-.sim-mode-active #btnShowBreatheMenu { grid-area: 3 / 4; }
+.sim-mode-active #btnGameOfLife      { grid-area: 3 / 4; }
+.sim-mode-active #btnShowBreatheMenu { grid-area: 4 / 5; }
 .sim-mode-active #btnBrightnessEvo   { grid-area: 2 / 5; }
 .sim-mode-active #btnGravitationalSort { grid-area: 3 / 3; }
 .sim-mode-active #btnDla             { grid-area: 2 / 4; }
 .sim-mode-active #btnErosion         { grid-area: 3 / 5; }
 .sim-mode-active #btnToggleSimMode   { grid-area: 4 / 4; }
-.sim-mode-active #btnContour         { grid-area: 4 / 5; } /* <-- ADDED HERE */
+.sim-mode-active #btnContour         { grid-area: 2 / 3; }
 
+.sim-mode-active #btnSave {
+    display: inline-flex; /* הופך את הכפתור לנראה */
+    grid-area: 4 / 3;     /* שורה 4, עמודה 3 (מתחת לגרביטציה) */
+}
 
 /* Right Panel */
 .sim-mode-active #btnSymmetry        { grid-area: 1 / 7; }

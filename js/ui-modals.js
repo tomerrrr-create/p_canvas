@@ -577,6 +577,7 @@ function openContourSettingsModal() {
     // 2. Get current rules and set UI elements
     const rules = app.getContourRules();
     app.dom.contourSensitivitySlider.value = rules.sensitivity;
+    app.dom.contourSensitivityValue.textContent = `${rules.sensitivity}%`; // Set initial text value
     
     app.dom.btnContourColorDark.classList.toggle('active', rules.lineColor === 'darkest');
     app.dom.btnContourColorLight.classList.toggle('active', rules.lineColor === 'lightest');
@@ -706,6 +707,11 @@ for (const [buttonId, rules] of Object.entries(PRESET_RULES)) {
     app.dom.contourSettingsModal.addEventListener('click', (e) => { if (e.target === app.dom.contourSettingsModal) { closeContourSettingsModal(); } });
     app.dom.btnContourSettingsSave.addEventListener('click', saveContourSettings);
     app.dom.btnContourSettingsCancel.addEventListener('click', closeContourSettingsModal);
+
+    // Listen for slider changes to update the text value
+    app.dom.contourSensitivitySlider.addEventListener('input', () => {
+        app.dom.contourSensitivityValue.textContent = `${app.dom.contourSensitivitySlider.value}%`;
+    });
 
     app.dom.contourColorButtons.forEach(btn => {
         btn.addEventListener('click', () => {
