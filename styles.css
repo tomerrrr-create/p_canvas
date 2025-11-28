@@ -266,7 +266,7 @@ body {
 .sim-mode-active #btnPlayPauseLife   { grid-area: 1 / 5; }                      /* מיקום 3: הפעל / השהה */
 
 .sim-mode-active #btnGameOfLife      { grid-area: 3 / 4; }
-.sim-mode-active #btnShowBreatheMenu { grid-area: 4 / 5; }
+.sim-mode-active #btnShowBreatheMenu { grid-area: 4 / 3; }
 .sim-mode-active #btnBrightnessEvo   { grid-area: 2 / 5; }
 .sim-mode-active #btnGravitationalSort { grid-area: 3 / 3; }
 .sim-mode-active #btnDla             { grid-area: 2 / 4; }
@@ -276,7 +276,7 @@ body {
 
 .sim-mode-active #btnSave {
     display: inline-flex; /* הופך את הכפתור לנראה */
-    grid-area: 4 / 3;     /* שורה 4, עמודה 3 (מתחת לגרביטציה) */
+    grid-area: 4 / 5;     /* שורה 4, עמודה 3 (מתחת לגרביטציה) */
 }
 
 /* Right Panel */
@@ -722,7 +722,6 @@ body {
 /* --- Custom Simulation Button Color --- */
 #btnGameOfLife svg,
 #btnBrightnessEvo svg,
-#btnShowBreatheMenu svg,
 #btnGravitationalSort svg,
 #btnErosion svg,
 #btnContour svg /* <-- ADDED HERE */ {

@@ -412,6 +412,8 @@ const PRESET_RULES = {
   'btnGolPresetLivingTexture': { survival: [3, 4, 6, 7, 8], birth: [3, 6, 7, 8] },
   'btnGolPresetAmoeba': { survival: [1, 3, 5, 8], birth: [3, 5, 7] },
   'btnGolPresetPaint': { survival: [1, 2, 3, 4, 5, 6, 7, 8], birth: [4, 5, 6, 7, 8] },
+  'btnGolPresetPaint2': { survival: [1, 2, 3, 4, 5, 6, 7, 8], birth: [1, 2,3] },
+
   'btnGolPresetCoral': { survival: [4, 5, 6, 7, 8], birth: [3] },
     'btnGolPresetMeditation': { survival: [1, 2, 3, 4, 5], birth: [3] },
   'btnGolPresetJoelson': { survival: [2, 3, 4, 5], birth: [4, 5, 6, 7, 8] },
