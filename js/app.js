@@ -1080,7 +1080,7 @@ const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheM
       function prepareBoardForSimMode() {
         animateBoardTransition(() => {
             performAction(() => {
-                if (n !== 149) _performResize(149);
+                if (n !== 199) _performResize(199);
                 separatorPx = 0; 
                 applySeparator();
                 goDark();
@@ -1089,7 +1089,7 @@ const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheM
                 selectedColor = currentPalette[lightestIndex];
                 selectedColorIndex = lightestIndex;
 
-brushSize = 3;
+brushSize = 1;
 const brushSizeSlider = document.getElementById('brushSizeSlider');
                 const brushSizeValue = document.getElementById('brushSizeValue');
                 if (brushSizeSlider) brushSizeSlider.value = brushSize;
