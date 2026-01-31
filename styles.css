@@ -930,3 +930,37 @@ body {
     background-color: #e6c200 !important;
 }
 /* --- END: New Contour Settings Modal Styles --- */
+
+
+/* --- Game of Life Mobile Optimization --- */
+
+/* 1. הקטנת הרווחים בין הכפתורים (דורס את ה-gap-2 של טיילווינד) */
+#golSurvivalChipsContainer,
+#golBirthChipsContainer {
+    gap: 4px !important;       /* רווח מינימלי */
+    justify-content: center;   /* מירכוז */
+    flex-wrap: nowrap !important; /* הכרח להישאר בשורה אחת */
+    overflow-x: auto;          /* גלילה לצדדים רק אם המסך ממש פיצי */
+}
+
+/* 2. עיצוב מחדש של כפתורי המספרים (הצ'יפים) */
+.gol-chip-btn {
+    width: 30px;              /* רוחב קבוע וצר */
+    height: 30px;             /* גובה קבוע */
+    padding: 0 !important;    /* ביטול ריפוד פנימי */
+    font-size: 0.9rem;        /* גודל פונט קריא אך קטן */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;       /* פינות מעוגלות עדינות */
+    flex-shrink: 0;           /* מונע מהכפתורים להתכווץ */
+}
+
+/* 3. התאמה קלה גם לכפתורי הפריסטים (אופציונלי, כדי שיהיה אחיד) */
+.gol-preset-btn {
+    padding: 6px 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;      /* מונע שבירת שורות בתוך הכפתור */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
