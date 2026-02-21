@@ -643,3 +643,83 @@ export function runContourGeneration({ n, currentBoardState, currentPalette, con
     return nextBoardState;
 }
 // --- END: MODIFIED FOR CONTOUR FEATURE ---
+
+export function generateSandpile(currentBoardState, currentPalette) {
+    const n = Math.sqrt(currentBoardState.length);
+    const nextBoardState = currentBoardState.map(cell => ({ ...cell }));
+    let hasChanged = false;
+    const numColors = currentPalette.length;
+
+    // החידוש: טווח המשיכה המגנטי. 
+    // ככל שהפלטה גדולה יותר, הטווח גדל. בפלטה של 24 צבעים, כל 4 הצבעים הבאים בתור יכולים למשוך!
+    const pullReach = Math.max(2, Math.floor(numColors / 6)); 
+
+    // שלב א': התנעה (מוגדלת קצת כדי להתאים ל-23+ צבעים)
+    let activeCells = 0;
+    for (let i = 0; i < currentBoardState.length; i++) {
+        if (currentBoardState[i].k > 0) activeCells++;
+    }
+
+    if (activeCells > 0 && activeCells < 15) {
+        for (let i = 0; i < currentBoardState.length; i++) {
+            if (currentBoardState[i].k > 0) {
+                const row = Math.floor(i / n);
+                const col = i % n;
+                // פיזור רחב יותר של זרעים כדי להכיל את כל הצבעים
+                for (let r = -4; r <= 4; r++) {
+                    for (let c = -4; c <= 4; c++) {
+                        const newRow = row + r;
+                        const newCol = col + c;
+                        if (newRow >= 0 && newRow < n && newCol >= 0 && newCol < n) {
+                            const idx = newRow * n + newCol;
+                            if (Math.random() > 0.2) {
+                                nextBoardState[idx].k = Math.floor(Math.random() * numColors);
+                                nextBoardState[idx].v = nextBoardState[idx].k;
+                                hasChanged = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return { nextBoardState, hasChanged };
+    }
+
+    // שלב ב': זרימת אנרגיה עם מגנטיות גמישה
+    for (let i = 0; i < currentBoardState.length; i++) {
+        const row = Math.floor(i / n);
+        const col = i % n;
+        const currentK = currentBoardState[i].k;
+        
+        let pullingNeighborsCount = 0;
+
+        for (let r = -1; r <= 1; r++) {
+            for (let c = -1; c <= 1; c++) {
+                if (r === 0 && c === 0) continue;
+                
+                const wrapRow = (row + r + n) % n;
+                const wrapCol = (col + c + n) % n;
+                const neighborIdx = wrapRow * n + wrapCol;
+                const neighborK = currentBoardState[neighborIdx].k;
+
+                // חישוב המרחק של השכן קדימה במעגל הצבעים
+                let dist = neighborK - currentK;
+                if (dist < 0) dist += numColors; // תיקון לסגירת המעגל (הצבע האחרון חוזר לראשון)
+
+                // אם השכן נמצא קדימה בשרשרת, ובתוך טווח המשיכה המותר, הוא נחשב למשוך!
+                if (dist > 0 && dist <= pullReach) {
+                    pullingNeighborsCount++;
+                }
+            }
+        }
+
+if (pullingNeighborsCount >= 2) {
+            const nextK = (currentK + 1) % numColors;
+            nextBoardState[i].k = nextK;
+            nextBoardState[i].v = nextK;
+            hasChanged = true;
+        }
+    }
+
+    return { nextBoardState, hasChanged };
+}
