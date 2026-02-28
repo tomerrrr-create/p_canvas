@@ -307,7 +307,7 @@ export const defaultContourRules = {
 export const defaultChiFlowRules = {
     awakening: [3, 4, 5, 6, 7, 8], // מקביל ל: neighborsWithEnergy >= 3
     flow: [2, 3],                  // מקביל ל: pullingNeighborsCount === 2 || 3
-    reach: 2                       // ערך התחלתי לסליידר המגנטיות (טווח 1-10)
+    reach: 0                       // ערך התחלתי לסליידר המגנטיות (טווח 1-10)
 };
 // --- END: Added for Chi Flow (Sandpile) Settings ---
 

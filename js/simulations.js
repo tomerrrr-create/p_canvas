@@ -651,7 +651,11 @@ export function generateSandpile(currentBoardState, currentPalette, chiFlowRules
     const numColors = currentPalette.length;
 
     // מגנטיות - עכשיו נשלטת על ידי המשתמש (reach) במקום חישוב קשיח
-    const pullReach = chiFlowRules.reach; 
+let pullReach = chiFlowRules.reach;
+// אם המשתמש בחר 0 (Auto), נשתמש בנוסחה הדינמית החכמה מהקוד הישן שלך
+if (pullReach === 0) {
+    pullReach = Math.max(2, Math.floor(numColors / 6));
+}
 
     for (let i = 0; i < currentBoardState.length; i++) {
         const row = Math.floor(i / n);
