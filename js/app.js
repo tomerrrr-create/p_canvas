@@ -439,7 +439,12 @@ const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;
               tile.v = darkestIndex;
           }
         });
+
+dlaState = null; // איפוס לפרקטלים
+        turingState = null; // <--- הוסף את השורה הזו כאן! (איפוס לטיורינג)
+
         startAnimationLoop();
+
       }
 
       function goDarkAction() {

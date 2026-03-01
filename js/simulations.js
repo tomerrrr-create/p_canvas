@@ -782,23 +782,23 @@ function getLaplacian(x, y, grid, n) {
 export function runTuringGeneration({ n, currentBoardState, currentPalette, turingState, turingRules }) {
     let state = turingState;
     
-    // 1. אתחול הלוח: שימוש בציור של המשתמש בתור נקודת ההתחלה!
+    // 1. אתחול ראשוני (או איפוס אם הלוח נוקה לחלוטין)
     if (!state || !state.isInitialized || state.A.length !== n * n) {
         const A = new Float32Array(n * n).fill(1.0);
         const B = new Float32Array(n * n).fill(0.0);
+        const lastBoardK = new Uint16Array(n * n); // הזיכרון החדש: מה ציירנו בפריים הקודם?
         
         let hasDrawing = false;
         
-        // סורקים את הלוח: כל מקום שבו יש צבע (שאינו צבע הרקע 0) - הופך לטריגר של הריאקציה
         for (let i = 0; i < n * n; i++) {
             if (currentBoardState[i].k > 0 && !currentBoardState[i].isGold) {
-                B[i] = 1.0; // הזרקת החומר הפעיל בדיוק איפה שהמשתמש צייר
+                B[i] = 1.0;
+                A[i] = 0.0;
                 hasDrawing = true;
             }
+            lastBoardK[i] = currentBoardState[i].k; // שומרים את מצב הפתיחה
         }
         
-        // מקרה גיבוי: אם המשתמש הפעיל את הסימולציה על לוח ריק לגמרי (רקע חלק)
-        // נזריק טיפה אחת באמצע כדי שהסימולציה בכל זאת תעבוד ולא "תקפא"
         if (!hasDrawing) {
             const center = Math.floor(n / 2);
             for (let dy = -2; dy <= 2; dy++) {
@@ -806,17 +806,35 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
                     const idx = (center + dy) * n + (center + dx);
                     if(idx >= 0 && idx < n * n) {
                         B[idx] = 1.0;
+                        A[idx] = 0.0;
                     }
                 }
             }
         }
         
-        state = { A, B, isInitialized: true };
+        state = { A, B, lastBoardK, isInitialized: true };
+    } else {
+        // --- התיקון לבאגים: סנכרון חי מול פעולות המשתמש ---
+        for (let i = 0; i < n * n; i++) {
+            // האם הפיקסל על המסך שונה ממה שהסימולציה ציירה עליו הרגע?
+            if (currentBoardState[i].k !== state.lastBoardK[i]) {
+                if (currentBoardState[i].k > 0 && !currentBoardState[i].isGold) {
+                    // המשתמש צייר קו חדש, או עשה Undo שהחזיר צבע -> מזריקים חומר פעיל
+                    state.B[i] = 1.0;
+                    state.A[i] = 0.0;
+                } else if (currentBoardState[i].k === 0) {
+                    // המשתמש מחק עם מחק, או עשה Undo ללוח שחור -> מנקים את החומר
+                    state.B[i] = 0.0;
+                    state.A[i] = 1.0;
+                }
+            }
+        }
     }
 
     const { feed, kill, dA, dB, timeStep } = turingRules;
     const nextA = new Float32Array(n * n);
     const nextB = new Float32Array(n * n);
+    const nextLastBoardK = new Uint16Array(n * n); // נשמור את התוצאה החדשה
     
     // 2. חישוב הריאקציה-דיפוזיה (Gray-Scott)
     for (let y = 0; y < n; y++) {
@@ -841,17 +859,22 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
     // 3. תרגום הריכוזים הכימיים לצבעים
     const pLen = currentPalette.length;
     const nextBoardState = currentBoardState.map((tile, i) => {
-        if (tile.isGold) return tile;
+        if (tile.isGold) {
+            nextLastBoardK[i] = tile.k;
+            return tile;
+        }
         
         const concentration = nextA[i];
         let colorIndex = Math.floor((1 - concentration) * pLen);
         colorIndex = Math.max(0, Math.min(pLen - 1, colorIndex));
+        
+        nextLastBoardK[i] = colorIndex; // שומרים בזיכרון מה ציירנו
         
         return { ...tile, k: colorIndex, v: colorIndex };
     });
 
     return { 
         nextBoardState, 
-        nextTuringState: { A: nextA, B: nextB, isInitialized: true } 
+        nextTuringState: { A: nextA, B: nextB, lastBoardK: nextLastBoardK, isInitialized: true } 
     };
 }
