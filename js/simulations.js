@@ -781,24 +781,31 @@ function getLaplacian(x, y, grid, n) {
 
 export function runTuringGeneration({ n, currentBoardState, currentPalette, turingState, turingRules }) {
     let state = turingState;
+    const pLen = currentPalette.length;
     
-    // 1. אתחול ראשוני (או איפוס אם הלוח נוקה לחלוטין)
+    // 1. אתחול ראשוני (הנדסה לאחור של הצבעים, או התחלה מצורה חדשה)
     if (!state || !state.isInitialized || state.A.length !== n * n) {
         const A = new Float32Array(n * n).fill(1.0);
         const B = new Float32Array(n * n).fill(0.0);
-        const lastBoardK = new Uint16Array(n * n); // הזיכרון החדש: מה ציירנו בפריים הקודם?
+        const lastBoardK = new Uint16Array(n * n);
         
         let hasDrawing = false;
         
         for (let i = 0; i < n * n; i++) {
-            if (currentBoardState[i].k > 0 && !currentBoardState[i].isGold) {
-                B[i] = 1.0;
-                A[i] = 0.0;
+            const currentK = currentBoardState[i].k;
+            lastBoardK[i] = currentK; // שומרים את מצב הפתיחה לטובת זיהוי שינויים בהמשך
+            
+            if (currentK > 0 && !currentBoardState[i].isGold) {
                 hasDrawing = true;
+                // הפתרון לפיצוץ הלבן: שחזור מדויק של רמות הכימיקלים מתוך גוון הצבע!
+                // ככל שהצבע בהיר יותר (אינדקס גבוה), כך יש בו יותר חומר B ופחות חומר A.
+                const bLevel = currentK / pLen; 
+                B[i] = bLevel;
+                A[i] = 1.0 - bLevel;
             }
-            lastBoardK[i] = currentBoardState[i].k; // שומרים את מצב הפתיחה
         }
         
+        // גיבוי למקרה של לוח ריק לחלוטין
         if (!hasDrawing) {
             const center = Math.floor(n / 2);
             for (let dy = -2; dy <= 2; dy++) {
@@ -814,19 +821,21 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
         
         state = { A, B, lastBoardK, isInitialized: true };
     } else {
-        // --- התיקון לבאגים: סנכרון חי מול פעולות המשתמש ---
+        // --- הפתרון לציור ידני ו-Undo תוך כדי ריצה (סנכרון חי) ---
         for (let i = 0; i < n * n; i++) {
-            // האם הפיקסל על המסך שונה ממה שהסימולציה ציירה עליו הרגע?
-            if (currentBoardState[i].k !== state.lastBoardK[i]) {
-                if (currentBoardState[i].k > 0 && !currentBoardState[i].isGold) {
-                    // המשתמש צייר קו חדש, או עשה Undo שהחזיר צבע -> מזריקים חומר פעיל
+            const currentK = currentBoardState[i].k;
+            // האם המשתמש שינה את הפיקסל הזה מאז הפריים הקודם?
+            if (currentK !== state.lastBoardK[i]) {
+                if (currentK > 0 && !currentBoardState[i].isGold) {
+                    // המשתמש צייר צבע חדש - נזריק 100% חומר פעיל כדי להצית ריאקציה!
                     state.B[i] = 1.0;
                     state.A[i] = 0.0;
-                } else if (currentBoardState[i].k === 0) {
-                    // המשתמש מחק עם מחק, או עשה Undo ללוח שחור -> מנקים את החומר
+                } else if (currentK === 0) {
+                    // המשתמש מחק (או עשה Undo) - ננקה את החומר הפעיל
                     state.B[i] = 0.0;
                     state.A[i] = 1.0;
                 }
+                state.lastBoardK[i] = currentK;
             }
         }
     }
@@ -834,7 +843,7 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
     const { feed, kill, dA, dB, timeStep } = turingRules;
     const nextA = new Float32Array(n * n);
     const nextB = new Float32Array(n * n);
-    const nextLastBoardK = new Uint16Array(n * n); // נשמור את התוצאה החדשה
+    const nextLastBoardK = new Uint16Array(n * n); 
     
     // 2. חישוב הריאקציה-דיפוזיה (Gray-Scott)
     for (let y = 0; y < n; y++) {
@@ -857,7 +866,6 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
     }
     
     // 3. תרגום הריכוזים הכימיים לצבעים
-    const pLen = currentPalette.length;
     const nextBoardState = currentBoardState.map((tile, i) => {
         if (tile.isGold) {
             nextLastBoardK[i] = tile.k;
@@ -868,7 +876,7 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
         let colorIndex = Math.floor((1 - concentration) * pLen);
         colorIndex = Math.max(0, Math.min(pLen - 1, colorIndex));
         
-        nextLastBoardK[i] = colorIndex; // שומרים בזיכרון מה ציירנו
+        nextLastBoardK[i] = colorIndex; // שומרים בזיכרון של הסימולציה את התוצאה
         
         return { ...tile, k: colorIndex, v: colorIndex };
     });
