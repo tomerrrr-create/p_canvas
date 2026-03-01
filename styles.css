@@ -300,7 +300,8 @@ body {
 .sim-mode-active #btnPlayPauseLife { grid-area: 1 / 6; }                      
 
 /* שורה 2 - (בתוך הרקע הכחול) */
-.sim-mode-active #btnContour       { grid-area: 2 / 4; } 
+.sim-mode-active #btnContour       { grid-area: 2 / 4; }
+.sim-mode-active #btnTuring        { grid-area: 2 / 3; } 
 .sim-mode-active #btnDla           { grid-area: 2 / 5; }
 .sim-mode-active #btnBrightnessEvo { grid-area: 2 / 6; }
 
@@ -756,6 +757,7 @@ body {
 #btnErosion svg,
 #btnContour svg,
 #btnSandpile svg,
+#btnTuring svg,
 #btnShowBreatheMenu svg {
     stroke: var(--sim-color); /* צובע את קווי המתאר של האייקון בכחול */
 }

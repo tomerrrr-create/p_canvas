@@ -279,6 +279,9 @@ export function runGravitationalSortGeneration({ n, currentBoardState, gravitati
     return nextBoardState;
 }
 
+
+
+
 export function runErosionGeneration({ n, currentBoardState, currentPalette, erosionRules }) {
     const pLen = currentPalette.length;
     const earthEndIndex = Math.floor(pLen * 0.20);
@@ -288,9 +291,9 @@ export function runErosionGeneration({ n, currentBoardState, currentPalette, ero
     const isAir = (k) => k >= earthEndIndex && k < airEndIndex;
     const isWater = (k) => k >= airEndIndex;
     
-    // Operate on a mutable array of indices for easier swapping
     const currentStateIndices = currentBoardState.map(tile => tile.k);
 
+    // חזרנו ללולאה המקורית והרציפה שיוצרת תנועת גל חלקה (תמיד רצה מהסוף להתחלה)
     for (let i = n * n - 1; i >= 0; i--) {
         const k = currentStateIndices[i];
         if (!isWater(k)) continue;
@@ -298,25 +301,30 @@ export function runErosionGeneration({ n, currentBoardState, currentPalette, ero
         const row = Math.floor(i / n);
         const col = i % n;
 
-        if (row < n - 1) { // Not the bottom row
+        if (row < n - 1) {
             const belowIdx = i + n;
             const belowK = currentStateIndices[belowIdx];
 
+            // נפילה ישרה למטה
             if (isAir(belowK)) {
                 [currentStateIndices[i], currentStateIndices[belowIdx]] = [belowK, k];
                 continue;
             }
+            
+            // שחיקת אדמה
             if (isEarth(belowK) && Math.random() < erosionRules.erosionStrength) {
-                currentStateIndices[belowIdx]++; // Erode earth
+                currentStateIndices[belowIdx]++; 
                 [currentStateIndices[i], currentStateIndices[belowIdx]] = [currentStateIndices[belowIdx], k];
                 continue;
             }
             
+            // בדיקת אלכסונים
             const canGoLeft = col > 0 && isAir(currentStateIndices[belowIdx - 1]);
             const canGoRight = col < n - 1 && isAir(currentStateIndices[belowIdx + 1]);
 
             if (canGoLeft && canGoRight) {
-                const moveIdx = (Math.random() < 0.5) ? belowIdx - 1 : belowIdx + 1;
+                // הפתרון: הסריקה דוחפת שמאלה, לכן ניתן פה משקל יתר לימינה כדי לאזן את הערימה!
+                const moveIdx = (Math.random() < 0.75) ? belowIdx + 1 : belowIdx - 1;
                 [currentStateIndices[i], currentStateIndices[moveIdx]] = [currentStateIndices[moveIdx], k];
             } else if (canGoLeft) {
                 [currentStateIndices[i], currentStateIndices[belowIdx - 1]] = [currentStateIndices[belowIdx - 1], k];
@@ -741,4 +749,109 @@ if (pullReach === 0) {
     // --- סוף מנגנון ההצתה ---
 
     return { nextBoardState, hasChanged };
+}
+
+
+// --- Turing Patterns (Reaction-Diffusion) Helper ---
+function getLaplacian(x, y, grid, n) {
+    let sum = 0;
+    
+    // משקלי הדיפוזיה: המרכז מאבד חומר, השכנים והאלכסונים מקבלים אותו
+    const center = -1;
+    const adjacent = 0.2;
+    const diagonal = 0.05;
+
+    sum += grid[y * n + x] * center;
+    
+    // סריקת השכנים עם עטיפה (Wrap-around) של הלוח כדי שהתבנית תהיה רציפה
+    for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue;
+            
+            const ny = (y + dy + n) % n;
+            const nx = (x + dx + n) % n;
+            const weight = (Math.abs(dx) === 1 && Math.abs(dy) === 1) ? diagonal : adjacent;
+            
+            sum += grid[ny * n + nx] * weight;
+        }
+    }
+    return sum;
+}
+
+
+export function runTuringGeneration({ n, currentBoardState, currentPalette, turingState, turingRules }) {
+    let state = turingState;
+    
+    // 1. אתחול הלוח: שימוש בציור של המשתמש בתור נקודת ההתחלה!
+    if (!state || !state.isInitialized || state.A.length !== n * n) {
+        const A = new Float32Array(n * n).fill(1.0);
+        const B = new Float32Array(n * n).fill(0.0);
+        
+        let hasDrawing = false;
+        
+        // סורקים את הלוח: כל מקום שבו יש צבע (שאינו צבע הרקע 0) - הופך לטריגר של הריאקציה
+        for (let i = 0; i < n * n; i++) {
+            if (currentBoardState[i].k > 0 && !currentBoardState[i].isGold) {
+                B[i] = 1.0; // הזרקת החומר הפעיל בדיוק איפה שהמשתמש צייר
+                hasDrawing = true;
+            }
+        }
+        
+        // מקרה גיבוי: אם המשתמש הפעיל את הסימולציה על לוח ריק לגמרי (רקע חלק)
+        // נזריק טיפה אחת באמצע כדי שהסימולציה בכל זאת תעבוד ולא "תקפא"
+        if (!hasDrawing) {
+            const center = Math.floor(n / 2);
+            for (let dy = -2; dy <= 2; dy++) {
+                for (let dx = -2; dx <= 2; dx++) {
+                    const idx = (center + dy) * n + (center + dx);
+                    if(idx >= 0 && idx < n * n) {
+                        B[idx] = 1.0;
+                    }
+                }
+            }
+        }
+        
+        state = { A, B, isInitialized: true };
+    }
+
+    const { feed, kill, dA, dB, timeStep } = turingRules;
+    const nextA = new Float32Array(n * n);
+    const nextB = new Float32Array(n * n);
+    
+    // 2. חישוב הריאקציה-דיפוזיה (Gray-Scott)
+    for (let y = 0; y < n; y++) {
+        for (let x = 0; x < n; x++) {
+            const i = y * n + x;
+            const a = state.A[i];
+            const b = state.B[i];
+            
+            const laplaceA = getLaplacian(x, y, state.A, n);
+            const laplaceB = getLaplacian(x, y, state.B, n);
+            
+            const reaction = a * b * b;
+            
+            let newA = a + ((dA * laplaceA) - reaction + (feed * (1 - a))) * timeStep;
+            let newB = b + ((dB * laplaceB) + reaction - ((kill + feed) * b)) * timeStep;
+            
+            nextA[i] = Math.max(0, Math.min(1, newA));
+            nextB[i] = Math.max(0, Math.min(1, newB));
+        }
+    }
+    
+    // 3. תרגום הריכוזים הכימיים לצבעים
+    const pLen = currentPalette.length;
+    const nextBoardState = currentBoardState.map((tile, i) => {
+        if (tile.isGold) return tile;
+        
+        const concentration = nextA[i];
+        let colorIndex = Math.floor((1 - concentration) * pLen);
+        colorIndex = Math.max(0, Math.min(pLen - 1, colorIndex));
+        
+        return { ...tile, k: colorIndex, v: colorIndex };
+    });
+
+    return { 
+        nextBoardState, 
+        nextTuringState: { A: nextA, B: nextB, isInitialized: true } 
+    };
 }

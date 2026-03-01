@@ -311,3 +311,14 @@ export const defaultChiFlowRules = {
 };
 // --- END: Added for Chi Flow (Sandpile) Settings ---
 
+// --- START: Added for Turing Patterns Settings ---
+export const defaultTuringRules = {
+    feed: 0.055, // קצב הזרקת חומר A
+    kill: 0.062, // קצב התנדפות חומר B
+    dA: 1.0,     // מהירות התפשטות חומר A
+    dB: 0.5,     // מהירות התפשטות חומר B
+    timeStep: 1.0
+};
+// --- END: Added for Turing Patterns Settings ---
+
+
