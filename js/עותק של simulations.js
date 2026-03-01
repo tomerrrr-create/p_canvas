@@ -783,9 +783,6 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
     let state = turingState;
     const pLen = currentPalette.length;
     
-    // הפתרון: מכפיל קבוע שמסנכרן בין העולם הוויזואלי לעולם הכימי הנסתר
-    const STRETCH_FACTOR = 1.8; 
-    
     // 1. אתחול ראשוני (הנדסה לאחור של הצבעים, או התחלה מצורה חדשה)
     if (!state || !state.isInitialized || state.A.length !== n * n) {
         const A = new Float32Array(n * n).fill(1.0);
@@ -796,14 +793,15 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
         
         for (let i = 0; i < n * n; i++) {
             const currentK = currentBoardState[i].k;
-            lastBoardK[i] = currentK;
+            lastBoardK[i] = currentK; // שומרים את מצב הפתיחה לטובת זיהוי שינויים בהמשך
             
             if (currentK > 0 && !currentBoardState[i].isGold) {
                 hasDrawing = true;
-                // הנדסה לאחור מדויקת שמתחשבת במתיחת הצבעים
-                const bLevel = currentK / (STRETCH_FACTOR * pLen); 
-                B[i] = Math.min(1.0, bLevel); // מוודאים שלא חורגים מ-100%
-                A[i] = Math.max(0.0, 1.0 - B[i]);
+                // הפתרון לפיצוץ הלבן: שחזור מדויק של רמות הכימיקלים מתוך גוון הצבע!
+                // ככל שהצבע בהיר יותר (אינדקס גבוה), כך יש בו יותר חומר B ופחות חומר A.
+                const bLevel = currentK / pLen; 
+                B[i] = bLevel;
+                A[i] = 1.0 - bLevel;
             }
         }
         
@@ -823,17 +821,17 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
         
         state = { A, B, lastBoardK, isInitialized: true };
     } else {
-        // --- הפתרון לציור ידני ו-Undo תוך כדי ריצה (סנכרון חי חכם) ---
+        // --- הפתרון לציור ידני ו-Undo תוך כדי ריצה (סנכרון חי) ---
         for (let i = 0; i < n * n; i++) {
             const currentK = currentBoardState[i].k;
+            // האם המשתמש שינה את הפיקסל הזה מאז הפריים הקודם?
             if (currentK !== state.lastBoardK[i]) {
                 if (currentK > 0 && !currentBoardState[i].isGold) {
-                    // הזרקה רכה: מחשבים את הכמות המדויקת לפי הגוון שהמשתמש צייר איתו הרגע
-                    const bLevel = currentK / (STRETCH_FACTOR * pLen);
-                    state.B[i] = Math.min(1.0, bLevel);
-                    state.A[i] = Math.max(0.0, 1.0 - state.B[i]);
+                    // המשתמש צייר צבע חדש - נזריק 100% חומר פעיל כדי להצית ריאקציה!
+                    state.B[i] = 1.0;
+                    state.A[i] = 0.0;
                 } else if (currentK === 0) {
-                    // המשתמש מחק
+                    // המשתמש מחק (או עשה Undo) - ננקה את החומר הפעיל
                     state.B[i] = 0.0;
                     state.A[i] = 1.0;
                 }
@@ -875,9 +873,7 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
         }
         
         const concentration = nextA[i];
-        
-        // יצירת הצבע הוויזואלי באמצעות המכפיל המוסכם
-        let colorIndex = Math.floor((1 - concentration) * STRETCH_FACTOR * pLen);
+        let colorIndex = Math.floor((1 - concentration) * pLen);
         colorIndex = Math.max(0, Math.min(pLen - 1, colorIndex));
         
         nextLastBoardK[i] = colorIndex; // שומרים בזיכרון של הסימולציה את התוצאה
