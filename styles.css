@@ -648,10 +648,12 @@ body {
 #btnErosion.simulation-active svg,
 #btnDla.simulation-active svg,
 #btnContour.simulation-active svg,
-#btnSandpile.simulation-active svg {
+#btnSandpile.simulation-active svg,
+#btnTuring.simulation-active svg {
   stroke: var(--gold);
   stroke-width: 2.5; /* Make the icon lines thicker */
 }
+
 /* --- END: MODIFIED STYLE FOR "ARMED" SIMULATION BUTTON --- */
 
 /* --- Play/Pause Button Icon Colors --- */
