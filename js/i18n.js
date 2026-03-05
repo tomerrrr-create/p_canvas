@@ -180,7 +180,12 @@ chi_preset_electric: { en: "Electric", he: "חשמל", ru: "Электричес
   turing_preset_coral: { en: "Coral", he: "אלמוג", ru: "Коралл", nl: "Koraal" },
   turing_preset_maze: { en: "Maze", he: "מבוך", ru: "Лабиринт", nl: "Doolhof" },
   turing_preset_spots: { en: "Spots", he: "כתמים", ru: "Пятна", nl: "Vlekken" },
-  turing_preset_cells: { en: "Cells", he: "תאים", ru: "Клетки", nl: "Cellen" }
+turing_preset_cells: { en: "Cells", he: "תאים", ru: "Клетки", nl: "Cellen" },
+  turing_preset_boiling: { en: "Boiling", he: "רתיחה", ru: "Кипение", nl: "Koken" },
+  turing_preset_uskate: { en: "U-Skate", he: "גלישה", ru: "Скейт", nl: "U-Skate" },
+  turing_preset_chaos: { en: "Chaos", he: "כאוס", ru: "Хаос", nl: "Chaos" },
+  turing_preset_waves: { en: "Waves", he: "גלים", ru: "Волны", nl: "Golven" }
+
 }; // הסוגר המסולסל עבר לכאן!
 
 

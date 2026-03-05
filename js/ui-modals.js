@@ -232,11 +232,16 @@ updateActiveChiPresetButton();        app.dom.chiFlowSettingsModal.classList.rem
 // --- START: Turing Patterns Modal Logic ---
 let tempTuringRules = { feed: 0.055, kill: 0.062, dA: 1.0, dB: 0.5, timeStep: 1.0 };
 
+
 const TURING_PRESETS = {
     'Coral': { feed: 0.054, kill: 0.062, dA: 1.0, dB: 0.5, timeStep: 1.0 },
     'Maze':  { feed: 0.029, kill: 0.057, dA: 1.0, dB: 0.5, timeStep: 1.0 },
     'Spots': { feed: 0.034, kill: 0.062, dA: 1.0, dB: 0.5, timeStep: 1.0 },
-    'Cells': { feed: 0.018, kill: 0.051, dA: 1.0, dB: 0.5, timeStep: 1.0 }
+    'Cells': { feed: 0.018, kill: 0.051, dA: 1.0, dB: 0.5, timeStep: 1.0 },
+    'Boiling': { feed: 0.0367, kill: 0.0649, dA: 1.0, dB: 0.5, timeStep: 1.0 },
+    'USkate': { feed: 0.014, kill: 0.054, dA: 1.0, dB: 0.5, timeStep: 1.0 },
+    'Chaos': { feed: 0.034, kill: 0.056, dA: 1.0, dB: 0.5, timeStep: 1.0 },
+'Waves': { feed: 0.025, kill: 0.052, dA: 1.0, dB: 0.5, timeStep: 1.0 }
 };
 
 function closeTuringSettingsModal() {
@@ -245,12 +250,18 @@ function closeTuringSettingsModal() {
 }
 
 function updateTuringPresetButtons(activeId) {
-    const btns = [app.dom.btnTuringPresetCoral, app.dom.btnTuringPresetMaze, app.dom.btnTuringPresetSpots, app.dom.btnTuringPresetCells];
+    const btns = [
+        app.dom.btnTuringPresetCoral, app.dom.btnTuringPresetMaze, 
+        app.dom.btnTuringPresetSpots, app.dom.btnTuringPresetCells,
+        app.dom.btnTuringPresetBoiling, app.dom.btnTuringPresetUSkate,
+        app.dom.btnTuringPresetChaos, app.dom.btnTuringPresetWaves
+    ];
     btns.forEach(b => {
         if (b.id === activeId) b.classList.add('active');
         else b.classList.remove('active');
     });
 }
+
 
 function applyTuringPreset(presetName, btnElement) {
     const p = TURING_PRESETS[presetName];
@@ -272,7 +283,12 @@ function openTuringSettingsModal() {
     app.dom.btnTuringPresetMaze.textContent = app.getText('turing_preset_maze');
     app.dom.btnTuringPresetSpots.textContent = app.getText('turing_preset_spots');
     app.dom.btnTuringPresetCells.textContent = app.getText('turing_preset_cells');
-    
+   app.dom.btnTuringPresetBoiling.textContent = app.getText('turing_preset_boiling');
+    app.dom.btnTuringPresetUSkate.textContent = app.getText('turing_preset_uskate');
+    app.dom.btnTuringPresetChaos.textContent = app.getText('turing_preset_chaos');
+    app.dom.btnTuringPresetWaves.textContent = app.getText('turing_preset_waves');
+
+ 
     let activeId = '';
     for (const [name, rules] of Object.entries(TURING_PRESETS)) {
         if (rules.feed === tempTuringRules.feed && rules.kill === tempTuringRules.kill) {
@@ -854,6 +870,34 @@ export function initializeModals(appContext) {
     app.dom.btnPaletteModalClose.addEventListener('click', closePaletteModal);
     app.dom.paletteModal.addEventListener('click', (e) => { if (e.target === app.dom.paletteModal) { closePaletteModal(); } });
 
+
+// --- START: Palette Sorting Buttons Logic ---
+    const sortButtons = [
+        { btn: app.dom.btnSortLuminance, method: 'luminance' },
+        { btn: app.dom.btnSortReversed, method: 'reversed' },
+        { btn: app.dom.btnSortCenterOut, method: 'center-out' },
+        { btn: app.dom.btnSortHue, method: 'hue' },
+        { btn: app.dom.btnSortTemperature, method: 'temperature' }
+    ];
+
+    sortButtons.forEach(item => {
+        if (!item.btn) return;
+        item.btn.addEventListener('click', () => {
+            // מסירים את הקלאס Active מכל הכפתורים
+            sortButtons.forEach(b => b.btn && b.btn.classList.remove('active'));
+            // מוסיפים רק לכפתור שלחצנו עליו
+            item.btn.classList.add('active');
+            // מפעילים את המיון החדש
+            app.applySortMethod(item.method);
+            // מרנדרים מחדש
+            populatePaletteModal();
+        });
+    });
+    // --- END: Palette Sorting Buttons Logic ---
+
+
+
+
     // Game of Life Settings Modal
     app.dom.btnGolSettingsSave.addEventListener('click', saveGolSettings);
     app.dom.btnGolSettingsCancel.addEventListener('click', closeGolSettingsModal);
@@ -962,6 +1006,10 @@ app.dom.btnChiPresetElectric.addEventListener('click', (e) => applyChiPreset('El
     app.dom.btnTuringPresetMaze.addEventListener('click', (e) => applyTuringPreset('Maze', e.target));
     app.dom.btnTuringPresetSpots.addEventListener('click', (e) => applyTuringPreset('Spots', e.target));
     app.dom.btnTuringPresetCells.addEventListener('click', (e) => applyTuringPreset('Cells', e.target));
+app.dom.btnTuringPresetBoiling.addEventListener('click', (e) => applyTuringPreset('Boiling', e.target));
+    app.dom.btnTuringPresetUSkate.addEventListener('click', (e) => applyTuringPreset('USkate', e.target));
+    app.dom.btnTuringPresetChaos.addEventListener('click', (e) => applyTuringPreset('Chaos', e.target));
+    app.dom.btnTuringPresetWaves.addEventListener('click', (e) => applyTuringPreset('Waves', e.target));
     // --- END: Added for Turing Settings ---
 
     return {

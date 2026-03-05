@@ -342,6 +342,16 @@
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
       </button>
       <h2 id="paletteModalTitle" class="text-xl font-bold text-center mb-4 text-gray-200"></h2>
+
+<div class="flex flex-wrap justify-center gap-2 mb-4">
+          <button id="btnSortLuminance" class="gol-preset-btn active">Standard</button>
+          <button id="btnSortReversed" class="gol-preset-btn">Reversed</button>
+          <button id="btnSortCenterOut" class="gol-preset-btn">Center-Out</button>
+          <button id="btnSortHue" class="gol-preset-btn">Rainbow</button>
+          <button id="btnSortTemperature" class="gol-preset-btn">Temperature</button>
+      </div>
+
+
       <div id="paletteModalGrid" class="overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-4 p-2">
       </div>
     </div>
@@ -572,11 +582,15 @@
     
     <div class="flex flex-col gap-2 mt-2">
       <h3 class="font-semibold text-gray-300 text-center">Presets (צורות)</h3>
-      <div class="grid grid-cols-2 gap-3 mt-2">
+<div class="grid grid-cols-2 gap-3 mt-2">
         <button id="btnTuringPresetCoral" class="gol-preset-btn">Coral</button>
         <button id="btnTuringPresetMaze" class="gol-preset-btn">Maze</button>
         <button id="btnTuringPresetSpots" class="gol-preset-btn">Spots</button>
         <button id="btnTuringPresetCells" class="gol-preset-btn">Cells</button>
+        <button id="btnTuringPresetBoiling" class="gol-preset-btn">Boiling</button>
+        <button id="btnTuringPresetUSkate" class="gol-preset-btn">U-Skate</button>
+        <button id="btnTuringPresetChaos" class="gol-preset-btn">Chaos</button>
+        <button id="btnTuringPresetWaves" class="gol-preset-btn">Waves</button>
       </div>
     </div>
 

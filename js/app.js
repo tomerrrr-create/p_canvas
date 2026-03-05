@@ -51,9 +51,126 @@ function getLuminance(hex) {
         );
       }
 
+// פונקציית עזר לחישוב גוון (Hue) של צבע (עבור מיון קשת בענן)
+      function getHue(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return 0;
+          const r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          let h = 0;
+          if (max !== min) {
+              const d = max - min;
+              switch (max) {
+                  case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                  case g: h = (b - r) / d + 2; break;
+                  case b: h = (r - g) / d + 4; break;
+              }
+              h /= 6;
+          }
+          return h * 360;
+      }
+
+// --- מערכת מיון פלטות צבעים (Sorting Infrastructure) ---
+      let currentSortMethod = 'luminance'; // שיטת המיון הפעילה כברירת מחדל
+
+
+
+function sortColorsArray(colorsArray, method) {
+          // קודם כל, ממיינים לפי בהירות כבסיס
+          const sortedByLuminance = [...colorsArray].sort((a, b) => getLuminance(a) - getLuminance(b));
+
+          switch (method) {
+              case 'center-out':
+                  const centerOut = new Array(sortedByLuminance.length);
+                  let center = Math.floor(sortedByLuminance.length / 2);
+                  let left = center - 1; let right = center + 1;
+                  centerOut[center] = sortedByLuminance[0];
+                  for(let i = 1; i < sortedByLuminance.length; i++) {
+                      if (i % 2 !== 0) {
+                          if (right < sortedByLuminance.length) centerOut[right++] = sortedByLuminance[i];
+                          else centerOut[left--] = sortedByLuminance[i];
+                      } else {
+                          if (left >= 0) centerOut[left--] = sortedByLuminance[i];
+                          else centerOut[right++] = sortedByLuminance[i];
+                      }
+                  }
+                  return centerOut;
+                  
+              case 'reversed':
+                  // היפוך: מהבהיר ביותר לכהה ביותר
+                  return [...sortedByLuminance].reverse();
+                  
+              case 'hue':
+                  // קשת בענן: מיון לפי מיקום הצבע על גלגל הצבעים (0 עד 360)
+                  return [...colorsArray].sort((a, b) => getHue(a) - getHue(b));
+                  
+              case 'temperature':
+                  // טמפרטורה: אדום (חם) עד כחול (קר). נוסחה פשוטה: אדום פחות כחול.
+                  return [...colorsArray].sort((a, b) => {
+                      const rgbA = hexToRgb(a) || [0,0,0];
+                      const rgbB = hexToRgb(b) || [0,0,0];
+                      const tempA = rgbA[0] - rgbA[2];
+                      const tempB = rgbB[0] - rgbB[2];
+                      return tempB - tempA; // החמים ביותר יהיו בהתחלה
+                  });
+              
+              case 'luminance':
+              default:
+                  return sortedByLuminance;
+          }
+      }
+
+      // אתחול ראשוני: שומרים את סדר הצבעים המקורי וממיינים לפי ברירת המחדל
       C.PALETTES.forEach(palette => {
-        palette.colors.sort((a, b) => getLuminance(a) - getLuminance(b));
+          if (!palette.originalColors) {
+              palette.originalColors = [...palette.colors]; 
+          }
+          palette.colors = sortColorsArray(palette.originalColors, currentSortMethod);
       });
+      // --------------------------------------------------------
+
+// --- שלב 2: לוגיקת המיפוי (Remapping) ---
+      function applySortMethod(newMethod) {
+          if (currentSortMethod === newMethod) return; // לא עושים כלום אם זו כבר השיטה הפעילה
+
+          // 1. שומרים את צבע ה-Hex המדויק של כל תא לפני השינוי
+          const currentPalette = C.PALETTES[activePaletteIndex].colors;
+          const currentColors = boardState.map(tile => currentPalette[tile.k]);
+          
+          // שומרים גם את הצבע הקודם (prevK) כדי לא לשבור אנימציות של מעברי צבע אם הן קורות עכשיו
+          const currentPrevColors = boardState.map(tile => tile.prevK !== null ? currentPalette[tile.prevK] : null);
+
+          // 2. מעדכנים את השיטה הפעילה וממיינים את כל הפלטות מחדש
+          currentSortMethod = newMethod;
+          C.PALETTES.forEach(palette => {
+              palette.colors = sortColorsArray(palette.originalColors, currentSortMethod);
+          });
+
+          // 3. ממפים מחדש את הלוח שלנו לאינדקסים החדשים
+          const newPalette = C.PALETTES[activePaletteIndex].colors;
+          
+          boardState.forEach((tile, index) => {
+              // מעדכנים את הצבע הראשי של התא
+              const oldHex = currentColors[index];
+              const newK = newPalette.indexOf(oldHex);
+              tile.k = newK !== -1 ? newK : 0; // אם בטעות לא מצא (לא אמור לקרות), נשים 0
+
+              // מעדכנים את צבע האנימציה, אם קיים
+              if (currentPrevColors[index] !== null) {
+                  const oldPrevHex = currentPrevColors[index];
+                  const newPrevK = newPalette.indexOf(oldPrevHex);
+                  tile.prevK = newPrevK !== -1 ? newPrevK : null;
+              }
+          });
+
+          // 4. מרנדרים מחדש את תפריט הצבעים כדי שהמשתמש יראה את הסדר החדש
+          if (typeof renderColorPickerContent === 'function') {
+              renderColorPickerContent();
+          }
+      }
+      // ------------------------------------------
+
+
       
       let gameOfLifeRules = { ...C.defaultGameOfLifeRules };
       let gravitationalSortRules = { ...C.defaultGravitationalSortRules };
@@ -1790,7 +1907,8 @@ getTuringRules: () => turingRules, setTuringRules: (r) => { turingRules = r; },
             resetWasLongPress,
 downloadImage: shareOrDownloadImage,
             // startBreatheAnimation is removed
-            adaptColors, // Pass the new function to the modals context
+            adaptColors, 
+applySortMethod,
         };
         modals = initializeModals(contextForModals);
         
