@@ -100,19 +100,35 @@ function sortColorsArray(colorsArray, method) {
                   // היפוך: מהבהיר ביותר לכהה ביותר
                   return [...sortedByLuminance].reverse();
                   
-              case 'hue':
-                  // קשת בענן: מיון לפי מיקום הצבע על גלגל הצבעים (0 עד 360)
-                  return [...colorsArray].sort((a, b) => getHue(a) - getHue(b));
+
+case 'hue':
+                  // קשת בענן: מיון ראשוני לפי מיקום על גלגל הצבעים, שניוני לפי בהירות
+                  return [...colorsArray].sort((a, b) => {
+                      const hueDiff = getHue(a) - getHue(b);
+                      // אם הגוון זהה או כמעט זהה (הפרש קטן מ-1 מעלה), נמיין מהכהה לבהיר
+                      if (Math.abs(hueDiff) < 1) {
+                          return getLuminance(a) - getLuminance(b);
+                      }
+                      return hueDiff;
+                  });
                   
               case 'temperature':
-                  // טמפרטורה: אדום (חם) עד כחול (קר). נוסחה פשוטה: אדום פחות כחול.
+                  // טמפרטורה: אדום (חם) עד כחול (קר), שניוני לפי בהירות
                   return [...colorsArray].sort((a, b) => {
                       const rgbA = hexToRgb(a) || [0,0,0];
                       const rgbB = hexToRgb(b) || [0,0,0];
                       const tempA = rgbA[0] - rgbA[2];
                       const tempB = rgbB[0] - rgbB[2];
-                      return tempB - tempA; // החמים ביותר יהיו בהתחלה
+                      const tempDiff = tempB - tempA; // החמים ביותר יהיו בהתחלה
+                      
+                      // אם הטמפרטורה זהה בדיוק, נמיין מהכהה לבהיר
+                      if (tempDiff === 0) {
+                          return getLuminance(a) - getLuminance(b);
+                      }
+                      return tempDiff;
                   });
+
+
               
               case 'luminance':
               default:
@@ -154,6 +170,7 @@ function sortColorsArray(colorsArray, method) {
               const oldHex = currentColors[index];
               const newK = newPalette.indexOf(oldHex);
               tile.k = newK !== -1 ? newK : 0; // אם בטעות לא מצא (לא אמור לקרות), נשים 0
+tile.v = tile.k;
 
               // מעדכנים את צבע האנימציה, אם קיים
               if (currentPrevColors[index] !== null) {
