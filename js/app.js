@@ -623,14 +623,15 @@ dlaState = null; // איפוס לפרקטלים
         });
       }
       
-      function nudgeColors(direction) {
+
+function nudgeColors(direction) {
         performAction(() => {
-          const maxIndex = paletteLen() - 1;
           const now = performance.now();
           boardState.forEach(tile => {
             if (!tile.isGold) {
-                let newIndex = tile.k + direction;
-                newIndex = Math.max(0, Math.min(newIndex, maxIndex));
+                // שימוש בפונקציית norm כדי ליצור התנהגות מעגלית מושלמת (טורוס)
+                let newIndex = norm(tile.k + direction);
+                
                 if (tile.k !== newIndex) {
                     tile.prevK = tile.k;
                     tile.animStart = now;
@@ -642,6 +643,8 @@ dlaState = null; // איפוס לפרקטלים
           startAnimationLoop();
         });
       }
+
+
 
       function resetSelectedColor() {
           selectedColor = null;
