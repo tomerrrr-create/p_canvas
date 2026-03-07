@@ -258,7 +258,8 @@ let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
             n, 
             activePaletteIndex, 
             paletteName: C.PALETTES[activePaletteIndex].originalName, 
-            separatorPx, 
+            separatorPx,
+currentSortMethod, 
             tiles: boardState.map(tile => ({ 
                 k: tile.k, 
                 isGold: tile.isGold,
@@ -281,10 +282,30 @@ let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
         if (paletteIdx === -1) {
             paletteIdx = state.activePaletteIndex;
         }
-        activePaletteIndex = paletteIdx >= 0 && paletteIdx < C.PALETTES.length ? paletteIdx : 0;
+
+activePaletteIndex = paletteIdx >= 0 && paletteIdx < C.PALETTES.length ? paletteIdx : 0;
         separatorPx = state.separatorPx;
 
+        if (state.currentSortMethod && state.currentSortMethod !== currentSortMethod) {
+            currentSortMethod = state.currentSortMethod;
+            C.PALETTES.forEach(palette => {
+                palette.colors = sortColorsArray(palette.originalColors, currentSortMethod);
+            });
+            // עדכון האייקון של הכפתור
+            const modeIndex = SORT_MODES.findIndex(m => m.method === currentSortMethod);
+            if (modeIndex !== -1) {
+                currentSortIndex = modeIndex;
+                if (dom.sortIconGroup) dom.sortIconGroup.innerHTML = SORT_MODES[currentSortIndex].icon;
+            }
+            // רענון חלונית בחירת הצבעים
+            if (modals && typeof modals.renderColorPickerContent === 'function') {
+                modals.renderColorPickerContent();
+            }
+        }
+
         updateGlowEffect();
+
+
         updateColorPickerButtonUI();
         updatePaletteHeader();
         applySeparator();
@@ -1909,16 +1930,19 @@ function cycleBreatheEvoMode() {
 
 
 function cycleSortMethod() {
-          currentSortIndex = (currentSortIndex + 1) % SORT_MODES.length;
-          const nextMode = SORT_MODES[currentSortIndex];
-          
-          // עדכון ה-SVG בתוך הכפתור
-          if (dom.sortIconGroup) {
-              dom.sortIconGroup.innerHTML = nextMode.icon;
-          }
-          
-          applySortMethod(nextMode.method);
+          performAction(() => { // עטפנו כדי שהשינוי יירשם בהיסטוריה
+              currentSortIndex = (currentSortIndex + 1) % SORT_MODES.length;
+              const nextMode = SORT_MODES[currentSortIndex];
+              
+              // עדכון ה-SVG בתוך הכפתור
+              if (dom.sortIconGroup) {
+                  dom.sortIconGroup.innerHTML = nextMode.icon;
+              }
+              
+              applySortMethod(nextMode.method);
+          });
       }
+
 
 
       async function initializeApp() {
