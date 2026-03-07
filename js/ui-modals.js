@@ -871,30 +871,6 @@ export function initializeModals(appContext) {
     app.dom.paletteModal.addEventListener('click', (e) => { if (e.target === app.dom.paletteModal) { closePaletteModal(); } });
 
 
-// --- START: Palette Sorting Buttons Logic ---
-    const sortButtons = [
-        { btn: app.dom.btnSortLuminance, method: 'luminance' },
-        { btn: app.dom.btnSortReversed, method: 'reversed' },
-        { btn: app.dom.btnSortCenterOut, method: 'center-out' },
-        { btn: app.dom.btnSortHue, method: 'hue' },
-        { btn: app.dom.btnSortTemperature, method: 'temperature' }
-    ];
-
-    sortButtons.forEach(item => {
-        if (!item.btn) return;
-        item.btn.addEventListener('click', () => {
-            // מסירים את הקלאס Active מכל הכפתורים
-            sortButtons.forEach(b => b.btn && b.btn.classList.remove('active'));
-            // מוסיפים רק לכפתור שלחצנו עליו
-            item.btn.classList.add('active');
-            // מפעילים את המיון החדש
-            app.applySortMethod(item.method);
-            // מרנדרים מחדש
-            populatePaletteModal();
-        });
-    });
-    // --- END: Palette Sorting Buttons Logic ---
-
 
 
 

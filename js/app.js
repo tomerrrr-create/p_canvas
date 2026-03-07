@@ -19,6 +19,20 @@ import { initializeModals } from './ui-modals.js';
       let breatheStartTime = 0;
       let breatheEvoMode = 'off'; // 'off', 'solo' or 'group'
 
+
+
+// --- הגדרות מיון פלטות ואייקוני SVG (עיצוב מינימליסטי ורוחני) ---
+      const SORT_MODES = [
+          { method: 'luminance', icon: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>' }, // עין
+          { method: 'hue', icon: '<path d="M5 18v-5a7 7 0 0 1 14 0v5"/>' }, // קשת (כמו אות n מעוגלת)
+          { method: 'temperature', icon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' }, // חצי סהר (איסלאם)
+          { method: 'reversed', icon: '<path d="M12 4v16M7 9h10"/>' }, // צלב (נצרות)
+          { method: 'center-out', icon: '<polygon points="12 3 20 16.5 4 16.5"/><polygon points="12 21 4 7.5 20 7.5"/>' } // מגן דוד (יהדות)
+      ];
+      let currentSortIndex = 0;
+
+
+
       // --- Color Helper for Breathing ---
       function adjustBrightness(hex, factor) {
         const rgb = hexToRgb(hex);
@@ -1892,6 +1906,21 @@ function cycleBreatheEvoMode() {
           });
       }
 
+
+
+function cycleSortMethod() {
+          currentSortIndex = (currentSortIndex + 1) % SORT_MODES.length;
+          const nextMode = SORT_MODES[currentSortIndex];
+          
+          // עדכון ה-SVG בתוך הכפתור
+          if (dom.sortIconGroup) {
+              dom.sortIconGroup.innerHTML = nextMode.icon;
+          }
+          
+          applySortMethod(nextMode.method);
+      }
+
+
       async function initializeApp() {
         const splashScreen = document.getElementById('splashScreen'), splashText = document.getElementById('splashText');
         initializeLanguage();
@@ -1966,6 +1995,7 @@ updateBrightnessEvoButtonUI();
         dom.btnRedo.addEventListener('click', (e) => handleCtrlClick(e, redo));
         dom.btnTutorial.addEventListener('click', (e) => handleCtrlClick(e, modals.openHelpModal));
         dom.btnSymmetry.addEventListener('click', (e) => handleCtrlClick(e, cycleSymmetryMode));
+dom.btnCycleSort.addEventListener('click', (e) => handleCtrlClick(e, cycleSortMethod));
         dom.btnColorPicker.addEventListener('click', (e) => handleCtrlClick(e, handleColorPickerClick));
         dom.btnDark.addEventListener('click', (e) => handleCtrlClick(e, goDarkAction));
         dom.btnToggleSimMode.addEventListener('click', (e) => handleCtrlClick(e, toggleSimMode));
