@@ -363,6 +363,9 @@ case 'center_x': {
             break;
 } 
 
+
+
+
 case 'vortex': {
             // מחשבים את המרחק העגול המושלם רק פעם אחת כדי לחסוך ביצועים
             if (cachedRadialN !== n) {
@@ -374,25 +377,27 @@ case 'vortex': {
                     const rB = Math.floor(b / n), cB = b % n;
                     const distA = Math.pow(rA - centerR, 2) + Math.pow(cA - centerC, 2);
                     const distB = Math.pow(rB - centerR, 2) + Math.pow(cB - centerC, 2);
-                    return distA - distB; // מסדרים מהקרוב ביותר למרכז ועד לרחוק ביותר
+                    return distA - distB; 
                 });
                 cachedRadialOrder = indices;
                 cachedRadialN = n;
             }
 
-            // מריצים 3 מעברים בכל פריים לאנימציה חלקה ומהירה (Fluidity)
-            const passes = 3;
+            // 1. מחזירים את מספר המעברים למינימום כדי לשמור על 60FPS חלק ונעים לעין!
+            const passes = 6; 
+            
+            // 2. ה"קפיצה" - ככל שהלוח גדול יותר, הפיקסלים "ידלגו" מעל יותר שכנים אל עבר המרכז
+            const stride = Math.max(1, Math.floor(n / 4));
+
             for (let p = 0; p < passes; p++) {
                 
-                // כוח משיכה ששואב למרכז (סורק את ה"חוט" מההתחלה לסוף)
-                for (let j = 0; j < cachedRadialOrder.length - 1; j++) {
-                    const idx1 = cachedRadialOrder[j];     // התא שקרוב יותר למרכז הלוח
-                    const idx2 = cachedRadialOrder[j + 1]; // התא שרחוק יותר
+                // כוח משיכה ששואב למרכז (בקפיצות)
+                for (let j = 0; j < cachedRadialOrder.length - stride; j++) {
+                    const idx1 = cachedRadialOrder[j];          
+                    const idx2 = cachedRadialOrder[j + stride]; 
                     
                     if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
 
-                    // אנחנו רוצים שצבעים כהים (k קטן) יימשכו למרכז. 
-                    // לכן אם התא הקרוב גדול מהתא הרחוק - נחליף ביניהם.
                     if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
                         if (Math.random() < strength) {
                             [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
@@ -400,10 +405,10 @@ case 'vortex': {
                     }
                 }
                 
-                // כוח הדיפה שדוחף החוצה (סורק מהסוף להתחלה כדי למנוע פקקים)
-                for (let j = cachedRadialOrder.length - 2; j >= 0; j--) {
-                    const idx1 = cachedRadialOrder[j];
-                    const idx2 = cachedRadialOrder[j + 1];
+                // כוח הדיפה שדוחף החוצה (בקפיצות, מהסוף להתחלה כדי לשחרר פקקים)
+                for (let j = cachedRadialOrder.length - 1; j >= stride; j--) {
+                    const idx1 = cachedRadialOrder[j - stride];
+                    const idx2 = cachedRadialOrder[j];
                     
                     if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
 
@@ -415,7 +420,10 @@ case 'vortex': {
                 }
             }
             break;
-        }    }
+        }
+
+
+    }
 
     // Update 'v' values to match 'k' after sorting
     nextBoardState.forEach(tile => { tile.v = tile.k; });
