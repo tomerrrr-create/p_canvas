@@ -218,7 +218,8 @@ export function runBrightnessEvolution({ n, currentBoardState, currentPalette })
     return nextBoardState;
 }
 
-
+let cachedRadialOrder = null;
+let cachedRadialN = null;
 
 
 
@@ -260,6 +261,7 @@ export function runGravitationalSortGeneration({ n, currentBoardState, gravitati
                 }
             }
             break;
+
         case 'left':
             for (let col = 1; col < n; col++) {
                 for (let row = 0; row < n; row++) {
@@ -271,7 +273,149 @@ export function runGravitationalSortGeneration({ n, currentBoardState, gravitati
                 }
             }
             break;
-    }
+
+
+
+case 'center_x': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    let bestDr = 0;
+                    let bestDc = 0;
+                    let minDist = Math.pow(row - centerR, 2) + Math.pow(col - centerC, 2);
+                    
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1}
+                    ];
+                    
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const dist = Math.pow(nr - centerR, 2) + Math.pow(nc - centerC, 2);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                bestDr = dr;
+                                bestDc = dc;
+                            }
+                        }
+                    }
+                    
+                    if (bestDr !== 0 || bestDc !== 0) {
+                        const target_i = (row + bestDr) * n + (col + bestDc);
+                        if (nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case 'radial': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    let bestDr = 0;
+                    let bestDc = 0;
+                    let minDist = Math.pow(row - centerR, 2) + Math.pow(col - centerC, 2);
+                    
+                    // כאן הקסם: המערכת בודקת 8 כיוונים (כולל אלכסונים!) במקום 4
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                    ];
+                    
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        // מוודאים שאנחנו לא חורגים מגבולות הלוח
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const dist = Math.pow(nr - centerR, 2) + Math.pow(nc - centerC, 2);
+                            // מחפשים את השכן שיתן לנו את המרחק הקטן ביותר למרכז
+                            if (dist < minDist) {
+                                minDist = dist;
+                                bestDr = dr;
+                                bestDc = dc;
+                            }
+                        }
+                    }
+                    
+                    // מבצעים את ההחלפה עם השכן שנבחר
+                    if (bestDr !== 0 || bestDc !== 0) {
+                        const target_i = (row + bestDr) * n + (col + bestDc);
+                        if (nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
+                    }
+                }
+            }
+            break;
+} 
+
+case 'vortex': {
+            // מחשבים את המרחק העגול המושלם רק פעם אחת כדי לחסוך ביצועים
+            if (cachedRadialN !== n) {
+                const centerR = (n - 1) / 2;
+                const centerC = (n - 1) / 2;
+                const indices = Array.from({length: n * n}, (_, i) => i);
+                indices.sort((a, b) => {
+                    const rA = Math.floor(a / n), cA = a % n;
+                    const rB = Math.floor(b / n), cB = b % n;
+                    const distA = Math.pow(rA - centerR, 2) + Math.pow(cA - centerC, 2);
+                    const distB = Math.pow(rB - centerR, 2) + Math.pow(cB - centerC, 2);
+                    return distA - distB; // מסדרים מהקרוב ביותר למרכז ועד לרחוק ביותר
+                });
+                cachedRadialOrder = indices;
+                cachedRadialN = n;
+            }
+
+            // מריצים 3 מעברים בכל פריים לאנימציה חלקה ומהירה (Fluidity)
+            const passes = 3;
+            for (let p = 0; p < passes; p++) {
+                
+                // כוח משיכה ששואב למרכז (סורק את ה"חוט" מההתחלה לסוף)
+                for (let j = 0; j < cachedRadialOrder.length - 1; j++) {
+                    const idx1 = cachedRadialOrder[j];     // התא שקרוב יותר למרכז הלוח
+                    const idx2 = cachedRadialOrder[j + 1]; // התא שרחוק יותר
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    // אנחנו רוצים שצבעים כהים (k קטן) יימשכו למרכז. 
+                    // לכן אם התא הקרוב גדול מהתא הרחוק - נחליף ביניהם.
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+                        }
+                    }
+                }
+                
+                // כוח הדיפה שדוחף החוצה (סורק מהסוף להתחלה כדי למנוע פקקים)
+                for (let j = cachedRadialOrder.length - 2; j >= 0; j--) {
+                    const idx1 = cachedRadialOrder[j];
+                    const idx2 = cachedRadialOrder[j + 1];
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+                        }
+                    }
+                }
+            }
+            break;
+        }    }
 
     // Update 'v' values to match 'k' after sorting
     nextBoardState.forEach(tile => { tile.v = tile.k; });

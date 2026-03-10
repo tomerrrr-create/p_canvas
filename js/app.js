@@ -13,6 +13,7 @@ import { initializeModals } from './ui-modals.js';
       
       const ANIMATION_DURATION = 200; // ms
       let animationLoopId = null;
+let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge האוטומטית
 
       // --- Breathe Animation State ---
       let isBreathing = false; // This variable is now effectively replaced by (isLifePlaying && armedSimulation === 'breathe')
@@ -23,12 +24,17 @@ import { initializeModals } from './ui-modals.js';
 
 // --- הגדרות מיון פלטות ואייקוני SVG (עיצוב מינימליסטי ורוחני) ---
       const SORT_MODES = [
-          { method: 'luminance', icon: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>' }, // עין
-          { method: 'hue', icon: '<path d="M5 18v-5a7 7 0 0 1 14 0v5"/>' }, // קשת (כמו אות n מעוגלת)
-          { method: 'temperature', icon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>' }, // חצי סהר (איסלאם)
-          { method: 'reversed', icon: '<path d="M12 4v16M7 9h10"/>' }, // צלב (נצרות)
-          { method: 'center-out', icon: '<polygon points="12 3 20 16.5 4 16.5"/><polygon points="12 21 4 7.5 20 7.5"/>' } // מגן דוד (יהדות)
+          { method: 'luminance', icon: '<path d="M4 6h16M6 10h12M8 6v16M16 6v16"/>' }, // מצב רגיל (בהירות) - שינטו (שער טוריאי מינימליסטי)
+          { method: 'hue', icon: '<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M6.3 17.7l11.4-11.4"/>' }, // מצב קשת - בודהיזם (גלגל הדהרמה)
+{ method: 'dark-rainbow', icon: '<path d="M12 3v10M9 5v8M15 5v8M6 8v6c0 4 3 6 6 6s6-2 6-6V8"/>' }, // קשת כהה (חמסה מינימליסטית - קווים ישרים וקשת)
+{ method: 'temperature', icon: '<path d="M20 15A9 9 0 1 1 11 3a7.5 7.5 0 0 0 9 12z"/><circle cx="16" cy="7" r="1"/>' }, // אסלאם (ירח וכוכב מינימליסטי)
+
+          { method: 'reversed', icon: '<path d="M12 4v16M7 9h10"/>' }, // ריברס - נצרות (צלב)
+          { method: 'center-out', icon: '<polygon points="12 3 20 16.5 4 16.5"/><polygon points="12 21 4 7.5 20 7.5"/>' } // מבפנים החוצה - יהדות (מגן דוד)
       ];
+
+
+
       let currentSortIndex = 0;
 
 
@@ -84,6 +90,29 @@ function getLuminance(hex) {
           return h * 360;
       }
 
+// פונקציית עזר לחישוב נתוני צבע מתקדמים (Hue, Saturation, Value)
+      function getHSV(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return { h: 0, s: 0, v: 0 };
+          const r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b);
+          const v = max;
+          const d = max - min;
+          const s = max === 0 ? 0 : d / max;
+          let h = 0;
+          if (max !== min) {
+              switch (max) {
+                  case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                  case g: h = (b - r) / d + 2; break;
+                  case b: h = (r - g) / d + 4; break;
+              }
+              h /= 6;
+          }
+          return { h: h * 360, s: s, v: v };
+      }
+
+
+
 // --- מערכת מיון פלטות צבעים (Sorting Infrastructure) ---
       let currentSortMethod = 'luminance'; // שיטת המיון הפעילה כברירת מחדל
 
@@ -125,7 +154,63 @@ case 'hue':
                       }
                       return hueDiff;
                   });
+         
+
+
+
+case 'dark-rainbow': {
+                  const darks = [];
+                  const lights = [];
+                  const colors = [];
                   
+                  colorsArray.forEach(hex => {
+                      const hsv = getHSV(hex);
+                      const lum = getLuminance(hex);
+                      
+                      // סינון חכם לניטרליים
+                      if (hsv.s < 0.12 || hsv.v < 0.08) {
+                          if (lum < 128) {
+                              darks.push(hex);
+                          } else {
+                              lights.push(hex);
+                          }
+                      } else {
+                          colors.push(hex);
+                      }
+                  });
+
+                  darks.sort((a, b) => getLuminance(a) - getLuminance(b));
+                  lights.sort((a, b) => getLuminance(a) - getLuminance(b));
+
+                  colors.sort((a, b) => {
+                      const hsvA = getHSV(a);
+                      const hsvB = getHSV(b);
+                      
+                      const hueA = (hsvA.h + 30) % 360;
+                      const hueB = (hsvB.h + 30) % 360;
+                      
+                      // נגדיל קצת את ה"דליים" ל-20 מעלות כדי לתפוס משפחות רחבות יותר
+                      const bucketSize = 20; 
+                      const bucketA = Math.floor(hueA / bucketSize);
+                      const bucketB = Math.floor(hueB / bucketSize);
+                      
+                      if (bucketA === bucketB) {
+                          const lumA = getLuminance(a);
+                          const lumB = getLuminance(b);
+                          
+                          // הפתרון לקפיצות: מיון גלי (Serpentine)!
+                          // דלי זוגי ימוין מכהה לבהיר, דלי אי-זוגי ימוין מבהיר לכהה.
+                          // זה יוצר זרימה חלקה: בהיר פוגש בהיר, וכהה פוגש כהה.
+                          return bucketA % 2 === 0 ? lumA - lumB : lumB - lumA;
+                      }
+                      
+                      return bucketA - bucketB;
+                  });
+
+                  return [...darks, ...colors, ...lights];
+              }
+
+         
               case 'temperature':
                   // טמפרטורה: אדום (חם) עד כחול (קר), שניוני לפי בהירות
                   return [...colorsArray].sort((a, b) => {
@@ -659,12 +744,12 @@ dlaState = null; // איפוס לפרקטלים
       }
       
 
-function nudgeColors(direction) {
-        performAction(() => {
+
+function applyNudgeLogic(direction) {
           const now = performance.now();
+          let changed = false;
           boardState.forEach(tile => {
             if (!tile.isGold) {
-                // שימוש בפונקציית norm כדי ליצור התנהגות מעגלית מושלמת (טורוס)
                 let newIndex = norm(tile.k + direction);
                 
                 if (tile.k !== newIndex) {
@@ -672,12 +757,27 @@ function nudgeColors(direction) {
                     tile.animStart = now;
                     tile.k = newIndex;
                     tile.v = newIndex;
+                    changed = true;
                 }
             }
           });
-          startAnimationLoop();
-        });
+          if (changed) startAnimationLoop();
       }
+
+      function nudgeColors(direction) {
+          performAction(() => applyNudgeLogic(direction));
+      }
+
+      function handleNudgeBrighterClick() {
+          nudgeColors(1);
+          armSimulation('nudgeBrighter');
+      }
+
+      function handleNudgeDarkerClick() {
+          nudgeColors(-1);
+          armSimulation('nudgeDarker');
+      }
+
 
 
 
@@ -847,6 +947,22 @@ case 'turing':
                 turingState = turingRes.nextTuringState;
                 break;
 
+case 'nudgeBrighter':
+    if (performance.now() - lastNudgeTime >= ANIMATION_DURATION) {
+        applyNudgeLogic(1);
+        lastNudgeTime = performance.now();
+    }
+    break;
+
+case 'nudgeDarker':
+    if (performance.now() - lastNudgeTime >= ANIMATION_DURATION) {
+        applyNudgeLogic(-1);
+        lastNudgeTime = performance.now();
+    }
+    break;
+
+
+
             case 'dla':
 const currentDlaRules = { ...dlaRules, colorGenetics: dlaMode === 'genetics' };
 const dlaContext = { ...context, dlaRules: currentDlaRules };
@@ -857,7 +973,10 @@ break;
             case 'breathe': break; // This loop only handles discrete simulations. Breathe uses animationLoop.
 
         }
-        renderToScreen(null);
+if (armedSimulation !== 'nudgeBrighter' && armedSimulation !== 'nudgeDarker') {
+            renderToScreen(null);
+        }
+
         animationFrameId = requestAnimationFrame(gameLoop);
       }
 
@@ -904,6 +1023,15 @@ case 'turing':
                     boardState = turingStepRes.nextBoardState;
                     turingState = turingStepRes.nextTuringState;
                     break;
+
+case 'nudgeBrighter':
+                    applyNudgeLogic(1);
+                    break;
+case 'nudgeDarker':
+                    applyNudgeLogic(-1);
+                    break;
+
+
 
             case 'dla':
 const currentDlaRules = { ...dlaRules, colorGenetics: dlaMode === 'genetics' };
@@ -1091,7 +1219,7 @@ function armSimulation(simulationName) {
     breatheEvoMode = 'off';
     turingState = null;
 
-const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour, dom.btnSandpile, dom.btnTuring].filter(Boolean);
+const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour, dom.btnSandpile, dom.btnTuring, dom.btnNudgeBrighter, dom.btnNudgeDarker].filter(Boolean);
 
     simButtons.forEach(btn => btn.classList.remove('simulation-active'));
     updateBrightnessEvoButtonUI(); // Update UI to reflect the reset
@@ -1477,7 +1605,7 @@ const controlsToHide = [ dom.btnBrushMode, dom.btnGap, dom.btnResetBoard, dom.bt
         dlaState = null;
 turingState = null;
 
-const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour, dom.btnSandpile, dom.btnTuring].filter(Boolean);
+const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour, dom.btnSandpile, dom.btnTuring, dom.btnNudgeBrighter, dom.btnNudgeDarker].filter(Boolean);
 
         simButtons.forEach(btn => btn.classList.remove('simulation-active'));
         dom.btnPlayPauseLife.disabled = true;
@@ -2044,8 +2172,9 @@ dom.btnTuring.addEventListener('click', (e) => handleCtrlClick(e, () => armSimul
 
         dom.btnPlayPauseLife.addEventListener('click', (e) => handleCtrlClick(e, togglePlayPauseLife));
         dom.btnStepForward.addEventListener('click', (e) => handleCtrlClick(e, stepForward));
-        dom.btnNudgeBrighter.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(1)));
-        dom.btnNudgeDarker.addEventListener('click', (e) => handleCtrlClick(e, () => nudgeColors(-1)));
+dom.btnNudgeBrighter.addEventListener('click', (e) => handleCtrlClick(e, handleNudgeBrighterClick));
+        dom.btnNudgeDarker.addEventListener('click', (e) => handleCtrlClick(e, handleNudgeDarkerClick));
+
         dom.btnLangToggle.addEventListener('click', toggleLanguage);
         // dom.btnExitBreathe.addEventListener('click', stopBreatheAnimation); // Removed
         
