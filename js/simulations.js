@@ -316,19 +316,45 @@ case 'center_x': {
             }
             break;
         }
-        case 'radial': {
+
+
+      case 'radial': {
             const centerR = (n - 1) / 2;
             const centerC = (n - 1) / 2;
+            
+            // --- משתני שליטה על הספירלה ---
+            // שחק עם המספרים האלה כדי לשנות את אופי המערבולת!
+            const spinStrength = 0.25; // כוח הסיבוב (ברדיאנים). ככל שגדול יותר, הספירלה "שטוחה" ומסתחררת יותר.
+            const pullStrength = 0.8;  // כוח השאיבה למרכז (בפיקסלים). ככל שגדול יותר, הפיקסלים יישאבו מהר יותר פנימה.
             
             for (let row = 0; row < n; row++) {
                 for (let col = 0; col < n; col++) {
                     const i = row * n + col;
                     
+                    // הגנת זהב: פיקסלים מזהב לא נשאבים ולא זזים
+                    if (nextBoardState[i].isGold) continue; 
+                    
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distToCenter === 0) continue; // אנחנו כבר בדיוק במרכז
+                    
+                    // 1. חישוב הזווית הנוכחית של הפיקסל ביחס למרכז
+                    const currentAngle = Math.atan2(dy, dx);
+                    
+                    // 2. חישוב נקודת המטרה האידיאלית (קצת יותר קרוב, קצת מסובב)
+                    const targetRadius = Math.max(0, distToCenter - pullStrength);
+                    const targetAngle = currentAngle + spinStrength; 
+                    
+                    // המרה חזרה מקואורדינטות פולריות למיקום X,Y על הלוח
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                    
                     let bestDr = 0;
                     let bestDc = 0;
-                    let minDist = Math.pow(row - centerR, 2) + Math.pow(col - centerC, 2);
+                    let minDistToTarget = Infinity;
                     
-                    // כאן הקסם: המערכת בודקת 8 כיוונים (כולל אלכסונים!) במקום 4
                     const neighbors = [
                         {dr: -1, dc: 0}, {dr: 1, dc: 0},
                         {dr: 0, dc: -1}, {dr: 0, dc: 1},
@@ -336,32 +362,32 @@ case 'center_x': {
                         {dr: 1, dc: -1}, {dr: 1, dc: 1}
                     ];
                     
+                    // 3. מציאת השכן שיושב הכי קרוב לנקודת המטרה האידיאלית
                     for (const {dr, dc} of neighbors) {
                         const nr = row + dr;
                         const nc = col + dc;
-                        // מוודאים שאנחנו לא חורגים מגבולות הלוח
+                        
                         if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                            const dist = Math.pow(nr - centerR, 2) + Math.pow(nc - centerC, 2);
-                            // מחפשים את השכן שיתן לנו את המרחק הקטן ביותר למרכז
-                            if (dist < minDist) {
-                                minDist = dist;
+                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                            if (distToIdeal < minDistToTarget) {
+                                minDistToTarget = distToIdeal;
                                 bestDr = dr;
                                 bestDc = dc;
                             }
                         }
                     }
                     
-                    // מבצעים את ההחלפה עם השכן שנבחר
+                    // 4. ביצוע ההחלפה (עם הסתברות ובדיקת חסימת זהב של השכן)
                     if (bestDr !== 0 || bestDc !== 0) {
                         const target_i = (row + bestDr) * n + (col + bestDc);
-                        if (nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
                             [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
                         }
                     }
                 }
             }
             break;
-} 
+        }
 
 
 
