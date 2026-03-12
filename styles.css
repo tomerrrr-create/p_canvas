@@ -190,6 +190,7 @@ body {
 #btnContour,
 #btnSandpile,
 #btnTuring, 
+#btnSpiral,
 #btnNudgeBrighter,
 #btnNudgeDarker,
 #btnCycleSort {
@@ -281,6 +282,7 @@ body {
 .sim-mode-active #btnContour,
 .sim-mode-active #btnSandpile,
 .sim-mode-active #btnTuring,
+.sim-mode-active #btnSpiral,
 .sim-mode-active #btnNudgeBrighter,
 .sim-mode-active #btnNudgeDarker,
 .sim-mode-active #btnSandpile,
@@ -311,6 +313,7 @@ body {
 .sim-mode-active #btnTuring        { grid-area: 2 / 3; } 
 .sim-mode-active #btnDla           { grid-area: 2 / 5; }
 .sim-mode-active #btnBrightnessEvo { grid-area: 2 / 6; }
+.sim-mode-active #btnSpiral        { grid-area: 2 / 7; }
 
 /* שורה 3 - (בתוך הרקע הכחול) */
 .sim-mode-active #btnSandpile      { grid-area: 3 / 3; } 
@@ -363,15 +366,20 @@ body {
 .glow-animation-separator svg {
   animation: glow-effect 2s ease-in-out infinite;
 }
-#saveModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal, #advancedColorMappingModal, #contourSettingsModal {
+
+
+#saveModal, #colorPickerModal, #helpModal, #resizeModal, #paletteModal, #gameOfLifeSettingsModal, #gravitationalSortSettingsModal, #dlaSettingsModal, #advancedColorMappingModal, #contourSettingsModal, #spiralSettingsModal {
   transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
   visibility: hidden;
   opacity: 0;
 }
-#saveModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible, #advancedColorMappingModal.modal-visible, #contourSettingsModal.modal-visible {
+
+#saveModal.modal-visible, #colorPickerModal.modal-visible, #helpModal.modal-visible, #resizeModal.modal-visible, #paletteModal.modal-visible, #gameOfLifeSettingsModal.modal-visible, #gravitationalSortSettingsModal.modal-visible, #dlaSettingsModal.modal-visible, #advancedColorMappingModal.modal-visible, #contourSettingsModal.modal-visible, #spiralSettingsModal.modal-visible {
   visibility: visible;
   opacity: 1;
 }
+
+
 
 #longPressOverlay {
   background-color: rgba(0, 0, 0, 0.95);
@@ -658,6 +666,7 @@ body {
 #btnErosion.simulation-active svg,
 #btnDla.simulation-active svg,
 #btnContour.simulation-active svg,
+#btnSpiral.simulation-active svg,
 #btnSandpile.simulation-active svg,
 #btnTuring.simulation-active svg {
   stroke: var(--gold);
@@ -768,6 +777,7 @@ body {
 #btnGravitationalSort svg,
 #btnErosion svg,
 #btnContour svg,
+#btnSpiral svg,
 #btnSandpile svg,
 #btnTuring svg,
 #btnShowBreatheMenu svg {

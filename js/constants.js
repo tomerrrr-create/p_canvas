@@ -485,6 +485,12 @@ export const defaultGravitationalSortRules = {
     direction: 'up',
     strength: 0.6
 };
+// --- START: Added for Spiral Settings ---
+export const defaultSpiralRules = {
+    method: 'classic' // אפשרויות: 'classic', 'vortex', 'expand'
+};
+// --- END: Added for Spiral Settings ---
+
 
 export const defaultErosionRules = {
     erosionStrength: 0.1
