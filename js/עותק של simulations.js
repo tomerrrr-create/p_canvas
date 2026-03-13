@@ -218,7 +218,8 @@ export function runBrightnessEvolution({ n, currentBoardState, currentPalette })
     return nextBoardState;
 }
 
-
+let cachedRadialOrder = null;
+let cachedRadialN = null;
 
 
 
@@ -227,17 +228,89 @@ export function runGravitationalSortGeneration({ n, currentBoardState, gravitati
     const strength = gravitationalSortRules.strength;
 
     switch (gravitationalSortRules.direction) {
-        case 'down':
-            for (let row = n - 2; row >= 0; row--) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    const below_i = (row + 1) * n + col;
-                    if (nextBoardState[i].k < nextBoardState[below_i].k && Math.random() < strength) {
-                        [nextBoardState[i], nextBoardState[below_i]] = [nextBoardState[below_i], nextBoardState[i]];
-                    }
+
+
+
+
+case 'down': {
+    const centerR = (n - 1) / 2;
+    const centerC = (n - 1) / 2;
+    
+    // פרמטרים קבועים ומושלמים למראה חור שחור הרמוני ומדהים
+    // (strength מבחוץ שולט רק במהירות – כמה פיקסלים זזים בכל פריים)
+    const baseSpinStrength = 0.105;   // סיבוב עדין אך ברור – יוצר ספירלות יפהפיות
+    const pullStrength     = 0.78;    // שאיבה חזקה ומאוזנת – נבלע פנימה בלי להתפרק
+
+    for (let row = 0; row < n; row++) {
+        for (let col = 0; col < n; col++) {
+            const i = row * n + col;
+            if (nextBoardState[i].isGold) continue;
+            
+            const dy = row - centerR;
+            const dx = col - centerC;
+            const distToCenter = Math.sqrt(dx * dx + dy * dy);
+            if (distToCenter < 0.5) continue; // מרכז יציב
+            
+            // חישוב מיקום יעד ספירלי מדויק (פולאר)
+            const currentAngle = Math.atan2(dy, dx);
+            const targetRadius = Math.max(0.3, distToCenter - pullStrength);
+            const targetAngle  = currentAngle + baseSpinStrength;
+            
+            const targetR = centerR + targetRadius * Math.sin(targetAngle);
+            const targetC = centerC + targetRadius * Math.cos(targetAngle);
+            
+            // וקטור התנועה הרצוי (מה שנותן תנועה חלקה וסיבובית אמיתית)
+            const desiredDX = targetC - col;
+            const desiredDY = targetR - row;
+            const desiredLen = Math.sqrt(desiredDX * desiredDX + desiredDY * desiredDY) || 1;
+            
+            // 8 שכנים + בדיקת "כמה הכיוון מתאים" (cosine similarity)
+            const neighbors = [
+                {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                {dr: 1, dc: -1}, {dr: 1, dc: 1}
+            ];
+            
+            let bestScore = -1;
+            let bestNr = row;
+            let bestNc = col;
+            
+            for (const {dr, dc} of neighbors) {
+                const nr = row + dr;
+                const nc = col + dc;
+                if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+                
+                // וקטור התנועה של השכן
+                const moveLen = Math.sqrt(dc * dc + dr * dr) || 1;
+                const score = (dc * desiredDX + dr * desiredDY) / (moveLen * desiredLen);
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestNr = nr;
+                    bestNc = nc;
                 }
             }
-            break;
+            
+            // תנועה רק אם הכיוון טוב מספיק + בהסתברות strength (מהירות מבחוץ)
+            if (bestScore > 0.15 && Math.random() < strength) {
+                const target_i = bestNr * n + bestNc;
+                
+                if (!nextBoardState[target_i].isGold &&
+                    nextBoardState[i].k < nextBoardState[target_i].k) {
+                    
+                    [nextBoardState[i], nextBoardState[target_i]] = 
+                     [nextBoardState[target_i], nextBoardState[i]];
+                }
+            }
+        }
+    }
+    break;
+}
+
+
+
+
         case 'up':
              for (let row = 1; row < n; row++) {
                 for (let col = 0; col < n; col++) {
@@ -260,17 +333,266 @@ export function runGravitationalSortGeneration({ n, currentBoardState, gravitati
                 }
             }
             break;
-        case 'left':
-            for (let col = 1; col < n; col++) {
-                for (let row = 0; row < n; row++) {
+
+
+case 'left': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            
+            // --- משתני שליטה: ספירלה נוזלית עם טורבולנציה ---
+            const baseSpinStrength = 0.10; // כוח סיבוב בסיסי (בהיקף החיצוני)
+            const pullStrength = 0.8;      // כוח השאיבה פנימה
+            
+            // המשתנים החדשים שיוצרים את הזרמים הסמויים:
+            const eddyFrequency = 0.03;    // תדירות המערבולות הקטנות (צפיפות הגלים). ככל שגדול יותר - הזרמים צפופים יותר.
+            const eddyStrength = 0.25;     // העוצמה שבה הזרם מסיט את הפיקסל מהמסלול המעגלי.
+            
+            // מוסיפים פאזת זמן עדינה כדי ששדה הזרימה הבלתי נראה "ינשום" ויזוז בעצמו
+            const timePhase = Date.now() * 0.0005;
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
                     const i = row * n + col;
-                    const left_i = row * n + (col - 1);
-                    if (nextBoardState[i].k > nextBoardState[left_i].k && Math.random() < strength) {
-                        [nextBoardState[i], nextBoardState[left_i]] = [nextBoardState[left_i], nextBoardState[i]];
+                    
+                    if (nextBoardState[i].isGold) continue; 
+                    
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distToCenter === 0) continue; 
+                    
+                    // 1. טורבולנציה וזרמי משנה (Eddies)
+                    // יצירת מפת זרימה מבוססת גלי סינוס עם קוסינוס (מייצר תבניות אורגניות כמו שיש עץ או שיש)
+                    const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
+                    
+                    // 2. פיזיקה של פתח ניקוז (ככל שקרובים למרכז הסיבוב מהיר יותר)
+                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
+                    
+                    const currentAngle = Math.atan2(dy, dx);
+                    
+                    // הטורבולנציה מתערבת ו"מעקמת" את הזווית קדימה ואחורה, ומרחיבה/מכווצת את הרדיוס קלות
+                    const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
+                    const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
+                    
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                    
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                    ];
+                    
+                    const validNeighbors = [];
+                    
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                            validNeighbors.push({ nr, nc, dist: distToIdeal });
+                        }
+                    }
+                    
+                    validNeighbors.sort((a, b) => a.dist - b.dist);
+                    
+                    if (validNeighbors.length > 0) {
+                        // 3. החלקה הסתברותית לשבירת פינות ויצירת מראה עגול לעין
+                        let chosen = validNeighbors[0];
+                        if (validNeighbors.length > 1 && Math.random() < 0.60) {
+                            chosen = validNeighbors[1];
+                        }
+                        
+                        const target_i = chosen.nr * n + chosen.nc;
+                        
+                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
                     }
                 }
             }
             break;
+        }
+
+
+
+
+case 'center_x': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    let bestDr = 0;
+                    let bestDc = 0;
+                    let minDist = Math.pow(row - centerR, 2) + Math.pow(col - centerC, 2);
+                    
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1}
+                    ];
+                    
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const dist = Math.pow(nr - centerR, 2) + Math.pow(nc - centerC, 2);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                bestDr = dr;
+                                bestDc = dc;
+                            }
+                        }
+                    }
+                    
+                    if (bestDr !== 0 || bestDc !== 0) {
+                        const target_i = (row + bestDr) * n + (col + bestDc);
+                        if (nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+      case 'radial': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            
+            // --- משתני שליטה על הספירלה ---
+            // שחק עם המספרים האלה כדי לשנות את אופי המערבולת!
+            const spinStrength = 0.25; // כוח הסיבוב (ברדיאנים). ככל שגדול יותר, הספירלה "שטוחה" ומסתחררת יותר.
+            const pullStrength = 0.8;  // כוח השאיבה למרכז (בפיקסלים). ככל שגדול יותר, הפיקסלים יישאבו מהר יותר פנימה.
+            
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    // הגנת זהב: פיקסלים מזהב לא נשאבים ולא זזים
+                    if (nextBoardState[i].isGold) continue; 
+                    
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distToCenter === 0) continue; // אנחנו כבר בדיוק במרכז
+                    
+                    // 1. חישוב הזווית הנוכחית של הפיקסל ביחס למרכז
+                    const currentAngle = Math.atan2(dy, dx);
+                    
+                    // 2. חישוב נקודת המטרה האידיאלית (קצת יותר קרוב, קצת מסובב)
+                    const targetRadius = Math.max(0, distToCenter - pullStrength);
+                    const targetAngle = currentAngle + spinStrength; 
+                    
+                    // המרה חזרה מקואורדינטות פולריות למיקום X,Y על הלוח
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                    
+                    let bestDr = 0;
+                    let bestDc = 0;
+                    let minDistToTarget = Infinity;
+                    
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                    ];
+                    
+                    // 3. מציאת השכן שיושב הכי קרוב לנקודת המטרה האידיאלית
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                            if (distToIdeal < minDistToTarget) {
+                                minDistToTarget = distToIdeal;
+                                bestDr = dr;
+                                bestDc = dc;
+                            }
+                        }
+                    }
+                    
+                    // 4. ביצוע ההחלפה (עם הסתברות ובדיקת חסימת זהב של השכן)
+                    if (bestDr !== 0 || bestDc !== 0) {
+                        const target_i = (row + bestDr) * n + (col + bestDc);
+                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+
+
+case 'vortex': {
+            // מחשבים את המרחק העגול המושלם רק פעם אחת כדי לחסוך ביצועים
+            if (cachedRadialN !== n) {
+                const centerR = (n - 1) / 2;
+                const centerC = (n - 1) / 2;
+                const indices = Array.from({length: n * n}, (_, i) => i);
+                indices.sort((a, b) => {
+                    const rA = Math.floor(a / n), cA = a % n;
+                    const rB = Math.floor(b / n), cB = b % n;
+                    const distA = Math.pow(rA - centerR, 2) + Math.pow(cA - centerC, 2);
+                    const distB = Math.pow(rB - centerR, 2) + Math.pow(cB - centerC, 2);
+                    return distA - distB; 
+                });
+                cachedRadialOrder = indices;
+                cachedRadialN = n;
+            }
+
+            // 1. מחזירים את מספר המעברים למינימום כדי לשמור על 60FPS חלק ונעים לעין!
+            const passes = 6; 
+            
+            // 2. ה"קפיצה" - ככל שהלוח גדול יותר, הפיקסלים "ידלגו" מעל יותר שכנים אל עבר המרכז
+            const stride = Math.max(1, Math.floor(n / 4));
+
+            for (let p = 0; p < passes; p++) {
+                
+                // כוח משיכה ששואב למרכז (בקפיצות)
+                for (let j = 0; j < cachedRadialOrder.length - stride; j++) {
+                    const idx1 = cachedRadialOrder[j];          
+                    const idx2 = cachedRadialOrder[j + stride]; 
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+                        }
+                    }
+                }
+                
+                // כוח הדיפה שדוחף החוצה (בקפיצות, מהסוף להתחלה כדי לשחרר פקקים)
+                for (let j = cachedRadialOrder.length - 1; j >= stride; j--) {
+                    const idx1 = cachedRadialOrder[j - stride];
+                    const idx2 = cachedRadialOrder[j];
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
     }
 
     // Update 'v' values to match 'k' after sorting
@@ -753,85 +1075,61 @@ if (pullReach === 0) {
 
 
 // --- Turing Patterns (Reaction-Diffusion) Helper ---
-function getLaplacian(x, y, grid, n) {
-    let sum = 0;
-    
-    // משקלי הדיפוזיה: המרכז מאבד חומר, השכנים והאלכסונים מקבלים אותו
-    const center = -1;
-    const adjacent = 0.2;
-    const diagonal = 0.05;
-
-    sum += grid[y * n + x] * center;
-    
-    // סריקת השכנים עם עטיפה (Wrap-around) של הלוח כדי שהתבנית תהיה רציפה
-    for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-            if (dx === 0 && dy === 0) continue;
-            
-            const ny = (y + dy + n) % n;
-            const nx = (x + dx + n) % n;
-            const weight = (Math.abs(dx) === 1 && Math.abs(dy) === 1) ? diagonal : adjacent;
-            
-            sum += grid[ny * n + nx] * weight;
-        }
-    }
-    return sum;
-}
-
-
 export function runTuringGeneration({ n, currentBoardState, currentPalette, turingState, turingRules }) {
     let state = turingState;
     const pLen = currentPalette.length;
     
-    // 1. אתחול ראשוני (הנדסה לאחור של הצבעים, או התחלה מצורה חדשה)
+    // מכפיל להמרה ויזואלית
+    const STRETCH_FACTOR = 1.6; 
+    
+    // 1. אתחול ראשוני (Ping-Pong Buffers - מניעת יצירת מערכים חדשים בכל פריים)
     if (!state || !state.isInitialized || state.A.length !== n * n) {
-        const A = new Float32Array(n * n).fill(1.0);
-        const B = new Float32Array(n * n).fill(0.0);
-        const lastBoardK = new Uint16Array(n * n);
+        state = { 
+            A: new Float32Array(n * n).fill(1.0), 
+            B: new Float32Array(n * n).fill(0.0),
+            nextA: new Float32Array(n * n), // באפר חלופי לחישובים
+            nextB: new Float32Array(n * n), // באפר חלופי לחישובים
+            lastBoardK: new Uint16Array(n * n), 
+            isInitialized: true 
+        };
         
         let hasDrawing = false;
         
         for (let i = 0; i < n * n; i++) {
             const currentK = currentBoardState[i].k;
-            lastBoardK[i] = currentK; // שומרים את מצב הפתיחה לטובת זיהוי שינויים בהמשך
+            state.lastBoardK[i] = currentK;
             
             if (currentK > 0 && !currentBoardState[i].isGold) {
                 hasDrawing = true;
-                // הפתרון לפיצוץ הלבן: שחזור מדויק של רמות הכימיקלים מתוך גוון הצבע!
-                // ככל שהצבע בהיר יותר (אינדקס גבוה), כך יש בו יותר חומר B ופחות חומר A.
-                const bLevel = currentK / pLen; 
-                B[i] = bLevel;
-                A[i] = 1.0 - bLevel;
+                // מיפוי לא-ליניארי (חזקה) כדי שצבעים בהירים לא יישרפו מהר מדי
+                const bLevel = Math.pow(currentK / pLen, 1.5); 
+                state.B[i] = Math.min(1.0, bLevel); 
+                state.A[i] = Math.max(0.0, 1.0 - state.B[i]);
             }
         }
         
-        // גיבוי למקרה של לוח ריק לחלוטין
         if (!hasDrawing) {
             const center = Math.floor(n / 2);
             for (let dy = -2; dy <= 2; dy++) {
                 for (let dx = -2; dx <= 2; dx++) {
                     const idx = (center + dy) * n + (center + dx);
                     if(idx >= 0 && idx < n * n) {
-                        B[idx] = 1.0;
-                        A[idx] = 0.0;
+                        state.B[idx] = 1.0;
+                        state.A[idx] = 0.0;
                     }
                 }
             }
         }
-        
-        state = { A, B, lastBoardK, isInitialized: true };
     } else {
-        // --- הפתרון לציור ידני ו-Undo תוך כדי ריצה (סנכרון חי) ---
+        // סנכרון חי לציור של המשתמש
         for (let i = 0; i < n * n; i++) {
             const currentK = currentBoardState[i].k;
-            // האם המשתמש שינה את הפיקסל הזה מאז הפריים הקודם?
             if (currentK !== state.lastBoardK[i]) {
                 if (currentK > 0 && !currentBoardState[i].isGold) {
-                    // המשתמש צייר צבע חדש - נזריק 100% חומר פעיל כדי להצית ריאקציה!
-                    state.B[i] = 1.0;
-                    state.A[i] = 0.0;
+                    const bLevel = Math.pow(currentK / pLen, 1.5);
+                    state.B[i] = Math.min(1.0, bLevel);
+                    state.A[i] = Math.max(0.0, 1.0 - state.B[i]);
                 } else if (currentK === 0) {
-                    // המשתמש מחק (או עשה Undo) - ננקה את החומר הפעיל
                     state.B[i] = 0.0;
                     state.A[i] = 1.0;
                 }
@@ -841,48 +1139,334 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
     }
 
     const { feed, kill, dA, dB, timeStep } = turingRules;
-    const nextA = new Float32Array(n * n);
-    const nextB = new Float32Array(n * n);
-    const nextLastBoardK = new Uint16Array(n * n); 
     
-    // 2. חישוב הריאקציה-דיפוזיה (Gray-Scott)
-    for (let y = 0; y < n; y++) {
-        for (let x = 0; x < n; x++) {
-            const i = y * n + x;
-            const a = state.A[i];
-            const b = state.B[i];
-            
-            const laplaceA = getLaplacian(x, y, state.A, n);
-            const laplaceB = getLaplacian(x, y, state.B, n);
-            
-            const reaction = a * b * b;
-            
-            let newA = a + ((dA * laplaceA) - reaction + (feed * (1 - a))) * timeStep;
-            let newB = b + ((dB * laplaceB) + reaction - ((kill + feed) * b)) * timeStep;
-            
-            nextA[i] = Math.max(0, Math.min(1, newA));
-            nextB[i] = Math.max(0, Math.min(1, newB));
+    // קביעת מספר האיטרציות דינמית לפי גודל הלוח (פותר את בעיית ה-Scale ואת איטיות הסימולציה)
+    const iterations = Math.max(3, Math.floor(n / 25)); 
+
+    let currA = state.A;
+    let currB = state.B;
+    let nextA = state.nextA;
+    let nextB = state.nextB;
+    
+    // 2. חישוב הריאקציה-דיפוזיה בלולאה פנימית מרובה
+    for (let step = 0; step < iterations; step++) {
+        for (let y = 0; y < n; y++) {
+            for (let x = 0; x < n; x++) {
+                const i = y * n + x;
+                const a = currA[i];
+                const b = currB[i];
+                
+                // --- חישוב לפלסיאן (Inlined) ללא פעולות Modulo יקרות ---
+                const yUp = (y === 0) ? n - 1 : y - 1;
+                const yDown = (y === n - 1) ? 0 : y + 1;
+                const xLeft = (x === 0) ? n - 1 : x - 1;
+                const xRight = (x === n - 1) ? 0 : x + 1;
+
+                const top = yUp * n;
+                const bottom = yDown * n;
+                const row = y * n;
+
+                const sumA = (a * -1.0) +
+                             (currA[top + x] * 0.2) + (currA[bottom + x] * 0.2) +
+                             (currA[row + xLeft] * 0.2) + (currA[row + xRight] * 0.2) +
+                             (currA[top + xLeft] * 0.05) + (currA[top + xRight] * 0.05) +
+                             (currA[bottom + xLeft] * 0.05) + (currA[bottom + xRight] * 0.05);
+
+                const sumB = (b * -1.0) +
+                             (currB[top + x] * 0.2) + (currB[bottom + x] * 0.2) +
+                             (currB[row + xLeft] * 0.2) + (currB[row + xRight] * 0.2) +
+                             (currB[top + xLeft] * 0.05) + (currB[top + xRight] * 0.05) +
+                             (currB[bottom + xLeft] * 0.05) + (currB[bottom + xRight] * 0.05);
+                // --- סוף חישוב לפלסיאן ---
+                
+                const reaction = a * b * b;
+                
+                let newA = a + ((dA * sumA) - reaction + (feed * (1 - a))) * timeStep;
+                let newB = b + ((dB * sumB) + reaction - ((kill + feed) * b)) * timeStep;
+                
+                nextA[i] = Math.max(0, Math.min(1, newA));
+                nextB[i] = Math.max(0, Math.min(1, newB));
+            }
         }
+        
+        // החלפת מערכים (Ping-Pong) לקראת האיטרציה הבאה
+        let tempA = currA; currA = nextA; nextA = tempA;
+        let tempB = currB; currB = nextB; nextB = tempB;
     }
     
-    // 3. תרגום הריכוזים הכימיים לצבעים
+    // עדכון הסטייט הקבוע במערכים המעודכנים ביותר
+    state.A = currA;
+    state.B = currB;
+    state.nextA = nextA;
+    state.nextB = nextB;
+
+// 3. תרגום הריכוזים הכימיים לצבעים
     const nextBoardState = currentBoardState.map((tile, i) => {
         if (tile.isGold) {
-            nextLastBoardK[i] = tile.k;
+            state.lastBoardK[i] = tile.k;
             return tile;
         }
         
-        const concentration = nextA[i];
-        let colorIndex = Math.floor((1 - concentration) * pLen);
-        colorIndex = Math.max(0, Math.min(pLen - 1, colorIndex));
+        const concentrationA = state.A[i];
         
-        nextLastBoardK[i] = colorIndex; // שומרים בזיכרון של הסימולציה את התוצאה
+
+
+// 1. הפיכת הכיוון 
+        let visualValue = 1.0 - concentrationA; 
+
+        // 2. פריסה על כל הפלטה (החזרנו את המתיחה החסרה!)
+        // זה מבטיח שהטווח הכימי (0.05 עד 0.78) נמתח על פני 100% מהצבעים, 
+        // כך ששום צבע בפלטה לא ילך לאיבוד.
+        visualValue = (visualValue - 0.05) / (0.78 - 0.05);
+        visualValue = Math.max(0.0, Math.min(1.0, visualValue));
+
+// 3. העברת המשקל לכהים (Gamma > 1.0): 
+        // במקום 0.85, אנחנו משתמשים ב-1.5. 
+        // זה "ישקע" את רוב הלוח לתוך הצבעים העמוקים והכהים,
+        // וישאיר את הבהירים רק לקצוות המודגשים.
+        visualValue = Math.pow(visualValue, 1.5);
+
+        // 4. קונטרסט מותנה (השארנו את מה שמונע את כאב הראש)
+        if (visualValue > 0.5) {
+            let t = (visualValue - 0.5) * 2.0; 
+            t = 1.0 - Math.pow(1.0 - t, 2.0);  
+            visualValue = 0.5 + (t * 0.5);     
+        }
+
+        
+        // מיפוי מדויק לאינדקס הצבע
+        const colorIndex = Math.round(visualValue * (pLen - 1));
+        
+        state.lastBoardK[i] = colorIndex;
         
         return { ...tile, k: colorIndex, v: colorIndex };
     });
 
     return { 
         nextBoardState, 
-        nextTuringState: { A: nextA, B: nextB, lastBoardK: nextLastBoardK, isInitialized: true } 
+        nextTuringState: state 
     };
+   }
+
+
+
+
+
+
+// --- START: Spiral Simulation ---
+export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
+    const nextBoardState = currentBoardState.map(tile => ({ ...tile }));
+    const method = spiralRules.method;
+    
+    const strength = 0.9; // הוספתי משתנה זה כדי להזין את תנאי ההסתברות מהקוד שלך
+
+    // --- 1. קלאסית (המבוסס על קוד 'left' שלך) ---
+    if (method === 'classic') {
+        const centerR = (n - 1) / 2;
+        const centerC = (n - 1) / 2;
+        
+        const baseSpinStrength = 0.10; 
+        const pullStrength = 0.8;      
+        const eddyFrequency = 0.03;    
+        const eddyStrength = 0.25;     
+        
+        const timePhase = Date.now() * 0.0005;
+
+        for (let row = 0; row < n; row++) {
+            for (let col = 0; col < n; col++) {
+                const i = row * n + col;
+                
+                if (nextBoardState[i].isGold) continue; 
+                
+                const dy = row - centerR;
+                const dx = col - centerC;
+                const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distToCenter === 0) continue; 
+                
+                const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
+                const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
+                
+                const currentAngle = Math.atan2(dy, dx);
+                
+                const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
+                const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
+                
+                const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                
+                const neighbors = [
+                    {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                    {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                    {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                    {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                ];
+                
+                const validNeighbors = [];
+                for (const {dr, dc} of neighbors) {
+                    const nr = row + dr;
+                    const nc = col + dc;
+                    if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                        const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                        validNeighbors.push({ nr, nc, dist: distToIdeal });
+                    }
+                }
+                
+                validNeighbors.sort((a, b) => a.dist - b.dist);
+                
+                if (validNeighbors.length > 0) {
+                    let chosen = validNeighbors[0];
+                    if (validNeighbors.length > 1 && Math.random() < 0.60) {
+                        chosen = validNeighbors[1];
+                    }
+                    
+                    const target_i = chosen.nr * n + chosen.nc;
+                    
+                    if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                        [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                    }
+                }
+            }
+        }
+    }
+    // --- 2. התרחבות (המבוסס על קוד 'right' שלך) ---
+    else if (method === 'expand') {
+        const centerR = (n - 1) / 2;
+        const centerC = (n - 1) / 2;
+        
+        const baseSpinStrength = 0.05; 
+        const pullStrength = -0.8; // שונה למינוס כדי ליצור אפקט התרחבות החוצה!
+        const eddyFrequency = 0.03;    
+        const eddyStrength = 0.25;     
+        
+        const timePhase = Date.now() * 0.0005;
+
+        for (let row = 0; row < n; row++) {
+            for (let col = 0; col < n; col++) {
+                const i = row * n + col;
+                
+                if (nextBoardState[i].isGold) continue; 
+                
+                const dy = row - centerR;
+                const dx = col - centerC;
+                const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distToCenter === 0) continue; 
+                
+                const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
+                const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
+                const currentAngle = Math.atan2(dy, dx);
+                
+                const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
+                const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
+                
+                const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                
+                const neighbors = [
+                    {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                    {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                    {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                    {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                ];
+                
+                const validNeighbors = [];
+                for (const {dr, dc} of neighbors) {
+                    const nr = row + dr;
+                    const nc = col + dc;
+                    if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                        const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                        validNeighbors.push({ nr, nc, dist: distToIdeal });
+                    }
+                }
+                
+                validNeighbors.sort((a, b) => a.dist - b.dist);
+                
+                if (validNeighbors.length > 0) {
+                    if (validNeighbors.length > 1 && Math.random() < 0.60) {
+                        [validNeighbors[0], validNeighbors[1]] = [validNeighbors[1], validNeighbors[0]];
+                    }
+                    
+                    if (Math.random() < strength) {
+                        for (const candidate of validNeighbors) {
+                            const target_i = candidate.nr * n + candidate.nc;
+                            
+                            if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k) {
+                                [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                                break; 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // --- 3. מערבולת (המבוסס על קוד 'down' שלך) ---
+    else if (method === 'vortex') {
+        const centerR = (n - 1) / 2;
+        const centerC = (n - 1) / 2;
+        
+        const baseSpinStrength = 0.105;   
+        const pullStrength     = 0.78;    
+
+        for (let row = 0; row < n; row++) {
+            for (let col = 0; col < n; col++) {
+                const i = row * n + col;
+                if (nextBoardState[i].isGold) continue;
+                
+                const dy = row - centerR;
+                const dx = col - centerC;
+                const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                if (distToCenter < 0.5) continue; 
+                
+                const currentAngle = Math.atan2(dy, dx);
+                const targetRadius = Math.max(0.3, distToCenter - pullStrength);
+                const targetAngle  = currentAngle + baseSpinStrength;
+                
+                const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                
+                const desiredDX = targetC - col;
+                const desiredDY = targetR - row;
+                const desiredLen = Math.sqrt(desiredDX * desiredDX + desiredDY * desiredDY) || 1;
+                
+                const neighbors = [
+                    {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                    {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                    {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                    {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                ];
+                
+                let bestScore = -1;
+                let bestNr = row;
+                let bestNc = col;
+                
+                for (const {dr, dc} of neighbors) {
+                    const nr = row + dr;
+                    const nc = col + dc;
+                    if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+                    
+                    const moveLen = Math.sqrt(dc * dc + dr * dr) || 1;
+                    const score = (dc * desiredDX + dr * desiredDY) / (moveLen * desiredLen);
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestNr = nr;
+                        bestNc = nc;
+                    }
+                }
+                
+                if (bestScore > 0.15 && Math.random() < strength) {
+                    const target_i = bestNr * n + bestNc;
+                    
+                    if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k) {
+                        [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                    }
+                }
+            }
+        }
+    }
+
+    return nextBoardState;
 }
+// --- END: Spiral Simulation ---

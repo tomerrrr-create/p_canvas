@@ -698,25 +698,36 @@ body {
 /* --- END: Game of Life Settings Modal Styles --- */
 
 /* --- START: New Gravitational Sort Settings Modal Styles --- */
+
+/* Gravitational Sort Direction Buttons - קטנים יותר */
 .gs-direction-btn {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2px solid #444;
   background-color: #2a2a2a;
-  font-size: 24px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease-in-out;
 }
+
+.gs-direction-btn svg {
+  width: 26px;   /* היה גדול יותר */
+  height: 26px;
+}
+
 .gs-direction-btn:hover {
   border-color: #666;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
+
 .gs-direction-btn.active {
   border-color: var(--gold);
   box-shadow: 0 0 8px var(--gold);
-  color: var(--gold);
 }
+
+
 
 #gsStrength::-webkit-slider-thumb {
   -webkit-appearance: none;
