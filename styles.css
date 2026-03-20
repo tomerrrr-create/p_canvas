@@ -846,6 +846,30 @@ body {
     fill: var(--gold);
 }
 
+
+/* --- Gravitational Sort Button States --- */
+#btnGravitationalSort.mode-up #iconGsUp { display: block !important; }
+#btnGravitationalSort.mode-up svg:not(#iconGsUp) { display: none !important; }
+
+#btnGravitationalSort.mode-right #iconGsRight { display: block !important; }
+#btnGravitationalSort.mode-right svg:not(#iconGsRight) { display: none !important; }
+
+#btnGravitationalSort.mode-down #iconGsDown { display: block !important; }
+#btnGravitationalSort.mode-down svg:not(#iconGsDown) { display: none !important; }
+
+#btnGravitationalSort.mode-left #iconGsLeft { display: block !important; }
+#btnGravitationalSort.mode-left svg:not(#iconGsLeft) { display: none !important; }
+
+#btnGravitationalSort.mode-center_x #iconGsCenterX { display: block !important; }
+#btnGravitationalSort.mode-center_x svg:not(#iconGsCenterX) { display: none !important; }
+
+#btnGravitationalSort.mode-radial #iconGsRadial { display: block !important; }
+#btnGravitationalSort.mode-radial svg:not(#iconGsRadial) { display: none !important; }
+
+#btnGravitationalSort.mode-vortex #iconGsVortex { display: block !important; }
+#btnGravitationalSort.mode-vortex svg:not(#iconGsVortex) { display: none !important; }
+
+
 /* --- Breathe Button States --- */
 #btnShowBreatheMenu #iconBreatheSolo {
     display: block;

@@ -322,7 +322,8 @@ let chiFlowRules = { ...C.defaultChiFlowRules };
       let symmetryMode = 'off';
 let brightnessEvoMode = 'off'; // ישמור את המצב הנבחר: 'off', 'brightness', או 'contrast'
 let dlaMode = 'off'; // 'off', 'genetics', or 'no-genetics'
- 
+ let gsMode = 'off'; // 'off', 'up', 'right', 'down', 'left', 'center_x', 'radial', 'vortex'
+
       // breatheEvoMode is defined at the top
       
       const isGold = (index) => boardState[index]?.isGold;
@@ -1229,6 +1230,7 @@ function armSimulation(simulationName) {
     dlaMode = 'off';
     breatheEvoMode = 'off';
     turingState = null;
+gsMode = 'off';
 
 const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheMenu, dom.btnGravitationalSort, dom.btnErosion, dom.btnDla, dom.btnContour, dom.btnSandpile, dom.btnTuring, dom.btnSpiral, dom.btnNudgeBrighter, dom.btnNudgeDarker].filter(Boolean);
 
@@ -1237,6 +1239,7 @@ const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheM
     updateBrightnessEvoButtonUI(); // Update UI to reflect the reset
     updateDlaButtonUI();           // Update UI to reflect the reset
     updateBreatheEvoButtonUI();    // Update UI to reflect the reset
+updateGravitationalSortButtonUI();
     
     dom.btnPlayPauseLife.disabled = true;
     dom.btnStepForward.disabled = true;
@@ -1254,7 +1257,12 @@ const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheM
             dlaMode = 'genetics'; // Default to the first 'on' state
             initializeDla();
         }
-        if (simulationName === 'breathe') {
+     if (simulationName === 'gravitationalSort') {
+            gsMode = 'up'; // ברירת מחדל: למעלה
+            gravitationalSortRules.direction = 'up';
+        }
+
+   if (simulationName === 'breathe') {
             breatheEvoMode = 'solo'; // Default to the first 'on' state
         }
 
@@ -1266,6 +1274,7 @@ const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheM
         updateBrightnessEvoButtonUI(); // Update UI with the new state
         updateDlaButtonUI();           // Update UI with the new state
         updateBreatheEvoButtonUI();    // Update UI with the new state
+updateGravitationalSortButtonUI();
 
         dom.btnPlayPauseLife.disabled = false;
         dom.btnStepForward.disabled = false;
@@ -1634,6 +1643,8 @@ const simButtons = [dom.btnGameOfLife, dom.btnBrightnessEvo, dom.btnShowBreatheM
     breatheEvoMode = 'off';
     updateBreatheEvoButtonUI();
 
+gsMode = 'off';
+    updateGravitationalSortButtonUI();
 
       }
 
@@ -2015,6 +2026,44 @@ function cycleDlaMode() {
 }
 
 
+// --- NEW: Gravitational Sort UI and Cycling ---
+function updateGravitationalSortButtonUI() {
+    dom.btnGravitationalSort.classList.remove('mode-up', 'mode-right', 'mode-down', 'mode-left', 'mode-center_x', 'mode-radial', 'mode-vortex', 'simulation-active');
+
+    if (gsMode !== 'off') {
+        dom.btnGravitationalSort.classList.add('mode-' + gsMode);
+        if (armedSimulation === 'gravitationalSort') {
+             dom.btnGravitationalSort.classList.add('simulation-active');
+        }
+    }
+}
+
+function cycleGravitationalSortMode() {
+    const oldMode = gsMode;
+    const sequence = ['off', 'up', 'right', 'down', 'left', 'center_x', 'radial', 'vortex'];
+    const currentIndex = sequence.indexOf(gsMode);
+    const nextIndex = (currentIndex + 1) % sequence.length;
+    gsMode = sequence[nextIndex];
+
+    if (gsMode !== 'off') {
+        gravitationalSortRules.direction = gsMode; // מעדכן את חוקי הסימולציה בפועל
+    }
+
+    // הדלקה או כיבוי של הסימולציה בהתאם למצב
+    if (oldMode === 'off' && gsMode !== 'off') {
+        armSimulation('gravitationalSort');
+    } else if (oldMode !== 'off' && gsMode === 'off') {
+        if (armedSimulation === 'gravitationalSort') {
+            armSimulation(null);
+        }
+    }
+    
+    updateGravitationalSortButtonUI();
+}
+// --- END: Gravitational Sort Functions ---
+
+
+
 // --- NEW: Breathe Simulation UI and Cycling ---
 function updateBreatheEvoButtonUI() {
     dom.btnShowBreatheMenu.classList.remove('mode-solo', 'mode-group', 'simulation-active');
@@ -2177,7 +2226,9 @@ dom.btnBrightnessEvo.addEventListener('click', (e) => handleCtrlClick(e, cycleBr
 
 dom.btnShowBreatheMenu.addEventListener('click', (e) => handleCtrlClick(e, cycleBreatheEvoMode));
 
-        dom.btnGravitationalSort.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('gravitationalSort')));
+
+dom.btnGravitationalSort.addEventListener('click', (e) => handleCtrlClick(e, cycleGravitationalSortMode));
+
         dom.btnErosion.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('erosion')));
 
 dom.btnDla.addEventListener('click', (e) => handleCtrlClick(e, cycleDlaMode));
