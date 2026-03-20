@@ -1265,15 +1265,23 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
             const centerR = (n - 1) / 2;
             const centerC = (n - 1) / 2;
 
-            const baseSpinStrength = 0.10;
+            const baseSpinStrength = 0;
             const pullStrength     = 0.8;
-            const eddyFrequency    = 0.03;
-            const eddyStrength     = 0.25;
+            const eddyFrequency    = 0;
+            const eddyStrength     = 0;
             const timePhase        = Date.now() * 0.0005;
 
+            // יצירת רשימה למעקב אחרי פיקסלים שכבר זזו בפריים הנוכחי
+            const movedThisFrame = new Set();
+
             for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
+
+for (let col = 0; col < n; col++) {
                     const i = row * n + col;
+                    
+                    // אם הפיקסל כבר זז בפריים הזה, דלג עליו מיד
+                    if (movedThisFrame.has(i)) continue;
+                    
                     if (nextBoardState[i].isGold) continue;
 
                     const dy = row - centerR;
@@ -1284,7 +1292,7 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                     const turbulence = Math.sin((row * eddyFrequency) + timePhase) *
                                        Math.cos((col * eddyFrequency) - timePhase);
 
-                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(dist, 1));
+                    const dynamicSpin = baseSpinStrength + (1.0 / Math.max(dist, 1));
                     const currentAngle = Math.atan2(dy, dx);
 
                     const targetRadius = Math.max(0, dist - pullStrength + turbulence * 1.5);
@@ -1317,13 +1325,23 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                         }
                     }
 
-                    if (bestScore > 0.15 && Math.random() < strength) {
+if (bestScore > 0.15) {
                         const target_i = bestNr * n + bestNc;
+                        
+                        // הוספנו פה את הבדיקה שהיעד לא ברשימה
                         if (!nextBoardState[target_i].isGold &&
-                            nextBoardState[i].k < nextBoardState[target_i].k) {
+                            nextBoardState[i].k < nextBoardState[target_i].k &&
+                            !movedThisFrame.has(target_i)) { 
+                            
+                            // ביצוע ההחלפה (התנועה)
                             [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                            
+                            // הוספת שני הפיקסלים לרשימה כדי לנעול אותם עד הפריים הבא
+                            movedThisFrame.add(i);
+                            movedThisFrame.add(target_i);
                         }
                     }
+
                 }
             }
             break;
@@ -1385,7 +1403,7 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                         }
                     }
 
-                    if (bestScore > 0.15 && Math.random() < strength) {
+                    if (bestScore > 0.15 && Math.random() < 1) {
                         const target_i = bestNr * n + bestNc;
                         if (!nextBoardState[target_i].isGold &&
                             nextBoardState[i].k < nextBoardState[target_i].k) {

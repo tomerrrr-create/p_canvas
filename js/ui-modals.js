@@ -1024,14 +1024,23 @@ app.dom.btnTuringPresetBoiling.addEventListener('click', (e) => applyTuringPrese
 // --- START: Added for Spiral Settings ---
     app.dom.btnSpiralSettingsCancel.addEventListener('click', closeSpiralSettingsModal);
     
-    // שמירת ההגדרות כשהמשתמש לוחץ 'שמור וסגור'
+
+
+
+// שמירת ההגדרות כשהמשתמש לוחץ 'שמור וסגור'
     app.dom.btnSpiralSettingsSave.addEventListener('click', () => {
         const activeBtn = Array.from(app.dom.spiralMethodButtons).find(b => b.classList.contains('active'));
         if (activeBtn && app.spiralRules) {
             app.spiralRules.method = activeBtn.dataset.method;
+            
+            // עדכון: סנכרון האייקון בלוח הבקרה למצב החדש שנבחר בספירלה
+            if (typeof app.syncSpiralModeFromModal === 'function') {
+                app.syncSpiralModeFromModal(activeBtn.dataset.method);
+            }
         }
         closeSpiralSettingsModal();
     });
+
 
     // שינוי עיצוב הכפתורים כשלוחצים עליהם (איזה מהם פעיל)
     app.dom.spiralMethodButtons.forEach(btn => {

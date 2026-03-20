@@ -1056,3 +1056,14 @@ body {
 
 
 
+
+
+/* --- Spiral Button States --- */
+#btnSpiral.mode-classic #iconSpiralClassic { display: block !important; }
+#btnSpiral.mode-classic svg:not(#iconSpiralClassic) { display: none !important; }
+
+#btnSpiral.mode-vortex #iconSpiralVortex { display: block !important; }
+#btnSpiral.mode-vortex svg:not(#iconSpiralVortex) { display: none !important; }
+
+#btnSpiral.mode-expand #iconSpiralExpand { display: block !important; }
+#btnSpiral.mode-expand svg:not(#iconSpiralExpand) { display: none !important; }
