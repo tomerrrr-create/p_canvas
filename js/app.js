@@ -2160,6 +2160,16 @@ function cycleSortMethod() {
             switchToPalette,
             getGameOfLifeRules: () => gameOfLifeRules, setGameOfLifeRules: (r) => { gameOfLifeRules = r; },
             getGravitationalSortRules: () => gravitationalSortRules, setGravitationalSortRules: (r) => { gravitationalSortRules = r; },
+syncGsModeFromModal: (direction) => {
+                if (armedSimulation !== 'gravitationalSort') {
+                    armSimulation('gravitationalSort'); // קודם מחמשים כדי לאפס מצבים אחרים בלוח
+                }
+                // מעדכנים למצב שנבחר במודל ומרעננים את האייקון
+                gsMode = direction;
+                gravitationalSortRules.direction = direction;
+                updateGravitationalSortButtonUI();
+            },
+
             getDlaRules: () => dlaRules, setDlaRules: (r) => { dlaRules = r; },
             getContourRules: () => contourRules, setContourRules: (r) => { contourRules = r; }, // <-- ADDED HERE
 

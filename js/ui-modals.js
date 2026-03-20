@@ -801,10 +801,14 @@ function saveGravitationalSortSettings() {
     }
     newRules.strength = parseInt(app.dom.gsStrengthSlider.value, 10) / 100;
     app.setGravitationalSortRules(newRules);
+    
+    // עדכון: סנכרון האייקון בלוח הבקרה למצב החדש שנבחר
+    if (typeof app.syncGsModeFromModal === 'function') {
+        app.syncGsModeFromModal(newRules.direction);
+    }
+    
     closeGravitationalSortSettingsModal();
 }
-
-
 // --- START: Added for Contour Settings ---
 function openContourSettingsModal() {
     if (app.isBreathing() || app.isLifePlaying()) return;
