@@ -1252,219 +1252,209 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
 
 
 
-
-// --- START: Spiral Simulation ---
+// --- START: Spiral Simulation (מבנה switch-case בדיוק כמו Gravitational Sort) ---
 export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
     const nextBoardState = currentBoardState.map(tile => ({ ...tile }));
-    const method = spiralRules.method;
-    
-    const strength = 0.9; // הוספתי משתנה זה כדי להזין את תנאי ההסתברות מהקוד שלך
+    const method = spiralRules.method || 'classic';
+    const strength = 0.9;                     // אותו strength כמו בגרביטציה
 
-    // --- 1. קלאסית (המבוסס על קוד 'left' שלך) ---
-    if (method === 'classic') {
-        const centerR = (n - 1) / 2;
-        const centerC = (n - 1) / 2;
-        
-        const baseSpinStrength = 0.10; 
-        const pullStrength = 0.8;      
-        const eddyFrequency = 0.03;    
-        const eddyStrength = 0.25;     
-        
-        const timePhase = Date.now() * 0.0005;
+    switch (method) {
 
-        for (let row = 0; row < n; row++) {
-            for (let col = 0; col < n; col++) {
-                const i = row * n + col;
-                
-                if (nextBoardState[i].isGold) continue; 
-                
-                const dy = row - centerR;
-                const dx = col - centerC;
-                const distToCenter = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distToCenter === 0) continue; 
-                
-                const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
-                const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
-                
-                const currentAngle = Math.atan2(dy, dx);
-                
-                const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
-                const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
-                
-                const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                const targetC = centerC + targetRadius * Math.cos(targetAngle);
-                
-                const neighbors = [
-                    {dr: -1, dc: 0}, {dr: 1, dc: 0},
-                    {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                    {dr: -1, dc: -1}, {dr: -1, dc: 1},
-                    {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                ];
-                
-                const validNeighbors = [];
-                for (const {dr, dc} of neighbors) {
-                    const nr = row + dr;
-                    const nc = col + dc;
-                    if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                        const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
-                        validNeighbors.push({ nr, nc, dist: distToIdeal });
-                    }
-                }
-                
-                validNeighbors.sort((a, b) => a.dist - b.dist);
-                
-                if (validNeighbors.length > 0) {
-                    let chosen = validNeighbors[0];
-                    if (validNeighbors.length > 1 && Math.random() < 0.60) {
-                        chosen = validNeighbors[1];
-                    }
-                    
-                    const target_i = chosen.nr * n + chosen.nc;
-                    
-                    if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
-                        [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                    }
-                }
-            }
-        }
-    }
-    // --- 2. התרחבות (המבוסס על קוד 'right' שלך) ---
-    else if (method === 'expand') {
-        const centerR = (n - 1) / 2;
-        const centerC = (n - 1) / 2;
-        
-        const baseSpinStrength = 0.05; 
-        const pullStrength = -0.8; // שונה למינוס כדי ליצור אפקט התרחבות החוצה!
-        const eddyFrequency = 0.03;    
-        const eddyStrength = 0.25;     
-        
-        const timePhase = Date.now() * 0.0005;
+        // ────────────────────────────── CLASSIC (פנימה + טורבולנציה) ──────────────────────────────
+        case 'classic': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
 
-        for (let row = 0; row < n; row++) {
-            for (let col = 0; col < n; col++) {
-                const i = row * n + col;
-                
-                if (nextBoardState[i].isGold) continue; 
-                
-                const dy = row - centerR;
-                const dx = col - centerC;
-                const distToCenter = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distToCenter === 0) continue; 
-                
-                const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
-                const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
-                const currentAngle = Math.atan2(dy, dx);
-                
-                const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
-                const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
-                
-                const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                const targetC = centerC + targetRadius * Math.cos(targetAngle);
-                
-                const neighbors = [
-                    {dr: -1, dc: 0}, {dr: 1, dc: 0},
-                    {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                    {dr: -1, dc: -1}, {dr: -1, dc: 1},
-                    {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                ];
-                
-                const validNeighbors = [];
-                for (const {dr, dc} of neighbors) {
-                    const nr = row + dr;
-                    const nc = col + dc;
-                    if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                        const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
-                        validNeighbors.push({ nr, nc, dist: distToIdeal });
+            const baseSpinStrength = 0.10;
+            const pullStrength     = 0.8;
+            const eddyFrequency    = 0.03;
+            const eddyStrength     = 0.25;
+            const timePhase        = Date.now() * 0.0005;
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    if (nextBoardState[i].isGold) continue;
+
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 0.5) continue;
+
+                    const turbulence = Math.sin((row * eddyFrequency) + timePhase) *
+                                       Math.cos((col * eddyFrequency) - timePhase);
+
+                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(dist, 1));
+                    const currentAngle = Math.atan2(dy, dx);
+
+                    const targetRadius = Math.max(0, dist - pullStrength + turbulence * 1.5);
+                    const targetAngle  = currentAngle + dynamicSpin + turbulence * eddyStrength;
+
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+
+                    // בחירת השכן הטוב ביותר
+                    let bestScore = -1;
+                    let bestNr = row, bestNc = col;
+
+                    const neighbors = [
+                        {dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1},
+                        {dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:-1},{dr:1,dc:1}
+                    ];
+
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+
+                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
+                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestNr = nr;
+                            bestNc = nc;
+                        }
                     }
-                }
-                
-                validNeighbors.sort((a, b) => a.dist - b.dist);
-                
-                if (validNeighbors.length > 0) {
-                    if (validNeighbors.length > 1 && Math.random() < 0.60) {
-                        [validNeighbors[0], validNeighbors[1]] = [validNeighbors[1], validNeighbors[0]];
-                    }
-                    
-                    if (Math.random() < strength) {
-                        for (const candidate of validNeighbors) {
-                            const target_i = candidate.nr * n + candidate.nc;
-                            
-                            if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k) {
-                                [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                                break; 
-                            }
+
+                    if (bestScore > 0.15 && Math.random() < strength) {
+                        const target_i = bestNr * n + bestNc;
+                        if (!nextBoardState[target_i].isGold &&
+                            nextBoardState[i].k < nextBoardState[target_i].k) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
                         }
                     }
                 }
             }
+            break;
         }
-    }
-    // --- 3. מערבולת (המבוסס על קוד 'down' שלך) ---
-    else if (method === 'vortex') {
-        const centerR = (n - 1) / 2;
-        const centerC = (n - 1) / 2;
-        
-        const baseSpinStrength = 0.105;   
-        const pullStrength     = 0.78;    
 
-        for (let row = 0; row < n; row++) {
-            for (let col = 0; col < n; col++) {
-                const i = row * n + col;
-                if (nextBoardState[i].isGold) continue;
-                
-                const dy = row - centerR;
-                const dx = col - centerC;
-                const distToCenter = Math.sqrt(dx * dx + dy * dy);
-                if (distToCenter < 0.5) continue; 
-                
-                const currentAngle = Math.atan2(dy, dx);
-                const targetRadius = Math.max(0.3, distToCenter - pullStrength);
-                const targetAngle  = currentAngle + baseSpinStrength;
-                
-                const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                const targetC = centerC + targetRadius * Math.cos(targetAngle);
-                
-                const desiredDX = targetC - col;
-                const desiredDY = targetR - row;
-                const desiredLen = Math.sqrt(desiredDX * desiredDX + desiredDY * desiredDY) || 1;
-                
-                const neighbors = [
-                    {dr: -1, dc: 0}, {dr: 1, dc: 0},
-                    {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                    {dr: -1, dc: -1}, {dr: -1, dc: 1},
-                    {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                ];
-                
-                let bestScore = -1;
-                let bestNr = row;
-                let bestNc = col;
-                
-                for (const {dr, dc} of neighbors) {
-                    const nr = row + dr;
-                    const nc = col + dc;
-                    if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
-                    
-                    const moveLen = Math.sqrt(dc * dc + dr * dr) || 1;
-                    const score = (dc * desiredDX + dr * desiredDY) / (moveLen * desiredLen);
-                    
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestNr = nr;
-                        bestNc = nc;
+        // ────────────────────────────── EXPAND (מתרחבת החוצה) ──────────────────────────────
+        case 'expand': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+
+            const baseSpinStrength = 0.05;
+            const pullStrength     = -0.8;   // שלילי = התרחבות
+            const eddyFrequency    = 0.03;
+            const eddyStrength     = 0.25;
+            const timePhase        = Date.now() * 0.0005;
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    if (nextBoardState[i].isGold) continue;
+
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 0.5) continue;
+
+                    const turbulence = Math.sin((row * eddyFrequency) + timePhase) *
+                                       Math.cos((col * eddyFrequency) - timePhase);
+
+                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(dist, 1));
+                    const currentAngle = Math.atan2(dy, dx);
+
+                    const targetRadius = Math.max(0, dist - pullStrength + turbulence * 1.5);
+                    const targetAngle  = currentAngle + dynamicSpin + turbulence * eddyStrength;
+
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+
+                    let bestScore = -1;
+                    let bestNr = row, bestNc = col;
+
+                    const neighbors = [
+                        {dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1},
+                        {dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:-1},{dr:1,dc:1}
+                    ];
+
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+
+                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
+                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestNr = nr;
+                            bestNc = nc;
+                        }
                     }
-                }
-                
-                if (bestScore > 0.15 && Math.random() < strength) {
-                    const target_i = bestNr * n + bestNc;
-                    
-                    if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k) {
-                        [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+
+                    if (bestScore > 0.15 && Math.random() < strength) {
+                        const target_i = bestNr * n + bestNc;
+                        if (!nextBoardState[target_i].isGold &&
+                            nextBoardState[i].k < nextBoardState[target_i].k) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
                     }
                 }
             }
+            break;
         }
+
+
+
+        // ────────────────────────────── VORTEX (העתקה מדויקת 1:1 מהכפתור השלישי ב-Gravitational Sort) ──────────────────────────────
+case 'vortex': {
+            // מחשבים את המרחק העגול המושלם רק פעם אחת כדי לחסוך ביצועים
+            if (cachedRadialN !== n) {
+                const centerR = (n - 1) / 2;
+                const centerC = (n - 1) / 2;
+                const indices = Array.from({length: n * n}, (_, i) => i);
+                indices.sort((a, b) => {
+                    const rA = Math.floor(a / n), cA = a % n;
+                    const rB = Math.floor(b / n), cB = b % n;
+                    const distA = Math.pow(rA - centerR, 2) + Math.pow(cA - centerC, 2);
+                    const distB = Math.pow(rB - centerR, 2) + Math.pow(cB - centerC, 2);
+                    return distA - distB; 
+                });
+                cachedRadialOrder = indices;
+                cachedRadialN = n;
+            }
+
+            // 1. מחזירים את מספר המעברים למינימום כדי לשמור על 60FPS חלק ונעים לעין!
+            const passes = 6; 
+            
+            // 2. ה"קפיצה" - ככל שהלוח גדול יותר, הפיקסלים "ידלגו" מעל יותר שכנים אל עבר המרכז
+            const stride = Math.max(1, Math.floor(n / 4));
+
+            for (let p = 0; p < passes; p++) {
+                
+                // כוח משיכה ששואב למרכז (בקפיצות)
+                for (let j = 0; j < cachedRadialOrder.length - stride; j++) {
+                    const idx1 = cachedRadialOrder[j];          
+                    const idx2 = cachedRadialOrder[j + stride]; 
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+                        }
+                    }
+                }
+                
+                // כוח הדיפה שדוחף החוצה (בקפיצות, מהסוף להתחלה כדי לשחרר פקקים)
+                for (let j = cachedRadialOrder.length - 1; j >= stride; j--) {
+                    const idx1 = cachedRadialOrder[j - stride];
+                    const idx2 = cachedRadialOrder[j];
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+                        }
+                    }
+                }
+            }
+            break;
+                }
     }
 
     return nextBoardState;
