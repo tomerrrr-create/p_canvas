@@ -1073,5 +1073,5 @@ body {
 #btnSpiral.mode-b #iconSpiralB { display: block !important; }
 #btnSpiral.mode-b svg:not(#iconSpiralB) { display: none !important; }
 
-#btnSpiral.mode-c #iconSpiralC { display: block !important; }
-#btnSpiral.mode-c svg:not(#iconSpiralC) { display: none !important; }
+#btnSpiral.mode-magnet #iconSpiralMagnet { display: block !important; }
+#btnSpiral.mode-magnet svg:not(#iconSpiralMagnet) { display: none !important; }

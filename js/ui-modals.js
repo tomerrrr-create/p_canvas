@@ -59,7 +59,10 @@ function openSpiralSettingsModal() {
     }, 10);
     
     // סימון הכפתור הנכון לפי מה ששמור בהגדרות
-const currentMethod = app.spiralRules ? app.spiralRules.method : 'c';    app.dom.spiralMethodButtons.forEach(btn => {
+
+const currentMethod = app.spiralRules ? app.spiralRules.method : 'magnet';    app.dom.spiralMethodButtons.forEach(btn => {
+
+
         if (btn.dataset.method === currentMethod) {
             btn.classList.add('active');
         } else {
@@ -257,7 +260,7 @@ updateActiveChiPresetButton();        app.dom.chiFlowSettingsModal.classList.rem
     // --- END: Chi Flow Modal Logic ---
 
 // --- START: Turing Patterns Modal Logic ---
-let tempTuringRules = { feed: 0.055, kill: 0.062, dA: 1.0, dB: 0.5, timeStep: 1.0 };
+let tempTuringRules = { feed: 0.034, kill: 0.056, dA: 1.0, dB: 0.5, timeStep: 1.0 };
 
 
 const TURING_PRESETS = {

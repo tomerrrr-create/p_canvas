@@ -454,9 +454,11 @@ export const defaultGravitationalSortRules = {
     direction: 'up',
     strength: 0.6
 };
+
+
 // --- START: Added for Spiral Settings ---
 export const defaultSpiralRules = {
-    method: 'c'
+    method: 'magnet'
 };// --- END: Added for Spiral Settings ---
 
 
@@ -488,12 +490,11 @@ export const defaultChiFlowRules = {
 
 // --- START: Added for Turing Patterns Settings ---
 export const defaultTuringRules = {
-    feed: 0.054, // הערך המדויק של פריסט Coral (אלמוג)
-    kill: 0.062, 
+    feed: 0.034, // הערך המדויק של פריסט Chaos (כאוס)
+    kill: 0.056, 
     dA: 1.0,     
     dB: 0.5,     
     timeStep: 1.0
 };
 // --- END: Added for Turing Patterns Settings ---
-
 

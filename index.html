@@ -208,35 +208,58 @@
 
 
 <button id="btnSpiral" class="ctrl">
-            <svg id="iconSpiralClassic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 16a4 4 0 0 1-4-4v-1a5 5 0 0 1 5-5h1a6 6 0 0 1 6 6v1a7 7 0 0 1-7 7h-1"></path>
-            </svg>
-            <svg id="iconSpiralVortex" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                <circle cx="12" cy="12" r="8"/>
-                <circle cx="12" cy="12" r="4"/>
-            </svg>
-            <svg id="iconSpiralExpand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                <circle cx="12" cy="12" r="3"/>
-                <line x1="12" y1="5" x2="12" y2="2"/>
-                <line x1="12" y1="22" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="2" y2="12"/>
-                <line x1="22" y1="12" x2="19" y2="12"/>
-                <line x1="16.95" y1="16.95" x2="19.07" y2="19.07"/>
-                <line x1="4.93" y1="4.93" x2="7.05" y2="7.05"/>
-                <line x1="16.95" y1="7.05" x2="19.07" y2="4.93"/>
-                <line x1="4.93" y1="19.07" x2="7.05" y2="16.95"/>
-            </svg>
-        
-<svg id="iconSpiralA" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display: none;">
-                <circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" text-anchor="middle" font-family="sans-serif" stroke-width="0" fill="currentColor">A</text>
-            </svg>
-            <svg id="iconSpiralB" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display: none;">
-                <circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" text-anchor="middle" font-family="sans-serif" stroke-width="0" fill="currentColor">B</text>
-            </svg>
-            <svg id="iconSpiralC" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display: none;">
-                <circle cx="12" cy="12" r="10"/><text x="12" y="16" font-size="12" text-anchor="middle" font-family="sans-serif" stroke-width="0" fill="currentColor">C</text>
+<svg id="iconSpiralClassic" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                <text x="12" y="17" font-size="16" font-family="sans-serif" font-weight="normal" text-anchor="middle" fill="none" stroke="currentColor" stroke-width="0.8">א</text>
             </svg>
 
+<svg id="iconSpiralVortex" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                <circle cx="12" cy="12" r="3" stroke-width="0.8"></circle>
+                <path d="M 12 9 C 15 9 17 11 18 14" stroke-width="0.8"></path>
+                <path d="M 15 12 C 15 15 13 17 10 18" stroke-width="0.8"></path>
+                <path d="M 12 15 C 9 15 7 13 6 10" stroke-width="0.8"></path>
+                <path d="M 9 12 C 9 9 11 7 14 6" stroke-width="0.8"></path>
+            </svg>
+
+<svg id="iconSpiralExpand" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                <circle cx="12" cy="12" r="0.8" stroke-width="0.4"></circle>
+                <circle cx="14" cy="11" r="1.4" stroke-width="0.4"></circle>
+                <circle cx="15.5" cy="14" r="2.0" stroke-width="0.4"></circle>
+                <circle cx="12" cy="16.5" r="2.6" stroke-width="0.4"></circle>
+                <circle cx="8" cy="14" r="3.2" stroke-width="0.4"></circle>
+                <circle cx="7.5" cy="9.5" r="3.8" stroke-width="0.4"></circle>
+                <circle cx="11.5" cy="6" r="4.4" stroke-width="0.4"></circle>
+                <circle cx="17" cy="6.5" r="5.0" stroke-width="0.4"></circle>
+            </svg>
+        
+<svg id="iconSpiralA" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display: none;">
+                <circle cx="12" cy="12" r="2" stroke-width="0.4"></circle>
+                <circle cx="12" cy="12" r="5" stroke-width="0.4"></circle>
+                <circle cx="12" cy="12" r="8" stroke-width="0.4"></circle>
+                <circle cx="12" cy="12" r="11" stroke-width="0.4"></circle>
+            </svg>
+
+<svg id="iconSpiralB" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle>
+                <path stroke-width="1.0" d="
+                    M 12 10.5 Q 15 7 12 3
+                    M 13.06 10.94 Q 17.5 8.5 18.36 5.64
+                    M 13.5 12 Q 17 15 21 12
+                    M 13.06 13.06 Q 15.5 17.5 18.36 18.36
+                    M 12 13.5 Q 9 17 12 21
+                    M 10.94 13.06 Q 6.5 15.5 5.64 18.36
+                    M 10.5 12 Q 7 9 3 12
+                    M 10.94 10.94 Q 8.5 6.5 5.64 5.64
+                "></path>
+            </svg>
+
+
+<svg id="iconSpiralMagnet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke-width="1.0" d="M 8.5 13 v 2.5 a 3.5 3.5 0 0 0 7 0 v -2.5"></path>
+                <circle cx="8.5" cy="11" r="1.2" fill="currentColor" stroke="none"></circle>
+                <circle cx="15.5" cy="11" r="1.2" fill="currentColor" stroke="none"></circle>
+                <path stroke-width="1.0" d="M 8.5 7.5 Q 12 4.5 15.5 7.5"></path>
+                <path stroke-width="1.0" d="M 6.5 5 Q 12 1 17.5 5"></path>
+            </svg>
 </button>
 
 
@@ -506,7 +529,7 @@
         <button class="gol-preset-btn spiral-method-btn" data-method="expand">התרחבות</button>
 <button class="gol-preset-btn spiral-method-btn" data-method="a">ניסוי A</button>
         <button class="gol-preset-btn spiral-method-btn" data-method="b">ניסוי B</button>
-        <button class="gol-preset-btn spiral-method-btn" data-method="c">ניסוי C</button>
+<button class="gol-preset-btn spiral-method-btn" data-method="magnet">מגנט</button>
       </div>
     </div>
 
