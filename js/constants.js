@@ -456,9 +456,8 @@ export const defaultGravitationalSortRules = {
 };
 // --- START: Added for Spiral Settings ---
 export const defaultSpiralRules = {
-    method: 'classic' // אפשרויות: 'classic', 'vortex', 'expand'
-};
-// --- END: Added for Spiral Settings ---
+    method: 'c'
+};// --- END: Added for Spiral Settings ---
 
 
 export const defaultErosionRules = {

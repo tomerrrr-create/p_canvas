@@ -1497,7 +1497,262 @@ if (bestScore > 0.15) {
 
 
                 }
-    }
+    
+// ────────────────────────────── EXPERIMENT A (מיון גיאומטרי טהור מהמרכז החוצה) ──────────────────────────────
+        case 'a': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+
+            // פרמטר שליטה: 0 ייתן לך מעגלים מושלמים לגמרי. 
+            // מספרים כמו 1.0, 2.0 או 3.0 יעקמו את המעגלים לזרועות של ספירלה מושלמת.
+            const spin = 0; 
+            
+            // פרמטר שליטה: כמה מהר האנימציה זורמת (מספר המעברים בפריים)
+            const speed = 30;
+
+            // 1. בניית המסלול המתמטי (מבוצע פעם אחת בלבד ונשמר בזיכרון כדי לא להעמיס על המעבד)
+            if (!window.perfectRadialOrderA || window.perfectRadialOrderA_n !== n) {
+                let coords = [];
+                for (let r = 0; r < n; r++) {
+                    for (let c = 0; c < n; c++) {
+                        const dy = r - centerR;
+                        const dx = c - centerC;
+                        
+                        // מרחק אוקלידי טהור ומושלם מהמרכז
+                        const dist = Math.hypot(dx, dy);
+                        // זווית מדויקת
+                        const angle = Math.atan2(dy, dx);
+                        
+                        // נוסחת המסלול: מרחק נקי + הסטה זוויתית (ספירלה)
+                        const mathematicalValue = dist + (angle * spin);
+                        
+                        coords.push({ i: r * n + c, val: mathematicalValue });
+                    }
+                }
+                
+                // ממיינים את כל הפיקסלים בלוח מהנמוך לגבוה לפי הנוסחה שלנו
+                coords.sort((a, b) => a.val - b.val);
+                
+                // שומרים רק את האינדקסים המסודרים
+                window.perfectRadialOrderA = coords.map(c => c.i);
+                window.perfectRadialOrderA_n = n;
+            }
+
+            const order = window.perfectRadialOrderA;
+
+            // 2. מיון זורם (Cocktail Shaker Sort) על גבי המסלול המושלם שלנו
+            for (let p = 0; p < speed; p++) {
+                
+                // א. תנועה פנימה: סורקים מהקצוות אל המרכז
+                for (let j = order.length - 1; j > 0; j--) {
+                    const idxInner = order[j - 1]; // הפיקסל שיותר קרוב למרכז
+                    const idxOuter = order[j];     // הפיקסל שיותר רחוק מהמרכז
+                    
+                    if (nextBoardState[idxInner].isGold || nextBoardState[idxOuter].isGold) continue;
+
+                    // אם החיצוני כהה יותר, הוא נשאב פנימה!
+                    if (nextBoardState[idxInner].k > nextBoardState[idxOuter].k) {
+                        [nextBoardState[idxInner], nextBoardState[idxOuter]] = [nextBoardState[idxOuter], nextBoardState[idxInner]];
+                    }
+                }
+
+                // ב. תנועה החוצה: סורקים מהמרכז אל הקצוות
+                for (let j = 0; j < order.length - 1; j++) {
+                    const idxInner = order[j];
+                    const idxOuter = order[j + 1];
+                    
+                    if (nextBoardState[idxInner].isGold || nextBoardState[idxOuter].isGold) continue;
+
+                    // החלקה נוספת כדי למנוע "פקקי תנועה"
+                    if (nextBoardState[idxInner].k > nextBoardState[idxOuter].k) {
+                        [nextBoardState[idxInner], nextBoardState[idxOuter]] = [nextBoardState[idxOuter], nextBoardState[idxInner]];
+                    }
+                }
+            }
+            break;
+        }
+
+
+        // ────────────────────────────── EXPERIMENT B ──────────────────────────────
+        case 'b': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+
+            // הסוד לספירלה בלי רוח: כוח סיבוב גבוה, שאיבה עדינה, ואפס טורבולנציה
+            const baseSpinStrength = 0.005; // זה מה שיוצר את זרועות הספירלה! (אפשר להגדיל ל-0.25 לספירלה צפופה יותר)
+            const pullStrength     = 1.5;  // שאיבה עדינה ואיטית פנימה
+
+            // רשימת נוכחות למניעת "גלישת" פיקסלים
+            const movedThisFrame = new Set();
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    if (movedThisFrame.has(i)) continue;
+                    if (nextBoardState[i].isGold) continue;
+
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 0.5) continue;
+
+                    // מתמטיקה טהורה וסטטית של ספירלה - ללא זמן וללא רעש
+                    const dynamicSpin = baseSpinStrength + (0 / Math.max(dist, 1));
+                    const currentAngle = Math.atan2(dy, dx);
+
+                    // יעד יציב לחלוטין
+                    const targetRadius = Math.max(0, dist - pullStrength);
+                    const targetAngle  = currentAngle + dynamicSpin;
+
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+
+                    let bestScore = -1;
+                    let bestNr = row, bestNc = col;
+
+                    const neighbors = [
+                        {dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1},
+                        {dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:-1},{dr:1,dc:1}
+                    ];
+
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+
+                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
+                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestNr = nr;
+                            bestNc = nc;
+                        }
+                    }
+
+                    // סף החלטיות 0.4 לזרימה חלקה כמיי נהר
+                    if (bestScore > 0.4) {
+                        const target_i = bestNr * n + bestNc;
+                        
+                        if (!nextBoardState[target_i].isGold &&
+                            nextBoardState[i].k < nextBoardState[target_i].k &&
+                            !movedThisFrame.has(target_i)) { 
+                            
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                            
+                            movedThisFrame.add(i);
+                            movedThisFrame.add(target_i);
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+// ────────────────────────────── EXPERIMENT C (ריבוי מוקדי משיכה - Multi-Gravity) ──────────────────────────────
+        case 'c': {
+            // 1. איסוף כל ה"חורים השחורים" (פיקסלים עם אינדקס 0) שמשמשים כעוגני משיכה
+            let anchors = [];
+            for (let i = 0; i < n * n; i++) {
+                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+                    anchors.push({ r: Math.floor(i / n), c: i % n });
+                }
+            }
+
+            // חוק אפס כבידה: אם אין עוגנים שחורים על הלוח, אל תעשה כלום (קפיאה בהמתנה)
+            if (anchors.length === 0) break;
+
+            // אופטימיזציה קריטית לביצועים: כדי שהדפדפן לא יקרוס, נגביל לעד 100 מוקדי משיכה.
+            // אם המשתמש צייר המון שחור, נדגום נציגים במרווחים שווים לאורך הציור שלו.
+            if (anchors.length > 100) {
+                const step = Math.ceil(anchors.length / 100);
+                const sampledAnchors = [];
+                for (let i = 0; i < anchors.length; i += step) {
+                    sampledAnchors.push(anchors[i]);
+                }
+                anchors = sampledAnchors;
+            }
+
+            const movedThisFrame = new Set();
+
+            // סריקת כל הלוח
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    if (movedThisFrame.has(i)) continue;
+                    if (nextBoardState[i].isGold) continue;
+                    
+                    // העוגנים עצמם קפואים במקום - הם רק מושכים, לא זזים
+                    if (nextBoardState[i].k === 0) continue; 
+
+                    // 2. חיפוש העוגן הקרוב ביותר לפיקסל הנוכחי
+                    let minDist = Infinity;
+                    let targetR = row;
+                    let targetC = col;
+
+                    for (let a = 0; a < anchors.length; a++) {
+                        const dr = anchors[a].r - row;
+                        const dc = anchors[a].c - col;
+                        const distSq = dr * dr + dc * dc; // משתמשים במרחק בריבוע כדי לחסוך פונקציית שורש יקרה למעבד
+                        
+                        if (distSq < minDist) {
+                            minDist = distSq;
+                            targetR = anchors[a].r;
+                            targetC = anchors[a].c;
+                        }
+                    }
+
+// 3. תנועה קפדנית מבוססת מרחק (מונע ריצודים)
+                    if (minDist > 0 && minDist !== Infinity) {
+                        let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2); // המרחק ההתחלתי שלי
+                        let bestNr = row;
+                        let bestNc = col;
+
+                        const neighbors = [
+                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                        ];
+
+                        // מוצאים איזה שכן מקרב אותנו באופן אבסולוטי למטרה
+                        for (const {dr, dc} of neighbors) {
+                            const nr = row + dr;
+                            const nc = col + dc;
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
+                                
+                                // מתעדכן אך ורק אם השכן ממש קרוב יותר (מונע תנועות צד וריצודים)
+                                if (neighborDistSq < bestDistSq) {
+                                    bestDistSq = neighborDistSq;
+                                    bestNr = nr;
+                                    bestNc = nc;
+                                }
+                            }
+                        }
+
+                        // 4. תנועה: רק אם מצאנו משבצת טובה יותר + 20% פספוס ליצירת צמיגות
+                        if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
+                            const target_i = bestNr * n + bestNc;
+                            
+                            if (!nextBoardState[target_i].isGold &&
+                                nextBoardState[i].k < nextBoardState[target_i].k && 
+                                !movedThisFrame.has(target_i)) {
+                                
+                                [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                                
+                                movedThisFrame.add(i);
+                                movedThisFrame.add(target_i);
+                            }
+                        }
+                    }
+
+                }
+            }
+            break;
+        }
+
+}
 
     return nextBoardState;
 }

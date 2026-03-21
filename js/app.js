@@ -1270,11 +1270,10 @@ function armSimulation(simulationName) {
             gsMode = 'up';
             if (typeof gravitationalSortRules !== 'undefined') gravitationalSortRules.direction = 'up';
         }
-        if (simulationName === 'spiral') {
-            spiralMode = 'classic';
-            if (typeof spiralRules !== 'undefined') spiralRules.method = 'classic';
+if (simulationName === 'spiral') {
+            spiralMode = 'c';
+            if (typeof spiralRules !== 'undefined') spiralRules.method = 'c';
         }
-
         // צביעת הכפתור הנבחר במסגרת פעילה (זהב)
         const buttonToActivate = simButtons.find(btn => btn.id.toLowerCase().includes(simulationName.toLowerCase()));
         if (buttonToActivate) {
@@ -2126,7 +2125,7 @@ function cycleBreatheEvoMode() {
 
 // --- NEW: Spiral UI and Cycling ---
 function updateSpiralButtonUI() {
-    dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'simulation-active');
+dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mode-a', 'mode-b', 'mode-c', 'simulation-active');
 
     if (spiralMode !== 'off') {
         dom.btnSpiral.classList.add('mode-' + spiralMode);
@@ -2138,7 +2137,8 @@ function updateSpiralButtonUI() {
 
 function cycleSpiralMode() {
     const oldMode = spiralMode;
-    const sequence = ['off', 'classic', 'vortex', 'expand'];
+    const sequence = ['off', 'c', 'b', 'vortex', 'classic', 'expand', 'a'];
+
     const currentIndex = sequence.indexOf(spiralMode);
     const nextIndex = (currentIndex + 1) % sequence.length;
     spiralMode = sequence[nextIndex];
