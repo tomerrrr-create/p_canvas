@@ -1296,7 +1296,9 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                     const targetR = centerR + targetRadius * Math.sin(targetAngle);
                     const targetC = centerC + targetRadius * Math.cos(targetAngle);
 
-                    let bestScore = -1;
+
+// תנועה קפדנית מבוססת מרחק כדי למנוע ריצודים
+                    let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2);
                     let bestNr = row, bestNc = col;
 
                     const neighbors = [
@@ -1309,18 +1311,19 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                         const nc = col + dc;
                         if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
 
-                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
-                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+                        const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
 
-                        if (score > bestScore) {
-                            bestScore = score;
+                        if (neighborDistSq < bestDistSq) {
+                            bestDistSq = neighborDistSq;
                             bestNr = nr;
                             bestNc = nc;
                         }
                     }
 
-                    // סף החלטיות 0.4 לזרימה חלקה כמיי נהר
-                    if (bestScore > 0.1) {
+                    if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
+
+
+
                         const target_i = bestNr * n + bestNc;
                         
                         if (!nextBoardState[target_i].isGold &&
@@ -1372,7 +1375,10 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                     const targetR = centerR + targetRadius * Math.sin(targetAngle);
                     const targetC = centerC + targetRadius * Math.cos(targetAngle);
 
-                    let bestScore = -1;
+
+
+// תנועה קפדנית מבוססת מרחק כדי למנוע ריצודים
+                    let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2);
                     let bestNr = row, bestNc = col;
 
                     const neighbors = [
@@ -1385,17 +1391,20 @@ export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
                         const nc = col + dc;
                         if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
 
-                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
-                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+                        const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
 
-                        if (score > bestScore) {
-                            bestScore = score;
+                        if (neighborDistSq < bestDistSq) {
+                            bestDistSq = neighborDistSq;
                             bestNr = nr;
                             bestNc = nc;
                         }
                     }
 
-                    if (bestScore > 0.15 && Math.random() < 1) {
+                    if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
+
+
+
+
                         const target_i = bestNr * n + bestNc;
                         if (!nextBoardState[target_i].isGold &&
                             nextBoardState[i].k < nextBoardState[target_i].k) {
@@ -1449,8 +1458,8 @@ for (let col = 0; col < n; col++) {
                     const targetR = centerR + targetRadius * Math.sin(targetAngle);
                     const targetC = centerC + targetRadius * Math.cos(targetAngle);
 
-                    // בחירת השכן הטוב ביותר
-                    let bestScore = -1;
+// תנועה קפדנית מבוססת מרחק כדי למנוע ריצודים
+                    let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2);
                     let bestNr = row, bestNc = col;
 
                     const neighbors = [
@@ -1463,17 +1472,18 @@ for (let col = 0; col < n; col++) {
                         const nc = col + dc;
                         if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
 
-                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
-                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+                        const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
 
-                        if (score > bestScore) {
-                            bestScore = score;
+                        if (neighborDistSq < bestDistSq) {
+                            bestDistSq = neighborDistSq;
                             bestNr = nr;
                             bestNc = nc;
                         }
                     }
 
-if (bestScore > 0.15) {
+                    if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
+
+
                         const target_i = bestNr * n + bestNc;
                         
                         // הוספנו פה את הבדיקה שהיעד לא ברשימה
@@ -1608,7 +1618,10 @@ if (bestScore > 0.15) {
                     const targetR = centerR + targetRadius * Math.sin(targetAngle);
                     const targetC = centerC + targetRadius * Math.cos(targetAngle);
 
-                    let bestScore = -1;
+
+
+// תנועה קפדנית מבוססת מרחק כדי למנוע ריצודים
+                    let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2); // המרחק הנוכחי ליעד
                     let bestNr = row, bestNc = col;
 
                     const neighbors = [
@@ -1621,18 +1634,19 @@ if (bestScore > 0.15) {
                         const nc = col + dc;
                         if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
 
-                        const score = (dc * (targetC - col) + dr * (targetR - row)) /
-                                      (Math.hypot(dc, dr) * Math.hypot(targetC-col, targetR-row) || 1);
+                        const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
 
-                        if (score > bestScore) {
-                            bestScore = score;
+                        // מתעדכן אך ורק אם השכן ממש מקרב אותנו באופן מוחלט ליעד
+                        if (neighborDistSq < bestDistSq) {
+                            bestDistSq = neighborDistSq;
                             bestNr = nr;
                             bestNc = nc;
                         }
                     }
 
-                    // סף החלטיות 0.4 לזרימה חלקה כמיי נהר
-                    if (bestScore > 0.4) {
+                    // תנועה: רק אם מצאנו שכן שמקרב אותנו + הוספת 20% פספוס לזרימה נוזלית וחלקה
+                    if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
+
                         const target_i = bestNr * n + bestNc;
                         
                         if (!nextBoardState[target_i].isGold &&
