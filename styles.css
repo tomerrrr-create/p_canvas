@@ -1074,4 +1074,16 @@ body {
 #btnSpiral.mode-b svg:not(#iconSpiralB) { display: none !important; }
 
 #btnSpiral.mode-magnet #iconSpiralMagnet { display: block !important; }
+
+
 #btnSpiral.mode-magnet svg:not(#iconSpiralMagnet) { display: none !important; }
+
+
+
+#btnSpiral.mode-cosmic_magnet #iconSpiralCosmicMagnet { display: block !important; }
+#btnSpiral.mode-cosmic_magnet svg:not(#iconSpiralCosmicMagnet) { display: none !important; }
+
+#btnSpiral.mode-time_magnet #iconSpiralTimeMagnet { display: block !important; }
+#btnSpiral.mode-time_magnet svg:not(#iconSpiralTimeMagnet) { display: none !important; }
+
+

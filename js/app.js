@@ -2129,7 +2129,8 @@ function cycleBreatheEvoMode() {
 // --- NEW: Spiral UI and Cycling ---
 function updateSpiralButtonUI() {
 
-dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mode-a', 'mode-b', 'mode-magnet', 'simulation-active');
+dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mode-a', 'mode-b', 'mode-magnet', 'mode-cosmic_magnet', 'mode-time_magnet', 'simulation-active');
+
 
 
 
@@ -2143,7 +2144,8 @@ dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mo
 
 function cycleSpiralMode() {
     const oldMode = spiralMode;
-const sequence = ['off', 'magnet', 'b', 'vortex', 'classic', 'expand', 'a'];
+const sequence = ['off', 'magnet', 'cosmic_magnet', 'b', 'vortex', 'classic', 'expand', 'time_magnet', 'a'];
+
 
     const currentIndex = sequence.indexOf(spiralMode);
     const nextIndex = (currentIndex + 1) % sequence.length;
