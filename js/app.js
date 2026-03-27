@@ -23,17 +23,18 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
 
 // --- הגדרות מיון פלטות ואייקוני SVG (עיצוב מינימליסטי ורוחני) ---
       const SORT_MODES = [
-          // 1. מצב רגיל (בהירות) מהכהה לבהיר
-          { method: 'luminance', icon: '<path d="M4 6h16M6 10h12M8 6v16M16 6v16"/>' }, 
-          
-          // 2. ריברס - מהבהיר לכהה
-          { method: 'reversed', icon: '<path d="M12 4v16M7 9h10"/>' }, 
-          
-          // 3. מבפנים החוצה - סדר כיווני
-          { method: 'center-out', icon: '<polygon points="12 3 20 16.5 4 16.5"/><polygon points="12 21 4 7.5 20 7.5"/>' }, 
-          
+// 1. מצב רגיל (בהירות) - זריחה (חושך לאור)
+          { method: 'luminance', icon: '<path d="M4 16h16M7 16 A5 5 0 0 1 17 16" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/>' },
 
-          { method: 'temperature', icon: '<path d="M20 15A9 9 0 1 1 11 3a7.5 7.5 0 0 0 9 12z"/><circle cx="16" cy="7" r="1"/>' },
+          
+// 2. ריברס - שקיעה / שורשים (אור לחושך)
+          { method: 'reversed', icon: '<path d="M4 8h16M7 8 A5 5 0 0 0 17 8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/>' },
+
+          
+// 3. מבפנים החוצה - אדוות מים (טיפה שמתרחבת)
+{ method: 'center-out', icon: '<circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M 9 9 Q 5 12 9 15 M 15 9 Q 19 12 15 15 M 9 9 Q 12 5 15 9 M 9 15 Q 12 19 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },          
+
+{ method: 'temperature', icon: '<circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 18 Q8 14 12 18 T20 18" fill="none" stroke="currentColor" stroke-width="1.5"/>' },
 
           // 4. מצב קשת - מינימליסטי (כמו האות 'ח')
           { method: 'hue', icon: '<path d="M 6 19 V 10 A 6 6 0 0 1 18 10 V 19"/>' }, 
