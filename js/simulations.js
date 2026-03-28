@@ -1253,7 +1253,8 @@ export function runTuringGeneration({ n, currentBoardState, currentPalette, turi
 
 
 // --- START: Spiral Simulation (מבנה switch-case בדיוק כמו Gravitational Sort) ---
-export function runSpiralGeneration({ n, currentBoardState, spiralRules }) {
+export function runSpiralGeneration({ n, currentBoardState, currentPalette, spiralRules }) {
+
     const nextBoardState = currentBoardState.map(tile => ({ ...tile }));
     const method = spiralRules.method || 'classic';
     const strength = 0.9;                     // אותו strength כמו בגרביטציה
@@ -1392,10 +1393,171 @@ case 'cosmic_magnet': {
             break;
         }
 
-        case 'time_magnet': {
-            // הלוגיקה של מגנט זמן תיכנס לכאן בהמשך
+
+case 'time_magnet': {
+            // --- מגנט צבעים (Chromatic Magnet) בביצועי מקסימום - לוח רגיל ---
+            
+            // 1. ניקוי והכנת זיכרון המטמון המהיר (Zero Allocation)
+            if (cachedMovedThisFrame.length !== n * n) {
+                cachedMovedThisFrame = new Uint8Array(n * n);
+            } else {
+                cachedMovedThisFrame.fill(0);
+            }
+            cachedAnchors.length = 0; 
+            
+            const pLen = currentPalette ? currentPalette.length : 256;
+
+            // 2. איסוף חורים שחורים בקצוות (ללא עטיפת מסך)
+            for (let i = 0; i < n * n; i++) {
+                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+                    const r = Math.floor(i / n);
+                    const c = i % n;
+                    let isEdge = false;
+
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = r + dr;
+                            const nc = c + dc;
+                            
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                if (nextBoardState[nr * n + nc].k > 0) {
+                                    isEdge = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isEdge) break;
+                    }
+
+                    if (isEdge) {
+                        cachedAnchors.push({ r, c });
+                    }
+                }
+            }
+
+            if (cachedAnchors.length === 0) break;
+
+            // דילול עוגנים ללא יצירת מערכים חדשים בזיכרון (Super Fast)
+            if (cachedAnchors.length > 300) {
+                const step = Math.ceil(cachedAnchors.length / 300);
+                let writeIndex = 0;
+                for (let i = 0; i < cachedAnchors.length; i += step) {
+                    cachedAnchors[writeIndex++] = cachedAnchors[i];
+                }
+                cachedAnchors.length = writeIndex;
+            }
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    if (cachedMovedThisFrame[i] === 1) continue;
+                    if (nextBoardState[i].isGold) continue;
+                    if (nextBoardState[i].k === 0) continue; 
+
+                    let minDistSq = Infinity;
+                    let targetR = row;
+                    let targetC = col;
+
+                    // 3. מציאת העוגן הקרוב ביותר (מרחק אוקלידי רגיל)
+                    for (let a = 0; a < cachedAnchors.length; a++) {
+                        const dr = cachedAnchors[a].r - row;
+                        const dc = cachedAnchors[a].c - col;
+                        
+                        const distSq = (dr * dr) + (dc * dc); 
+                        
+                        if (distSq < minDistSq) {
+                            minDistSq = distSq;
+                            targetR = cachedAnchors[a].r;
+                            targetC = cachedAnchors[a].c;
+                        }
+                    }
+
+                    if (minDistSq > 0 && minDistSq !== Infinity) {
+                        const currentDistSq = minDistSq;
+
+                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
+                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
+                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
+
+                        const neighbors = [
+                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                        ];
+
+                        for (let idx = 0; idx < neighbors.length; idx++) {
+                            const n_dr = neighbors[idx].dr;
+                            const n_dc = neighbors[idx].dc;
+                            
+                            const nr = row + n_dr;
+                            const nc = col + n_dc;
+                            
+                            // נוודא שאנחנו בתוך גבולות הלוח!
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                const t_dr = targetR - nr;
+                                const t_dc = targetC - nc;
+
+                                const neighborDistSq = (t_dr * t_dr) + (t_dc * t_dc);
+                                
+                                if (neighborDistSq < currentDistSq) {
+                                    if (neighborDistSq < b1Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
+                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
+                                    } else if (neighborDistSq < b2Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
+                                    } else if (neighborDistSq < b3Dist) {
+                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- קסם המגנטיות של הצבעים (Parallax) ---
+                        // משקל הצבע: 0.0 (הכי כהה) עד 1.0 (הכי בהיר)
+                        const colorWeight = nextBoardState[i].k / pLen; 
+                        
+                        // צבעים בהירים יזוזו 95% מהזמן. צבעים כהים יזוזו רק 15% מהזמן.
+                        const moveProbability = 0.15 + (colorWeight * 0.80);
+
+                        // 4. עקיפת פקקים סופר-מהירה + התחשבות בצבע
+                        if (b1Dist !== Infinity && Math.random() < moveProbability) {
+                            const options = [
+                                { nr: b1Nr, nc: b1Nc },
+                                { nr: b2Nr, nc: b2Nc },
+                                { nr: b3Nr, nc: b3Nc }
+                            ];
+
+                            for (let attempt = 0; attempt < 3; attempt++) {
+                                const opt = options[attempt];
+                                if (opt.nr === -1) continue; 
+
+                                const target_i = opt.nr * n + opt.nc;
+                                
+                                if (!nextBoardState[target_i].isGold &&
+                                    nextBoardState[i].k < nextBoardState[target_i].k && 
+                                    cachedMovedThisFrame[target_i] === 0) {
+                                    
+                                    // החלפה קלאסית ומהירה ללא יצירת מערכים זמניים
+                                    const tempTile = nextBoardState[i];
+                                    nextBoardState[i] = nextBoardState[target_i];
+                                    nextBoardState[target_i] = tempTile;
+                                    
+                                    cachedMovedThisFrame[i] = 1;
+                                    cachedMovedThisFrame[target_i] = 1;
+                                    
+                                    break; 
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             break;
         }
+
 
 
         // ────────────────────────────── CLASSIC (פנימה + טורבולנציה) ──────────────────────────────
@@ -1480,79 +1642,171 @@ case 'cosmic_magnet': {
         }
 
 
-        // ────────────────────────────── EXPAND (מתרחבת החוצה) ──────────────────────────────
+// ────────────────────────────── EXPAND (מוגדר כעת כמגנט צבעים הפוך) ──────────────────────────────
         case 'expand': {
-            const centerR = (n - 1) / 2;
-            const centerC = (n - 1) / 2;
+            // --- מגנט צבעים (Chromatic Magnet) בביצועי מקסימום - לוח רגיל ---
+            
+            // 1. ניקוי והכנת זיכרון המטמון המהיר (Zero Allocation)
+            if (cachedMovedThisFrame.length !== n * n) {
+                cachedMovedThisFrame = new Uint8Array(n * n);
+            } else {
+                cachedMovedThisFrame.fill(0);
+            }
+            cachedAnchors.length = 0; 
+            
+            const pLen = currentPalette ? currentPalette.length : 256;
 
-            const baseSpinStrength = 0.05;
-            const pullStrength     = -0.8;   // שלילי = התרחבות
-            const eddyFrequency    = 0.03;
-            const eddyStrength     = 0.25;
-            const timePhase        = Date.now() * 0.0005;
+            // 2. איסוף חורים שחורים בקצוות (ללא עטיפת מסך)
+            for (let i = 0; i < n * n; i++) {
+                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+                    const r = Math.floor(i / n);
+                    const c = i % n;
+                    let isEdge = false;
+
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = r + dr;
+                            const nc = c + dc;
+                            
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                if (nextBoardState[nr * n + nc].k > 0) {
+                                    isEdge = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isEdge) break;
+                    }
+
+                    if (isEdge) {
+                        cachedAnchors.push({ r, c });
+                    }
+                }
+            }
+
+            if (cachedAnchors.length === 0) break;
+
+            // דילול עוגנים ללא יצירת מערכים חדשים בזיכרון (Super Fast)
+            if (cachedAnchors.length > 300) {
+                const step = Math.ceil(cachedAnchors.length / 300);
+                let writeIndex = 0;
+                for (let i = 0; i < cachedAnchors.length; i += step) {
+                    cachedAnchors[writeIndex++] = cachedAnchors[i];
+                }
+                cachedAnchors.length = writeIndex;
+            }
 
             for (let row = 0; row < n; row++) {
                 for (let col = 0; col < n; col++) {
                     const i = row * n + col;
+                    
+                    if (cachedMovedThisFrame[i] === 1) continue;
                     if (nextBoardState[i].isGold) continue;
+                    if (nextBoardState[i].k === 0) continue; 
 
-                    const dy = row - centerR;
-                    const dx = col - centerC;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 0.5) continue;
+                    let minDistSq = Infinity;
+                    let targetR = row;
+                    let targetC = col;
 
-                    const turbulence = Math.sin((row * eddyFrequency) + timePhase) *
-                                       Math.cos((col * eddyFrequency) - timePhase);
-
-                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(dist, 1));
-                    const currentAngle = Math.atan2(dy, dx);
-
-                    const targetRadius = Math.max(0, dist - pullStrength + turbulence * 1.5);
-                    const targetAngle  = currentAngle + dynamicSpin + turbulence * eddyStrength;
-
-                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
-
-
-
-// תנועה קפדנית מבוססת מרחק כדי למנוע ריצודים
-                    let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2);
-                    let bestNr = row, bestNc = col;
-
-                    const neighbors = [
-                        {dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1},
-                        {dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:-1},{dr:1,dc:1}
-                    ];
-
-                    for (const {dr, dc} of neighbors) {
-                        const nr = row + dr;
-                        const nc = col + dc;
-                        if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
-
-                        const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
-
-                        if (neighborDistSq < bestDistSq) {
-                            bestDistSq = neighborDistSq;
-                            bestNr = nr;
-                            bestNc = nc;
+                    // 3. מציאת העוגן הקרוב ביותר (מרחק אוקלידי רגיל)
+                    for (let a = 0; a < cachedAnchors.length; a++) {
+                        const dr = cachedAnchors[a].r - row;
+                        const dc = cachedAnchors[a].c - col;
+                        
+                        const distSq = (dr * dr) + (dc * dc); 
+                        
+                        if (distSq < minDistSq) {
+                            minDistSq = distSq;
+                            targetR = cachedAnchors[a].r;
+                            targetC = cachedAnchors[a].c;
                         }
                     }
 
-                    if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
+                    if (minDistSq > 0 && minDistSq !== Infinity) {
+                        const currentDistSq = minDistSq;
 
+                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
+                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
+                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
 
+                        const neighbors = [
+                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                        ];
 
+                        for (let idx = 0; idx < neighbors.length; idx++) {
+                            const n_dr = neighbors[idx].dr;
+                            const n_dc = neighbors[idx].dc;
+                            
+                            const nr = row + n_dr;
+                            const nc = col + n_dc;
+                            
+                            // נוודא שאנחנו בתוך גבולות הלוח!
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                const t_dr = targetR - nr;
+                                const t_dc = targetC - nc;
 
-                        const target_i = bestNr * n + bestNc;
-                        if (!nextBoardState[target_i].isGold &&
-                            nextBoardState[i].k < nextBoardState[target_i].k) {
-                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                                const neighborDistSq = (t_dr * t_dr) + (t_dc * t_dc);
+                                
+                                if (neighborDistSq < currentDistSq) {
+                                    if (neighborDistSq < b1Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
+                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
+                                    } else if (neighborDistSq < b2Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
+                                    } else if (neighborDistSq < b3Dist) {
+                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
+                                    }
+                                }
+                            }
+                        }
+
+                        // --- קסם המגנטיות של הצבעים (Parallax הפוך) ---
+                        // הפכנו את המשקל: 1.0 (הכי כהה) עד 0.0 (הכי בהיר)
+                        const colorWeight = 1.0 - (nextBoardState[i].k / pLen); 
+                        
+                        // צבעים כהים יזוזו 95% מהזמן. צבעים בהירים יזוזו רק 15% מהזמן.
+                        const moveProbability = 0.15 + (colorWeight * 0.80);
+
+                        // 4. עקיפת פקקים סופר-מהירה + התחשבות בצבע
+                        if (b1Dist !== Infinity && Math.random() < moveProbability) {
+                            const options = [
+                                { nr: b1Nr, nc: b1Nc },
+                                { nr: b2Nr, nc: b2Nc },
+                                { nr: b3Nr, nc: b3Nc }
+                            ];
+
+                            for (let attempt = 0; attempt < 3; attempt++) {
+                                const opt = options[attempt];
+                                if (opt.nr === -1) continue; 
+
+                                const target_i = opt.nr * n + opt.nc;
+                                
+                                if (!nextBoardState[target_i].isGold &&
+                                    nextBoardState[i].k < nextBoardState[target_i].k && 
+                                    cachedMovedThisFrame[target_i] === 0) {
+                                    
+                                    // החלפה קלאסית ומהירה ללא יצירת מערכים זמניים
+                                    const tempTile = nextBoardState[i];
+                                    nextBoardState[i] = nextBoardState[target_i];
+                                    nextBoardState[target_i] = tempTile;
+                                    
+                                    cachedMovedThisFrame[i] = 1;
+                                    cachedMovedThisFrame[target_i] = 1;
+                                    
+                                    break; 
+                                }
+                            }
                         }
                     }
                 }
             }
             break;
         }
+
 
 
 

@@ -2200,7 +2200,7 @@ dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mo
 
 function cycleSpiralMode() {
     const oldMode = spiralMode;
-const sequence = ['off', 'b', 'vortex', 'a'];
+const sequence = ['off', 'b', 'expand', 'time_magnet', 'vortex', 'a'];
 
 
 
