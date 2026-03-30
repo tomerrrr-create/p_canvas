@@ -1109,3 +1109,30 @@ body {
 
 
 
+
+
+/* --- Simulation Settings Button Animations --- */
+#btnSimSettings {
+    grid-area: 1 / 7; /* מיקום יציב מימין ל-Play */
+    
+    /* התיזמון הנשימתי: 0.8 שניות Cubic Bezier מתאים ל'Faded' שלך */
+    transition: all 0.8s cubic-bezier(0.3, 0.0, 0.2, 1);
+    
+    background: rgba(255, 215, 0, 0.05); /* רקע זהב כמעט בלתי נראה, מרומז */
+    border-color: rgba(255, 215, 0, 0.15);
+    z-index: 10;
+    opacity: 0.7; /* שומר על ה'אפלה' של הממשק הקיים */
+}
+
+#btnSimSettings:hover {
+    opacity: 1; /* נדלק בנגיעה, כמו שאר הכפתורים */
+    background: rgba(255, 215, 0, 0.1);
+}
+
+/* מצב מוסתר */
+#btnSimSettings.hide-settings {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.6) translateY(5px); /* מתכווץ ויורד מטה, כמו 'שחיקה' */
+    border: none;
+}
