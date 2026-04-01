@@ -233,85 +233,6 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
 
 
 
-case 'down': {
-    const centerR = (n - 1) / 2;
-    const centerC = (n - 1) / 2;
-    
-    // פרמטרים קבועים ומושלמים למראה חור שחור הרמוני ומדהים
-    // (strength מבחוץ שולט רק במהירות – כמה פיקסלים זזים בכל פריים)
-    const baseSpinStrength = 0.105;   // סיבוב עדין אך ברור – יוצר ספירלות יפהפיות
-    const pullStrength     = 0.78;    // שאיבה חזקה ומאוזנת – נבלע פנימה בלי להתפרק
-
-    for (let row = 0; row < n; row++) {
-        for (let col = 0; col < n; col++) {
-            const i = row * n + col;
-            if (nextBoardState[i].isGold) continue;
-            
-            const dy = row - centerR;
-            const dx = col - centerC;
-            const distToCenter = Math.sqrt(dx * dx + dy * dy);
-            if (distToCenter < 0.5) continue; // מרכז יציב
-            
-            // חישוב מיקום יעד ספירלי מדויק (פולאר)
-            const currentAngle = Math.atan2(dy, dx);
-            const targetRadius = Math.max(0.3, distToCenter - pullStrength);
-            const targetAngle  = currentAngle + baseSpinStrength;
-            
-            const targetR = centerR + targetRadius * Math.sin(targetAngle);
-            const targetC = centerC + targetRadius * Math.cos(targetAngle);
-            
-            // וקטור התנועה הרצוי (מה שנותן תנועה חלקה וסיבובית אמיתית)
-            const desiredDX = targetC - col;
-            const desiredDY = targetR - row;
-            const desiredLen = Math.sqrt(desiredDX * desiredDX + desiredDY * desiredDY) || 1;
-            
-            // 8 שכנים + בדיקת "כמה הכיוון מתאים" (cosine similarity)
-            const neighbors = [
-                {dr: -1, dc: 0}, {dr: 1, dc: 0},
-                {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                {dr: -1, dc: -1}, {dr: -1, dc: 1},
-                {dr: 1, dc: -1}, {dr: 1, dc: 1}
-            ];
-            
-            let bestScore = -1;
-            let bestNr = row;
-            let bestNc = col;
-            
-            for (const {dr, dc} of neighbors) {
-                const nr = row + dr;
-                const nc = col + dc;
-                if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
-                
-                // וקטור התנועה של השכן
-                const moveLen = Math.sqrt(dc * dc + dr * dr) || 1;
-                const score = (dc * desiredDX + dr * desiredDY) / (moveLen * desiredLen);
-                
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestNr = nr;
-                    bestNc = nc;
-                }
-            }
-            
-            // תנועה רק אם הכיוון טוב מספיק + בהסתברות strength (מהירות מבחוץ)
-            if (bestScore > 0.15 && Math.random() < strength) {
-                const target_i = bestNr * n + bestNc;
-                
-                if (!nextBoardState[target_i].isGold &&
-                    nextBoardState[i].k < nextBoardState[target_i].k) {
-                    
-                    [nextBoardState[i], nextBoardState[target_i]] = 
-                     [nextBoardState[target_i], nextBoardState[i]];
-                }
-            }
-        }
-    }
-    break;
-}
-
-
-
-
         case 'up':
              for (let row = 1; row < n; row++) {
                 for (let col = 0; col < n; col++) {
@@ -334,91 +255,6 @@ case 'down': {
                 }
             }
             break;
-
-
-case 'left': {
-            const centerR = (n - 1) / 2;
-            const centerC = (n - 1) / 2;
-            
-            // --- משתני שליטה: ספירלה נוזלית עם טורבולנציה ---
-            const baseSpinStrength = 0.10; // כוח סיבוב בסיסי (בהיקף החיצוני)
-            const pullStrength = 0.8;      // כוח השאיבה פנימה
-            
-            // המשתנים החדשים שיוצרים את הזרמים הסמויים:
-            const eddyFrequency = 0.03;    // תדירות המערבולות הקטנות (צפיפות הגלים). ככל שגדול יותר - הזרמים צפופים יותר.
-            const eddyStrength = 0.25;     // העוצמה שבה הזרם מסיט את הפיקסל מהמסלול המעגלי.
-            
-            // מוסיפים פאזת זמן עדינה כדי ששדה הזרימה הבלתי נראה "ינשום" ויזוז בעצמו
-            const timePhase = Date.now() * 0.0005;
-
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    if (nextBoardState[i].isGold) continue; 
-                    
-                    const dy = row - centerR;
-                    const dx = col - centerC;
-                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distToCenter === 0) continue; 
-                    
-                    // 1. טורבולנציה וזרמי משנה (Eddies)
-                    // יצירת מפת זרימה מבוססת גלי סינוס עם קוסינוס (מייצר תבניות אורגניות כמו שיש עץ או שיש)
-                    const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
-                    
-                    // 2. פיזיקה של פתח ניקוז (ככל שקרובים למרכז הסיבוב מהיר יותר)
-                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
-                    
-                    const currentAngle = Math.atan2(dy, dx);
-                    
-                    // הטורבולנציה מתערבת ו"מעקמת" את הזווית קדימה ואחורה, ומרחיבה/מכווצת את הרדיוס קלות
-                    const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
-                    const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
-                    
-                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
-                    
-                    const neighbors = [
-                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
-                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
-                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                    ];
-                    
-                    const validNeighbors = [];
-                    
-                    for (const {dr, dc} of neighbors) {
-                        const nr = row + dr;
-                        const nc = col + dc;
-                        
-                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
-                            validNeighbors.push({ nr, nc, dist: distToIdeal });
-                        }
-                    }
-                    
-                    validNeighbors.sort((a, b) => a.dist - b.dist);
-                    
-                    if (validNeighbors.length > 0) {
-                        // 3. החלקה הסתברותית לשבירת פינות ויצירת מראה עגול לעין
-                        let chosen = validNeighbors[0];
-                        if (validNeighbors.length > 1 && Math.random() < 0.60) {
-                            chosen = validNeighbors[1];
-                        }
-                        
-                        const target_i = chosen.nr * n + chosen.nc;
-                        
-                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
-                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
-
 
 
 case 'center_x': {
@@ -463,78 +299,6 @@ case 'center_x': {
         }
 
 
-      case 'radial': {
-            const centerR = (n - 1) / 2;
-            const centerC = (n - 1) / 2;
-            
-            // --- משתני שליטה על הספירלה ---
-            // שחק עם המספרים האלה כדי לשנות את אופי המערבולת!
-            const spinStrength = 0.25; // כוח הסיבוב (ברדיאנים). ככל שגדול יותר, הספירלה "שטוחה" ומסתחררת יותר.
-            const pullStrength = 0.8;  // כוח השאיבה למרכז (בפיקסלים). ככל שגדול יותר, הפיקסלים יישאבו מהר יותר פנימה.
-            
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    // הגנת זהב: פיקסלים מזהב לא נשאבים ולא זזים
-                    if (nextBoardState[i].isGold) continue; 
-                    
-                    const dy = row - centerR;
-                    const dx = col - centerC;
-                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distToCenter === 0) continue; // אנחנו כבר בדיוק במרכז
-                    
-                    // 1. חישוב הזווית הנוכחית של הפיקסל ביחס למרכז
-                    const currentAngle = Math.atan2(dy, dx);
-                    
-                    // 2. חישוב נקודת המטרה האידיאלית (קצת יותר קרוב, קצת מסובב)
-                    const targetRadius = Math.max(0, distToCenter - pullStrength);
-                    const targetAngle = currentAngle + spinStrength; 
-                    
-                    // המרה חזרה מקואורדינטות פולריות למיקום X,Y על הלוח
-                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
-                    
-                    let bestDr = 0;
-                    let bestDc = 0;
-                    let minDistToTarget = Infinity;
-                    
-                    const neighbors = [
-                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
-                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
-                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                    ];
-                    
-                    // 3. מציאת השכן שיושב הכי קרוב לנקודת המטרה האידיאלית
-                    for (const {dr, dc} of neighbors) {
-                        const nr = row + dr;
-                        const nc = col + dc;
-                        
-                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
-                            if (distToIdeal < minDistToTarget) {
-                                minDistToTarget = distToIdeal;
-                                bestDr = dr;
-                                bestDc = dc;
-                            }
-                        }
-                    }
-                    
-                    // 4. ביצוע ההחלפה (עם הסתברות ובדיקת חסימת זהב של השכן)
-                    if (bestDr !== 0 || bestDc !== 0) {
-                        const target_i = (row + bestDr) * n + (col + bestDc);
-                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
-                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
-
 
 
 case 'vortex': {
@@ -548,7 +312,9 @@ case 'vortex': {
                     const rB = Math.floor(b / n), cB = b % n;
                     const distA = Math.pow(rA - centerR, 2) + Math.pow(cA - centerC, 2);
                     const distB = Math.pow(rB - centerR, 2) + Math.pow(cB - centerC, 2);
-                    return distA - distB; 
+                    
+                    // התיקון: שובר שוויון אקראי מונע את הפרדת הלוח לחצאים!
+                    return (distA - distB) || (Math.random() - 0.5); 
                 });
                 cachedRadialOrder = indices;
                 cachedRadialN = n;
@@ -557,7 +323,7 @@ case 'vortex': {
             // 1. מחזירים את מספר המעברים למינימום כדי לשמור על 60FPS חלק ונעים לעין!
             const passes = 6; 
             
-            // 2. ה"קפיצה" - ככל שהלוח גדול יותר, הפיקסלים "ידלגו" מעל יותר שכנים אל עבר המרכז
+            // 2. ה"קפיצה" נשארת קבועה כדי לשמור על הכאוטיות שאתה אוהב!
             const stride = Math.max(1, Math.floor(n / 4));
 
             for (let p = 0; p < passes; p++) {
@@ -571,7 +337,9 @@ case 'vortex': {
 
                     if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
                         if (Math.random() < strength) {
-                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+let temp = nextBoardState[idx1];
+nextBoardState[idx1] = nextBoardState[idx2];
+nextBoardState[idx2] = temp;
                         }
                     }
                 }
@@ -585,13 +353,16 @@ case 'vortex': {
 
                     if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
                         if (Math.random() < strength) {
-                            [nextBoardState[idx1], nextBoardState[idx2]] = [nextBoardState[idx2], nextBoardState[idx1]];
+let temp = nextBoardState[idx1];
+nextBoardState[idx1] = nextBoardState[idx2];
+nextBoardState[idx2] = temp;
                         }
                     }
                 }
             }
             break;
         }
+
 
 
     }
@@ -1259,551 +1030,15 @@ export function runSpiralGeneration({ n, currentBoardState, currentPalette, spir
 const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על המקום
 
     const method = spiralRules.method || 'classic';
-    const strength = 0.9;                     // אותו strength כמו בגרביטציה
+let strength = 0.9; // עוצמת ברירת המחדל המקורית של הספירלה
+    
+    // החזרת העוצמה המקורית (0.6) עבור המצבים שהגיעו ממיון גרביטציה
+    if (spiralRules.method === 'down' || spiralRules.method === 'left' || spiralRules.method === 'radial') {
+        strength = 0.6;
+    }
 
     switch (method) {
 
-case 'cosmic_magnet': {
-
-
-
-// 1. איסוף "חורים שחורים" שהם *רק* בהיקף הציור (נוגעים בצבע)
-            let anchors = [];
-            for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
-                    const r = Math.floor(i / n);
-                    const c = i % n;
-                    let isEdge = false;
-
-                    // בדיקת 8 השכנים מסביב לפיקסל השחור
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            const nr = r + dr;
-                            const nc = c + dc;
-                            
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                // אם אחד השכנים הוא צבעוני (אינדקס גדול מ-0), הפיקסל הזה הוא קצה!
-                                if (nextBoardState[nr * n + nc].k > 0) {
-                                    isEdge = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isEdge) break;
-                    }
-
-                    // נוסיף אותו לרשימת המגנטים רק אם הוא קצה
-                    if (isEdge) {
-                        anchors.push({ r, c });
-                    }
-                }
-            }
-
-            // חוק אפס כבידה: אם אין עוגנים שחורים, המתנה
-            if (anchors.length === 0) break;
-
-            // העלינו את המגבלה מ-100 ל-300 כי עכשיו אנחנו חוסכים המון פיקסלים שחורים פנימיים!
-            if (anchors.length > 300) {
-                const step = Math.ceil(anchors.length / 300);
-                const sampledAnchors = [];
-                for (let i = 0; i < anchors.length; i += step) {
-                    sampledAnchors.push(anchors[i]);
-                }
-                anchors = sampledAnchors;
-            }
-
-            const movedThisFrame = new Set();
-
-            // סריקת כל הלוח
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    if (movedThisFrame.has(i)) continue;
-                    if (nextBoardState[i].isGold) continue;
-                    
-                    // העוגנים עצמם קפואים במקום - הם רק מושכים, לא זזים
-                    if (nextBoardState[i].k === 0) continue; 
-
-                    // 2. חיפוש העוגן הקרוב ביותר לפיקסל הנוכחי
-                    let minDist = Infinity;
-                    let targetR = row;
-                    let targetC = col;
-
-                    for (let a = 0; a < anchors.length; a++) {
-                        const dr = anchors[a].r - row;
-                        const dc = anchors[a].c - col;
-                        const distSq = dr * dr + dc * dc; // משתמשים במרחק בריבוע כדי לחסוך פונקציית שורש יקרה למעבד
-                        
-                        if (distSq < minDist) {
-                            minDist = distSq;
-                            targetR = anchors[a].r;
-                            targetC = anchors[a].c;
-                        }
-                    }
-
-// 3. תנועה קפדנית מבוססת מרחק (מונע ריצודים)
-                    if (minDist > 0 && minDist !== Infinity) {
-                        let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2); // המרחק ההתחלתי שלי
-                        let bestNr = row;
-                        let bestNc = col;
-
-                        const neighbors = [
-                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                        ];
-
-                        // מוצאים איזה שכן מקרב אותנו באופן אבסולוטי למטרה
-                        for (const {dr, dc} of neighbors) {
-                            const nr = row + dr;
-                            const nc = col + dc;
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
-                                
-                                // מתעדכן אך ורק אם השכן ממש קרוב יותר (מונע תנועות צד וריצודים)
-                                if (neighborDistSq < bestDistSq) {
-                                    bestDistSq = neighborDistSq;
-                                    bestNr = nr;
-                                    bestNc = nc;
-                                }
-                            }
-                        }
-
-                        // 4. תנועה: רק אם מצאנו משבצת טובה יותר + 20% פספוס ליצירת צמיגות
-                        if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
-                            const target_i = bestNr * n + bestNc;
-                            
-                            if (!nextBoardState[target_i].isGold &&
-                                nextBoardState[i].k < nextBoardState[target_i].k && 
-                                !movedThisFrame.has(target_i)) {
-                                
-                                [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                                
-                                movedThisFrame.add(i);
-                                movedThisFrame.add(target_i);
-                            }
-                        }
-                    }
-
-                }
-            }
-
-
-
-
-            break;
-        }
-
-
-
-
-case 'time_magnet': {
-            // --- מגנט צבעים (Chromatic Magnet - בהירים מהירים) אולטרה-מהיר ---
-            
-            // 1. ניקוי והכנת זיכרון המטמון המהיר (Zero Allocation)
-            if (cachedMovedThisFrame.length !== n * n) {
-                cachedMovedThisFrame = new Uint8Array(n * n);
-            } else {
-                cachedMovedThisFrame.fill(0);
-            }
-            cachedAnchors.length = 0; 
-            
-            const pLen = currentPalette ? currentPalette.length : 256;
-
-            // 2. איסוף חורים שחורים בקצוות (ללא עטיפת מסך)
-            for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
-                    const r = Math.floor(i / n);
-                    const c = i % n;
-                    let isEdge = false;
-
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            const nr = r + dr;
-                            const nc = c + dc;
-                            
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                if (nextBoardState[nr * n + nc].k > 0) {
-                                    isEdge = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isEdge) break;
-                    }
-
-                    if (isEdge) {
-                        cachedAnchors.push({ r, c });
-                    }
-                }
-            }
-
-            if (cachedAnchors.length === 0) break;
-
-            // דילול עוגנים
-            if (cachedAnchors.length > 300) {
-                const step = Math.ceil(cachedAnchors.length / 300);
-                let writeIndex = 0;
-                for (let i = 0; i < cachedAnchors.length; i += step) {
-                    cachedAnchors[writeIndex++] = cachedAnchors[i];
-                }
-                cachedAnchors.length = writeIndex;
-            }
-
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    if (cachedMovedThisFrame[i] === 1) continue;
-                    if (nextBoardState[i].isGold) continue;
-                    if (nextBoardState[i].k === 0) continue; 
-
-                    // --- קסם הביצועים (Early Exit) + פרלקסה רגילה ---
-                    // משקל הצבע: 0.0 (הכי כהה) עד 1.0 (הכי בהיר)
-                    const colorWeight = nextBoardState[i].k / pLen; 
-                    
-                    // צבעים בהירים יזוזו 95% מהזמן. צבעים כהים יזוזו רק 15% מהזמן.
-                    const moveProbability = 0.15 + (colorWeight * 0.80);
-                    
-                    // אם הפיקסל (במיוחד הכהים) לא הוגרל לזוז, מדלגים עליו מיד!
-                    if (Math.random() >= moveProbability) continue;
-
-                    let minDistSq = Infinity;
-                    let targetR = row;
-                    let targetC = col;
-
-                    // 3. מציאת העוגן הקרוב ביותר (מחושב רק לפיקסלים שזכו בהגרלה)
-                    for (let a = 0; a < cachedAnchors.length; a++) {
-                        const dr = cachedAnchors[a].r - row;
-                        const dc = cachedAnchors[a].c - col;
-                        
-                        const distSq = (dr * dr) + (dc * dc); 
-                        
-                        if (distSq < minDistSq) {
-                            minDistSq = distSq;
-                            targetR = cachedAnchors[a].r;
-                            targetC = cachedAnchors[a].c;
-                        }
-                    }
-
-                    if (minDistSq > 0 && minDistSq !== Infinity) {
-                        const currentDistSq = minDistSq;
-
-                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
-                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
-                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
-
-                        const neighbors = [
-                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                        ];
-
-                        for (let idx = 0; idx < neighbors.length; idx++) {
-                            const n_dr = neighbors[idx].dr;
-                            const n_dc = neighbors[idx].dc;
-                            
-                            const nr = row + n_dr;
-                            const nc = col + n_dc;
-                            
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                const t_dr = targetR - nr;
-                                const t_dc = targetC - nc;
-
-                                const neighborDistSq = (t_dr * t_dr) + (t_dc * t_dc);
-                                
-                                if (neighborDistSq < currentDistSq) {
-                                    if (neighborDistSq < b1Dist) {
-                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
-                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
-                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
-                                    } else if (neighborDistSq < b2Dist) {
-                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
-                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
-                                    } else if (neighborDistSq < b3Dist) {
-                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
-                                    }
-                                }
-                            }
-                        }
-
-                        // 4. עקיפת פקקים סופר-מהירה
-                        const options = [
-                            { nr: b1Nr, nc: b1Nc },
-                            { nr: b2Nr, nc: b2Nc },
-                            { nr: b3Nr, nc: b3Nc }
-                        ];
-
-                        for (let attempt = 0; attempt < 3; attempt++) {
-                            const opt = options[attempt];
-                            if (opt.nr === -1) continue; 
-
-                            const target_i = opt.nr * n + opt.nc;
-                            
-                            if (!nextBoardState[target_i].isGold &&
-                                nextBoardState[i].k < nextBoardState[target_i].k && 
-                                cachedMovedThisFrame[target_i] === 0) {
-                                
-                                const tempTile = nextBoardState[i];
-                                nextBoardState[i] = nextBoardState[target_i];
-                                nextBoardState[target_i] = tempTile;
-                                
-                                cachedMovedThisFrame[i] = 1;
-                                cachedMovedThisFrame[target_i] = 1;
-                                
-                                break; 
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
-
-
-        // ────────────────────────────── CLASSIC (פנימה + טורבולנציה) ──────────────────────────────
-// ────────────────────────────── CLASSIC (ספירלה טהורה, שקטה וללא רוח) ──────────────────────────────
-        case 'classic': {
-            const centerR = (n - 1) / 2;
-            const centerC = (n - 1) / 2;
-
-            // הסוד לספירלה בלי רוח: כוח סיבוב גבוה, שאיבה עדינה, ואפס טורבולנציה
-            const baseSpinStrength = 0.001; // זה מה שיוצר את זרועות הספירלה! (אפשר להגדיל ל-0.25 לספירלה צפופה יותר)
-            const pullStrength     = 0.8;  // שאיבה עדינה ואיטית פנימה
-
-            // רשימת נוכחות למניעת "גלישת" פיקסלים
-            const movedThisFrame = new Set();
-
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    if (movedThisFrame.has(i)) continue;
-                    if (nextBoardState[i].isGold) continue;
-
-                    const dy = row - centerR;
-                    const dx = col - centerC;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    if (dist < 0.5) continue;
-
-                    // מתמטיקה טהורה וסטטית של ספירלה - ללא זמן וללא רעש
-                    const dynamicSpin = baseSpinStrength + (1.0 / Math.max(dist, 1));
-                    const currentAngle = Math.atan2(dy, dx);
-
-                    // יעד יציב לחלוטין
-                    const targetRadius = Math.max(0, dist - pullStrength);
-                    const targetAngle  = currentAngle + dynamicSpin;
-
-                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
-                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
-
-
-// תנועה קפדנית מבוססת מרחק כדי למנוע ריצודים
-                    let bestDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2);
-                    let bestNr = row, bestNc = col;
-
-                    const neighbors = [
-                        {dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1},
-                        {dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:-1},{dr:1,dc:1}
-                    ];
-
-                    for (const {dr, dc} of neighbors) {
-                        const nr = row + dr;
-                        const nc = col + dc;
-                        if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
-
-                        const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
-
-                        if (neighborDistSq < bestDistSq) {
-                            bestDistSq = neighborDistSq;
-                            bestNr = nr;
-                            bestNc = nc;
-                        }
-                    }
-
-                    if ((bestNr !== row || bestNc !== col) && Math.random() < 0.8) {
-
-
-
-                        const target_i = bestNr * n + bestNc;
-                        
-                        if (!nextBoardState[target_i].isGold &&
-                            nextBoardState[i].k < nextBoardState[target_i].k &&
-                            !movedThisFrame.has(target_i)) { 
-                            
-                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                            
-                            movedThisFrame.add(i);
-                            movedThisFrame.add(target_i);
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
-
-// ────────────────────────────── EXPAND (מוגדר כעת כמגנט צבעים הפוך אולטרה-מהיר) ──────────────────────────────
-        case 'expand': {
-            
-            // 1. ניקוי והכנת זיכרון המטמון המהיר (Zero Allocation)
-            if (cachedMovedThisFrame.length !== n * n) {
-                cachedMovedThisFrame = new Uint8Array(n * n);
-            } else {
-                cachedMovedThisFrame.fill(0);
-            }
-            cachedAnchors.length = 0; 
-            
-            const pLen = currentPalette ? currentPalette.length : 256;
-
-            // 2. איסוף חורים שחורים בקצוות 
-            for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
-                    const r = Math.floor(i / n);
-                    const c = i % n;
-                    let isEdge = false;
-
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            const nr = r + dr;
-                            const nc = c + dc;
-                            
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                if (nextBoardState[nr * n + nc].k > 0) {
-                                    isEdge = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isEdge) break;
-                    }
-
-                    if (isEdge) {
-                        cachedAnchors.push({ r, c });
-                    }
-                }
-            }
-
-            if (cachedAnchors.length === 0) break;
-
-            // דילול עוגנים
-            if (cachedAnchors.length > 300) {
-                const step = Math.ceil(cachedAnchors.length / 300);
-                let writeIndex = 0;
-                for (let i = 0; i < cachedAnchors.length; i += step) {
-                    cachedAnchors[writeIndex++] = cachedAnchors[i];
-                }
-                cachedAnchors.length = writeIndex;
-            }
-
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    if (cachedMovedThisFrame[i] === 1) continue;
-                    if (nextBoardState[i].isGold) continue;
-                    if (nextBoardState[i].k === 0) continue; 
-
-                    // --- קסם הביצועים (Early Exit): הגרלת התנועה מתבצעת *לפני* החישובים הכבדים! ---
-                    const colorWeight = 1.0 - (nextBoardState[i].k / pLen); 
-                    const moveProbability = 0.15 + (colorWeight * 0.80);
-                    
-                    // אם הפיקסל לא הוגרל לזוז בפריים הזה, אנחנו מדלגים עליו מיד וחוסכים המון כוח מעבד!
-                    if (Math.random() >= moveProbability) continue;
-
-                    let minDistSq = Infinity;
-                    let targetR = row;
-                    let targetC = col;
-
-                    // 3. מציאת העוגן הקרוב ביותר (מחושב רק לפיקסלים שזכו בהגרלה)
-                    for (let a = 0; a < cachedAnchors.length; a++) {
-                        const dr = cachedAnchors[a].r - row;
-                        const dc = cachedAnchors[a].c - col;
-                        
-                        const distSq = (dr * dr) + (dc * dc); 
-                        
-                        if (distSq < minDistSq) {
-                            minDistSq = distSq;
-                            targetR = cachedAnchors[a].r;
-                            targetC = cachedAnchors[a].c;
-                        }
-                    }
-
-                    if (minDistSq > 0 && minDistSq !== Infinity) {
-                        const currentDistSq = minDistSq;
-
-                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
-                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
-                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
-
-                        const neighbors = [
-                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                        ];
-
-                        for (let idx = 0; idx < neighbors.length; idx++) {
-                            const n_dr = neighbors[idx].dr;
-                            const n_dc = neighbors[idx].dc;
-                            
-                            const nr = row + n_dr;
-                            const nc = col + n_dc;
-                            
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                const t_dr = targetR - nr;
-                                const t_dc = targetC - nc;
-
-                                const neighborDistSq = (t_dr * t_dr) + (t_dc * t_dc);
-                                
-                                if (neighborDistSq < currentDistSq) {
-                                    if (neighborDistSq < b1Dist) {
-                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
-                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
-                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
-                                    } else if (neighborDistSq < b2Dist) {
-                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
-                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
-                                    } else if (neighborDistSq < b3Dist) {
-                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
-                                    }
-                                }
-                            }
-                        }
-
-                        // 4. עקיפת פקקים סופר-מהירה (ההסתברות כבר חושבה, אז כאן אנחנו פשוט מנסים לזוז)
-                        const options = [
-                            { nr: b1Nr, nc: b1Nc },
-                            { nr: b2Nr, nc: b2Nc },
-                            { nr: b3Nr, nc: b3Nc }
-                        ];
-
-                        for (let attempt = 0; attempt < 3; attempt++) {
-                            const opt = options[attempt];
-                            if (opt.nr === -1) continue; 
-
-                            const target_i = opt.nr * n + opt.nc;
-                            
-                            if (!nextBoardState[target_i].isGold &&
-                                nextBoardState[i].k < nextBoardState[target_i].k && 
-                                cachedMovedThisFrame[target_i] === 0) {
-                                
-                                const tempTile = nextBoardState[i];
-                                nextBoardState[i] = nextBoardState[target_i];
-                                nextBoardState[target_i] = tempTile;
-                                
-                                cachedMovedThisFrame[i] = 1;
-                                cachedMovedThisFrame[target_i] = 1;
-                                
-                                break; 
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-        }
 
 
 
@@ -1898,79 +1133,396 @@ for (let col = 0; col < n; col++) {
 
                 }
     
-// ────────────────────────────── EXPERIMENT A (מיון גיאומטרי טהור מהמרכז החוצה) ──────────────────────────────
-        case 'a': {
+
+
+
+
+case 'down': {
+    const centerR = (n - 1) / 2;
+    const centerC = (n - 1) / 2;
+    
+    // פרמטרים קבועים ומושלמים למראה חור שחור הרמוני ומדהים
+    // (strength מבחוץ שולט רק במהירות – כמה פיקסלים זזים בכל פריים)
+    const baseSpinStrength = 0.105;   // סיבוב עדין אך ברור – יוצר ספירלות יפהפיות
+    const pullStrength     = 0.78;    // שאיבה חזקה ומאוזנת – נבלע פנימה בלי להתפרק
+
+    for (let row = 0; row < n; row++) {
+        for (let col = 0; col < n; col++) {
+            const i = row * n + col;
+            if (nextBoardState[i].isGold) continue;
+            
+            const dy = row - centerR;
+            const dx = col - centerC;
+            const distToCenter = Math.sqrt(dx * dx + dy * dy);
+            if (distToCenter < 0.5) continue; // מרכז יציב
+            
+            // חישוב מיקום יעד ספירלי מדויק (פולאר)
+            const currentAngle = Math.atan2(dy, dx);
+            const targetRadius = Math.max(0.3, distToCenter - pullStrength);
+            const targetAngle  = currentAngle + baseSpinStrength;
+            
+            const targetR = centerR + targetRadius * Math.sin(targetAngle);
+            const targetC = centerC + targetRadius * Math.cos(targetAngle);
+            
+            // וקטור התנועה הרצוי (מה שנותן תנועה חלקה וסיבובית אמיתית)
+            const desiredDX = targetC - col;
+            const desiredDY = targetR - row;
+            const desiredLen = Math.sqrt(desiredDX * desiredDX + desiredDY * desiredDY) || 1;
+            
+            // 8 שכנים + בדיקת "כמה הכיוון מתאים" (cosine similarity)
+            const neighbors = [
+                {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                {dr: 1, dc: -1}, {dr: 1, dc: 1}
+            ];
+            
+            let bestScore = -1;
+            let bestNr = row;
+            let bestNc = col;
+            
+            for (const {dr, dc} of neighbors) {
+                const nr = row + dr;
+                const nc = col + dc;
+                if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+                
+                // וקטור התנועה של השכן
+                const moveLen = Math.sqrt(dc * dc + dr * dr) || 1;
+                const score = (dc * desiredDX + dr * desiredDY) / (moveLen * desiredLen);
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestNr = nr;
+                    bestNc = nc;
+                }
+            }
+            
+            // תנועה רק אם הכיוון טוב מספיק + בהסתברות strength (מהירות מבחוץ)
+            if (bestScore > 0.15 && Math.random() < strength) {
+                const target_i = bestNr * n + bestNc;
+                
+                if (!nextBoardState[target_i].isGold &&
+                    nextBoardState[i].k < nextBoardState[target_i].k) {
+                    
+                    [nextBoardState[i], nextBoardState[target_i]] = 
+                     [nextBoardState[target_i], nextBoardState[i]];
+                }
+            }
+        }
+    }
+    break;
+}
+
+
+
+
+case 'left': {
             const centerR = (n - 1) / 2;
             const centerC = (n - 1) / 2;
-
-            // פרמטר שליטה: 0 ייתן לך מעגלים מושלמים לגמרי. 
-            // מספרים כמו 1.0, 2.0 או 3.0 יעקמו את המעגלים לזרועות של ספירלה מושלמת.
-            const spin = 0; 
             
-            // פרמטר שליטה: כמה מהר האנימציה זורמת (מספר המעברים בפריים)
-            const speed = 30;
+            // --- משתני שליטה: ספירלה נוזלית עם טורבולנציה ---
+            const baseSpinStrength = 0.10; // כוח סיבוב בסיסי (בהיקף החיצוני)
+            const pullStrength = 0.8;      // כוח השאיבה פנימה
+            
+            // המשתנים החדשים שיוצרים את הזרמים הסמויים:
+            const eddyFrequency = 0.03;    // תדירות המערבולות הקטנות (צפיפות הגלים). ככל שגדול יותר - הזרמים צפופים יותר.
+            const eddyStrength = 0.25;     // העוצמה שבה הזרם מסיט את הפיקסל מהמסלול המעגלי.
+            
+            // מוסיפים פאזת זמן עדינה כדי ששדה הזרימה הבלתי נראה "ינשום" ויזוז בעצמו
+            const timePhase = Date.now() * 0.0005;
 
-            // 1. בניית המסלול המתמטי (מבוצע פעם אחת בלבד ונשמר בזיכרון כדי לא להעמיס על המעבד)
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    if (nextBoardState[i].isGold) continue; 
+                    
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distToCenter === 0) continue; 
+                    
+                    // 1. טורבולנציה וזרמי משנה (Eddies)
+                    // יצירת מפת זרימה מבוססת גלי סינוס עם קוסינוס (מייצר תבניות אורגניות כמו שיש עץ או שיש)
+                    const turbulence = Math.sin((row * eddyFrequency) + timePhase) * Math.cos((col * eddyFrequency) - timePhase);
+                    
+                    // 2. פיזיקה של פתח ניקוז (ככל שקרובים למרכז הסיבוב מהיר יותר)
+                    const dynamicSpin = baseSpinStrength + (2.0 / Math.max(distToCenter, 1));
+                    
+                    const currentAngle = Math.atan2(dy, dx);
+                    
+                    // הטורבולנציה מתערבת ו"מעקמת" את הזווית קדימה ואחורה, ומרחיבה/מכווצת את הרדיוס קלות
+                    const targetRadius = Math.max(0, distToCenter - pullStrength + (turbulence * 1.5));
+                    const targetAngle = currentAngle + dynamicSpin + (turbulence * eddyStrength); 
+                    
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                    
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                    ];
+                    
+                    const validNeighbors = [];
+                    
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                            validNeighbors.push({ nr, nc, dist: distToIdeal });
+                        }
+                    }
+                    
+                    validNeighbors.sort((a, b) => a.dist - b.dist);
+                    
+                    if (validNeighbors.length > 0) {
+                        // 3. החלקה הסתברותית לשבירת פינות ויצירת מראה עגול לעין
+                        let chosen = validNeighbors[0];
+                        if (validNeighbors.length > 1 && Math.random() < 0.60) {
+                            chosen = validNeighbors[1];
+                        }
+                        
+                        const target_i = chosen.nr * n + chosen.nc;
+                        
+                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+
+      case 'radial': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            
+            // --- משתני שליטה על הספירלה ---
+            // שחק עם המספרים האלה כדי לשנות את אופי המערבולת!
+            const spinStrength = 0.25; // כוח הסיבוב (ברדיאנים). ככל שגדול יותר, הספירלה "שטוחה" ומסתחררת יותר.
+            const pullStrength = 0.8;  // כוח השאיבה למרכז (בפיקסלים). ככל שגדול יותר, הפיקסלים יישאבו מהר יותר פנימה.
+            
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    // הגנת זהב: פיקסלים מזהב לא נשאבים ולא זזים
+                    if (nextBoardState[i].isGold) continue; 
+                    
+                    const dy = row - centerR;
+                    const dx = col - centerC;
+                    const distToCenter = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distToCenter === 0) continue; // אנחנו כבר בדיוק במרכז
+                    
+                    // 1. חישוב הזווית הנוכחית של הפיקסל ביחס למרכז
+                    const currentAngle = Math.atan2(dy, dx);
+                    
+                    // 2. חישוב נקודת המטרה האידיאלית (קצת יותר קרוב, קצת מסובב)
+                    const targetRadius = Math.max(0, distToCenter - pullStrength);
+                    const targetAngle = currentAngle + spinStrength; 
+                    
+                    // המרה חזרה מקואורדינטות פולריות למיקום X,Y על הלוח
+                    const targetR = centerR + targetRadius * Math.sin(targetAngle);
+                    const targetC = centerC + targetRadius * Math.cos(targetAngle);
+                    
+                    let bestDr = 0;
+                    let bestDc = 0;
+                    let minDistToTarget = Infinity;
+                    
+                    const neighbors = [
+                        {dr: -1, dc: 0}, {dr: 1, dc: 0},
+                        {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                        {dr: -1, dc: -1}, {dr: -1, dc: 1},
+                        {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                    ];
+                    
+                    // 3. מציאת השכן שיושב הכי קרוב לנקודת המטרה האידיאלית
+                    for (const {dr, dc} of neighbors) {
+                        const nr = row + dr;
+                        const nc = col + dc;
+                        
+                        if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                            const distToIdeal = Math.pow(nr - targetR, 2) + Math.pow(nc - targetC, 2);
+                            if (distToIdeal < minDistToTarget) {
+                                minDistToTarget = distToIdeal;
+                                bestDr = dr;
+                                bestDc = dc;
+                            }
+                        }
+                    }
+                    
+                    // 4. ביצוע ההחלפה (עם הסתברות ובדיקת חסימת זהב של השכן)
+                    if (bestDr !== 0 || bestDc !== 0) {
+                        const target_i = (row + bestDr) * n + (col + bestDc);
+                        if (!nextBoardState[target_i].isGold && nextBoardState[i].k < nextBoardState[target_i].k && Math.random() < strength) {
+                            [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+// ────────────────────────────── EXPERIMENT A (מיון גיאומטרי טהור מהמרכז החוצה) ──────────────────────────────
+       
+ case 'a': {
+
+            // מחשבים את המרחק העגול המושלם רק פעם אחת כדי לחסוך ביצועים
+            if (cachedRadialN !== n) {
+                const centerR = (n - 1) / 2;
+                const centerC = (n - 1) / 2;
+                const indices = Array.from({length: n * n}, (_, i) => i);
+                indices.sort((a, b) => {
+                    const rA = Math.floor(a / n), cA = a % n;
+                    const rB = Math.floor(b / n), cB = b % n;
+                    const distA = Math.pow(rA - centerR, 2) + Math.pow(cA - centerC, 2);
+                    const distB = Math.pow(rB - centerR, 2) + Math.pow(cB - centerC, 2);
+                    
+                    // התיקון: שובר שוויון אקראי מונע את הפרדת הלוח לחצאים!
+                    return (distA - distB) || (Math.random() - 0.5); 
+                });
+                cachedRadialOrder = indices;
+                cachedRadialN = n;
+            }
+
+            // 1. מחזירים את מספר המעברים למינימום כדי לשמור על 60FPS חלק ונעים לעין!
+            const passes = 6; 
+            
+            // 2. ה"קפיצה" נשארת קבועה כדי לשמור על הכאוטיות שאתה אוהב!
+            const stride = Math.max(1, Math.floor(n / 4));
+
+            for (let p = 0; p < passes; p++) {
+                
+                // כוח משיכה ששואב למרכז (בקפיצות)
+                for (let j = 0; j < cachedRadialOrder.length - stride; j++) {
+                    const idx1 = cachedRadialOrder[j];          
+                    const idx2 = cachedRadialOrder[j + stride]; 
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+let temp = nextBoardState[idx1];
+nextBoardState[idx1] = nextBoardState[idx2];
+nextBoardState[idx2] = temp;
+                        }
+                    }
+                }
+                
+                // כוח הדיפה שדוחף החוצה (בקפיצות, מהסוף להתחלה כדי לשחרר פקקים)
+                for (let j = cachedRadialOrder.length - 1; j >= stride; j--) {
+                    const idx1 = cachedRadialOrder[j - stride];
+                    const idx2 = cachedRadialOrder[j];
+                    
+                    if (nextBoardState[idx1].isGold || nextBoardState[idx2].isGold) continue;
+
+                    if (nextBoardState[idx1].k > nextBoardState[idx2].k) {
+                        if (Math.random() < strength) {
+let temp = nextBoardState[idx1];
+nextBoardState[idx1] = nextBoardState[idx2];
+nextBoardState[idx2] = temp;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+
+/* case 'a': {
+            const centerR = (n - 1) / 2;
+            const centerC = (n - 1) / 2;
+            const spin = 0; 
+
+            // 1. בניית המסלול המתמטי (מבוצע פעם אחת בלבד ונשמר בזיכרון)
             if (!window.perfectRadialOrderA || window.perfectRadialOrderA_n !== n) {
                 let coords = [];
                 for (let r = 0; r < n; r++) {
                     for (let c = 0; c < n; c++) {
                         const dy = r - centerR;
                         const dx = c - centerC;
-                        
-                        // מרחק אוקלידי טהור ומושלם מהמרכז
                         const dist = Math.hypot(dx, dy);
-                        // זווית מדויקת
                         const angle = Math.atan2(dy, dx);
-                        
-                        // נוסחת המסלול: מרחק נקי + הסטה זוויתית (ספירלה)
                         const mathematicalValue = dist + (angle * spin);
                         
                         coords.push({ i: r * n + c, val: mathematicalValue });
                     }
                 }
                 
-                // ממיינים את כל הפיקסלים בלוח מהנמוך לגבוה לפי הנוסחה שלנו
                 coords.sort((a, b) => a.val - b.val);
-                
-                // שומרים רק את האינדקסים המסודרים
                 window.perfectRadialOrderA = coords.map(c => c.i);
                 window.perfectRadialOrderA_n = n;
             }
 
             const order = window.perfectRadialOrderA;
 
-            // 2. מיון זורם (Cocktail Shaker Sort) על גבי המסלול המושלם שלנו
-            for (let p = 0; p < speed; p++) {
-                
-                // א. תנועה פנימה: סורקים מהקצוות אל המרכז
+            // --- הפתרון: תקציב זמן (Time-Boxing) ---
+            // במקום speed מוגזם שתוקע הכל, אנחנו נותנים לקוד 4 מילישניות עבודה נטו
+            const timeBudgetMs = 12; 
+            const startTime = performance.now();
+            
+            // אנחנו מאפשרים לו לרוץ עד 50 פעמים, אבל הוא יחתוך הרבה לפני ברגע שהזמן ייגמר
+            let passes = 0;
+            while (passes < 50) {
+                let madeAnySwap = false;
+
+                // א. תנועה פנימה
                 for (let j = order.length - 1; j > 0; j--) {
-                    const idxInner = order[j - 1]; // הפיקסל שיותר קרוב למרכז
-                    const idxOuter = order[j];     // הפיקסל שיותר רחוק מהמרכז
+                    const idxInner = order[j - 1];
+                    const idxOuter = order[j];
                     
                     if (nextBoardState[idxInner].isGold || nextBoardState[idxOuter].isGold) continue;
 
-                    // אם החיצוני כהה יותר, הוא נשאב פנימה!
                     if (nextBoardState[idxInner].k > nextBoardState[idxOuter].k) {
-                        [nextBoardState[idxInner], nextBoardState[idxOuter]] = [nextBoardState[idxOuter], nextBoardState[idxInner]];
+                        let tempTile = nextBoardState[idxInner];
+                        nextBoardState[idxInner] = nextBoardState[idxOuter];
+                        nextBoardState[idxOuter] = tempTile;
+                        madeAnySwap = true;
                     }
                 }
 
-                // ב. תנועה החוצה: סורקים מהמרכז אל הקצוות
+                // ב. תנועה החוצה
                 for (let j = 0; j < order.length - 1; j++) {
                     const idxInner = order[j];
                     const idxOuter = order[j + 1];
                     
                     if (nextBoardState[idxInner].isGold || nextBoardState[idxOuter].isGold) continue;
 
-                    // החלקה נוספת כדי למנוע "פקקי תנועה"
                     if (nextBoardState[idxInner].k > nextBoardState[idxOuter].k) {
-                        [nextBoardState[idxInner], nextBoardState[idxOuter]] = [nextBoardState[idxOuter], nextBoardState[idxInner]];
+                        let tempTile = nextBoardState[idxInner];
+                        nextBoardState[idxInner] = nextBoardState[idxOuter];
+                        nextBoardState[idxOuter] = tempTile;
+                        madeAnySwap = true;
                     }
                 }
+
+                // אם אין החלפות, הלוח סודר לחלוטין!
+                if (!madeAnySwap) break; 
+                
+                // --- בדיקת מד הזמן! ---
+                // אם עברנו את התקציב (4ms), עוצרים מיד ומשחררים את הדפדפן לצייר
+                if (performance.now() - startTime > timeBudgetMs) {
+                    break;
+                }
+                
+                passes++;
             }
+
             break;
         }
+        */
+
+
 
 
         // ────────────────────────────── EXPERIMENT B ──────────────────────────────
@@ -2055,168 +1607,6 @@ for (let col = 0; col < n; col++) {
         }
 
 
-
-
-// ────────────────────────────── MAGNET (ריבוי מוקדי משיכה - Multi-Gravity) ──────────────────────────────
-        case 'magnet': {
-
-
-
-// 1. איסוף "חורים שחורים" שהם *רק* בהיקף הציור (נוגעים בצבע)
-            let anchors = [];
-            for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
-                    const r = Math.floor(i / n);
-                    const c = i % n;
-                    let isEdge = false;
-
-                    // בדיקת 8 השכנים מסביב לפיקסל השחור
-                    for (let dr = -1; dr <= 1; dr++) {
-                        for (let dc = -1; dc <= 1; dc++) {
-                            if (dr === 0 && dc === 0) continue;
-                            const nr = r + dr;
-                            const nc = c + dc;
-                            
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                // אם אחד השכנים הוא צבעוני (אינדקס גדול מ-0), הפיקסל הזה הוא קצה!
-                                if (nextBoardState[nr * n + nc].k > 0) {
-                                    isEdge = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (isEdge) break;
-                    }
-
-                    // נוסיף אותו לרשימת המגנטים רק אם הוא קצה
-                    if (isEdge) {
-                        anchors.push({ r, c });
-                    }
-                }
-            }
-
-            // חוק אפס כבידה: אם אין עוגנים שחורים, המתנה
-            if (anchors.length === 0) break;
-
-            // העלינו את המגבלה מ-100 ל-300 כי עכשיו אנחנו חוסכים המון פיקסלים שחורים פנימיים!
-            if (anchors.length > 300) {
-                const step = Math.ceil(anchors.length / 300);
-                const sampledAnchors = [];
-                for (let i = 0; i < anchors.length; i += step) {
-                    sampledAnchors.push(anchors[i]);
-                }
-                anchors = sampledAnchors;
-            }
-
-            const movedThisFrame = new Set();
-
-            // סריקת כל הלוח
-            for (let row = 0; row < n; row++) {
-                for (let col = 0; col < n; col++) {
-                    const i = row * n + col;
-                    
-                    if (movedThisFrame.has(i)) continue;
-                    if (nextBoardState[i].isGold) continue;
-                    
-                    // העוגנים עצמם קפואים במקום - הם רק מושכים, לא זזים
-                    if (nextBoardState[i].k === 0) continue; 
-
-                    // 2. חיפוש העוגן הקרוב ביותר לפיקסל הנוכחי
-                    let minDist = Infinity;
-                    let targetR = row;
-                    let targetC = col;
-
-                    for (let a = 0; a < anchors.length; a++) {
-                        const dr = anchors[a].r - row;
-                        const dc = anchors[a].c - col;
-                        const distSq = dr * dr + dc * dc; // משתמשים במרחק בריבוע כדי לחסוך פונקציית שורש יקרה למעבד
-                        
-                        if (distSq < minDist) {
-                            minDist = distSq;
-                            targetR = anchors[a].r;
-                            targetC = anchors[a].c;
-                        }
-                    }
-
-
-
-
-
-
-// 3. תנועה חכמה וסופר-מהירה: "עקיפת פקקים" ללא מערכים וללא מיון!
-                    if (minDist > 0 && minDist !== Infinity) {
-                        const currentDistSq = Math.pow(targetR - row, 2) + Math.pow(targetC - col, 2); // המרחק הנוכחי שלי
-
-                        // במקום לייצר מערך, שומרים 3 משתנים פשוטים ל-3 השכנים הטובים ביותר
-                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
-                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
-                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
-
-                        const neighbors = [
-                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
-                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
-                        ];
-
-                        // סורקים את השכנים ומעדכנים את המשתנים מיד (מיון "על המקום" ללא עומס זיכרון)
-                        for (const {dr, dc} of neighbors) {
-                            const nr = row + dr;
-                            const nc = col + dc;
-                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                const neighborDistSq = Math.pow(targetR - nr, 2) + Math.pow(targetC - nc, 2);
-                                
-                                if (neighborDistSq < currentDistSq) {
-                                    if (neighborDistSq < b1Dist) {
-                                        // דוחפים את הקודמים למטה ומעדכנים את המקום הראשון
-                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
-                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
-                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
-                                    } else if (neighborDistSq < b2Dist) {
-                                        // מעדכנים את המקום השני
-                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
-                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
-                                    } else if (neighborDistSq < b3Dist) {
-                                        // מעדכנים את המקום השלישי
-                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
-                                    }
-                                }
-                            }
-                        }
-
-                        // 4. תנועה: ננסה את 3 האופציות לפי הסדר, בהסתברות של 80%
-                        if (b1Dist !== Infinity && Math.random() < 0.8) {
-                            const options = [
-                                { nr: b1Nr, nc: b1Nc },
-                                { nr: b2Nr, nc: b2Nc },
-                                { nr: b3Nr, nc: b3Nc }
-                            ];
-
-                            for (let attempt = 0; attempt < 3; attempt++) {
-                                const opt = options[attempt];
-                                if (opt.nr === -1) continue; // לא מצאנו שכן במקום ה-2 או ה-3
-
-                                const target_i = opt.nr * n + opt.nc;
-                                
-                                // בדיקת הפקק שלנו: האם פנוי ויכול לזוז?
-                                if (!nextBoardState[target_i].isGold &&
-                                    nextBoardState[i].k < nextBoardState[target_i].k && 
-                                    !movedThisFrame.has(target_i)) {
-                                    
-                                    // החלפה!
-                                    [nextBoardState[i], nextBoardState[target_i]] = [nextBoardState[target_i], nextBoardState[i]];
-                                    
-                                    movedThisFrame.add(i);
-                                    movedThisFrame.add(target_i);
-                                    
-                                    break; // הצלחנו לעקוף! עוצרים חיפושים ויוצאים
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
 }
 
     return nextBoardState;
@@ -2267,7 +1657,8 @@ for (let col = 0; col < n; col++) {
 const cachedAnchors = [];
 let cachedMovedThisFrame = new Uint8Array(0);
 
-export function runMagnetGeneration({ n, currentBoardState, magnetRules }) {
+export function runMagnetGeneration({ n, currentBoardState, magnetRules, currentPalette }) {
+
 const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על המקום
 
     const method = magnetRules.method || 'magnet';
@@ -2545,7 +1936,337 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
             }
             break;
         }
-    }
+ 
+case 'time_magnet': {
+            // --- מגנט צבעים (Chromatic Magnet - בהירים מהירים) אולטרה-מהיר ---
+            
+            // 1. ניקוי והכנת זיכרון המטמון המהיר (Zero Allocation)
+            if (cachedMovedThisFrame.length !== n * n) {
+                cachedMovedThisFrame = new Uint8Array(n * n);
+            } else {
+                cachedMovedThisFrame.fill(0);
+            }
+            cachedAnchors.length = 0; 
+            
+            const pLen = currentPalette ? currentPalette.length : 256;
+
+            // 2. איסוף חורים שחורים בקצוות (ללא עטיפת מסך)
+            for (let i = 0; i < n * n; i++) {
+                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+                    const r = Math.floor(i / n);
+                    const c = i % n;
+                    let isEdge = false;
+
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = r + dr;
+                            const nc = c + dc;
+                            
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                if (nextBoardState[nr * n + nc].k > 0) {
+                                    isEdge = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isEdge) break;
+                    }
+
+                    if (isEdge) {
+                        cachedAnchors.push({ r, c });
+                    }
+                }
+            }
+
+            if (cachedAnchors.length === 0) break;
+
+            // דילול עוגנים
+            if (cachedAnchors.length > 300) {
+                const step = Math.ceil(cachedAnchors.length / 300);
+                let writeIndex = 0;
+                for (let i = 0; i < cachedAnchors.length; i += step) {
+                    cachedAnchors[writeIndex++] = cachedAnchors[i];
+                }
+                cachedAnchors.length = writeIndex;
+            }
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    if (cachedMovedThisFrame[i] === 1) continue;
+                    if (nextBoardState[i].isGold) continue;
+                    if (nextBoardState[i].k === 0) continue; 
+
+                    // --- קסם הביצועים (Early Exit) + פרלקסה רגילה ---
+                    // משקל הצבע: 0.0 (הכי כהה) עד 1.0 (הכי בהיר)
+                    const colorWeight = nextBoardState[i].k / pLen; 
+                    
+                    // צבעים בהירים יזוזו 95% מהזמן. צבעים כהים יזוזו רק 15% מהזמן.
+                    const moveProbability = 0.15 + (colorWeight * 0.80);
+                    
+                    // אם הפיקסל (במיוחד הכהים) לא הוגרל לזוז, מדלגים עליו מיד!
+                    if (Math.random() >= moveProbability) continue;
+
+                    let minDistSq = Infinity;
+                    let targetR = row;
+                    let targetC = col;
+
+                    // 3. מציאת העוגן הקרוב ביותר (מחושב רק לפיקסלים שזכו בהגרלה)
+                    for (let a = 0; a < cachedAnchors.length; a++) {
+                        const dr = cachedAnchors[a].r - row;
+                        const dc = cachedAnchors[a].c - col;
+                        
+                        const distSq = (dr * dr) + (dc * dc); 
+                        
+                        if (distSq < minDistSq) {
+                            minDistSq = distSq;
+                            targetR = cachedAnchors[a].r;
+                            targetC = cachedAnchors[a].c;
+                        }
+                    }
+
+                    if (minDistSq > 0 && minDistSq !== Infinity) {
+                        const currentDistSq = minDistSq;
+
+                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
+                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
+                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
+
+                        const neighbors = [
+                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                        ];
+
+                        for (let idx = 0; idx < neighbors.length; idx++) {
+                            const n_dr = neighbors[idx].dr;
+                            const n_dc = neighbors[idx].dc;
+                            
+                            const nr = row + n_dr;
+                            const nc = col + n_dc;
+                            
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                const t_dr = targetR - nr;
+                                const t_dc = targetC - nc;
+
+                                const neighborDistSq = (t_dr * t_dr) + (t_dc * t_dc);
+                                
+                                if (neighborDistSq < currentDistSq) {
+                                    if (neighborDistSq < b1Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
+                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
+                                    } else if (neighborDistSq < b2Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
+                                    } else if (neighborDistSq < b3Dist) {
+                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 4. עקיפת פקקים סופר-מהירה
+                        const options = [
+                            { nr: b1Nr, nc: b1Nc },
+                            { nr: b2Nr, nc: b2Nc },
+                            { nr: b3Nr, nc: b3Nc }
+                        ];
+
+                        for (let attempt = 0; attempt < 3; attempt++) {
+                            const opt = options[attempt];
+                            if (opt.nr === -1) continue; 
+
+                            const target_i = opt.nr * n + opt.nc;
+                            
+                            if (!nextBoardState[target_i].isGold &&
+                                nextBoardState[i].k < nextBoardState[target_i].k && 
+                                cachedMovedThisFrame[target_i] === 0) {
+                                
+                                const tempTile = nextBoardState[i];
+                                nextBoardState[i] = nextBoardState[target_i];
+                                nextBoardState[target_i] = tempTile;
+                                
+                                cachedMovedThisFrame[i] = 1;
+                                cachedMovedThisFrame[target_i] = 1;
+                                
+                                break; 
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+
+
+
+// ────────────────────────────── EXPAND (מוגדר כעת כמגנט צבעים הפוך אולטרה-מהיר) ──────────────────────────────
+        case 'expand': {
+            
+            // 1. ניקוי והכנת זיכרון המטמון המהיר (Zero Allocation)
+            if (cachedMovedThisFrame.length !== n * n) {
+                cachedMovedThisFrame = new Uint8Array(n * n);
+            } else {
+                cachedMovedThisFrame.fill(0);
+            }
+            cachedAnchors.length = 0; 
+            
+            const pLen = currentPalette ? currentPalette.length : 256;
+
+            // 2. איסוף חורים שחורים בקצוות 
+            for (let i = 0; i < n * n; i++) {
+                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+                    const r = Math.floor(i / n);
+                    const c = i % n;
+                    let isEdge = false;
+
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = r + dr;
+                            const nc = c + dc;
+                            
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                if (nextBoardState[nr * n + nc].k > 0) {
+                                    isEdge = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isEdge) break;
+                    }
+
+                    if (isEdge) {
+                        cachedAnchors.push({ r, c });
+                    }
+                }
+            }
+
+            if (cachedAnchors.length === 0) break;
+
+            // דילול עוגנים
+            if (cachedAnchors.length > 300) {
+                const step = Math.ceil(cachedAnchors.length / 300);
+                let writeIndex = 0;
+                for (let i = 0; i < cachedAnchors.length; i += step) {
+                    cachedAnchors[writeIndex++] = cachedAnchors[i];
+                }
+                cachedAnchors.length = writeIndex;
+            }
+
+            for (let row = 0; row < n; row++) {
+                for (let col = 0; col < n; col++) {
+                    const i = row * n + col;
+                    
+                    if (cachedMovedThisFrame[i] === 1) continue;
+                    if (nextBoardState[i].isGold) continue;
+                    if (nextBoardState[i].k === 0) continue; 
+
+                    // --- קסם הביצועים (Early Exit): הגרלת התנועה מתבצעת *לפני* החישובים הכבדים! ---
+                    const colorWeight = 1.0 - (nextBoardState[i].k / pLen); 
+                    const moveProbability = 0.15 + (colorWeight * 0.80);
+                    
+                    // אם הפיקסל לא הוגרל לזוז בפריים הזה, אנחנו מדלגים עליו מיד וחוסכים המון כוח מעבד!
+                    if (Math.random() >= moveProbability) continue;
+
+                    let minDistSq = Infinity;
+                    let targetR = row;
+                    let targetC = col;
+
+                    // 3. מציאת העוגן הקרוב ביותר (מחושב רק לפיקסלים שזכו בהגרלה)
+                    for (let a = 0; a < cachedAnchors.length; a++) {
+                        const dr = cachedAnchors[a].r - row;
+                        const dc = cachedAnchors[a].c - col;
+                        
+                        const distSq = (dr * dr) + (dc * dc); 
+                        
+                        if (distSq < minDistSq) {
+                            minDistSq = distSq;
+                            targetR = cachedAnchors[a].r;
+                            targetC = cachedAnchors[a].c;
+                        }
+                    }
+
+                    if (minDistSq > 0 && minDistSq !== Infinity) {
+                        const currentDistSq = minDistSq;
+
+                        let b1Dist = Infinity, b1Nr = -1, b1Nc = -1;
+                        let b2Dist = Infinity, b2Nr = -1, b2Nc = -1;
+                        let b3Dist = Infinity, b3Nr = -1, b3Nc = -1;
+
+                        const neighbors = [
+                            {dr: -1, dc: 0}, {dr: 1, dc: 0}, {dr: 0, dc: -1}, {dr: 0, dc: 1},
+                            {dr: -1, dc: -1}, {dr: -1, dc: 1}, {dr: 1, dc: -1}, {dr: 1, dc: 1}
+                        ];
+
+                        for (let idx = 0; idx < neighbors.length; idx++) {
+                            const n_dr = neighbors[idx].dr;
+                            const n_dc = neighbors[idx].dc;
+                            
+                            const nr = row + n_dr;
+                            const nc = col + n_dc;
+                            
+                            if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
+                                const t_dr = targetR - nr;
+                                const t_dc = targetC - nc;
+
+                                const neighborDistSq = (t_dr * t_dr) + (t_dc * t_dc);
+                                
+                                if (neighborDistSq < currentDistSq) {
+                                    if (neighborDistSq < b1Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = b1Dist; b2Nr = b1Nr; b2Nc = b1Nc;
+                                        b1Dist = neighborDistSq; b1Nr = nr; b1Nc = nc;
+                                    } else if (neighborDistSq < b2Dist) {
+                                        b3Dist = b2Dist; b3Nr = b2Nr; b3Nc = b2Nc;
+                                        b2Dist = neighborDistSq; b2Nr = nr; b2Nc = nc;
+                                    } else if (neighborDistSq < b3Dist) {
+                                        b3Dist = neighborDistSq; b3Nr = nr; b3Nc = nc;
+                                    }
+                                }
+                            }
+                        }
+
+                        // 4. עקיפת פקקים סופר-מהירה (ההסתברות כבר חושבה, אז כאן אנחנו פשוט מנסים לזוז)
+                        const options = [
+                            { nr: b1Nr, nc: b1Nc },
+                            { nr: b2Nr, nc: b2Nc },
+                            { nr: b3Nr, nc: b3Nc }
+                        ];
+
+                        for (let attempt = 0; attempt < 3; attempt++) {
+                            const opt = options[attempt];
+                            if (opt.nr === -1) continue; 
+
+                            const target_i = opt.nr * n + opt.nc;
+                            
+                            if (!nextBoardState[target_i].isGold &&
+                                nextBoardState[i].k < nextBoardState[target_i].k && 
+                                cachedMovedThisFrame[target_i] === 0) {
+                                
+                                const tempTile = nextBoardState[i];
+                                nextBoardState[i] = nextBoardState[target_i];
+                                nextBoardState[target_i] = tempTile;
+                                
+                                cachedMovedThisFrame[i] = 1;
+                                cachedMovedThisFrame[target_i] = 1;
+                                
+                                break; 
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+
+   
+}
 
     return nextBoardState;
 }

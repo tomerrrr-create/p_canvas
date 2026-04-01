@@ -1049,9 +1049,15 @@ case 'spiral':
                 boardState = Simulations.runSpiralGeneration({ ...context, spiralRules }); 
                 break;
 
-case 'magnet': 
-    boardState = Simulations.runMagnetGeneration({ ...context, magnetRules }); 
-    break;
+case 'magnet':
+                boardState = Simulations.runMagnetGeneration({
+                    n: gridSize,
+                    currentBoardState: boardState,
+                    magnetRules: app.magnetRules,
+                    currentPalette: currentPalette
+                });
+                break;
+
 
 case 'sandpile': 
     boardState = Simulations.generateSandpile(boardState, palette(), chiFlowRules).nextBoardState; 
@@ -2107,7 +2113,7 @@ function updateGravitationalSortButtonUI() {
 
 function cycleGravitationalSortMode() {
     const oldMode = gsMode;
-    const sequence = ['off', 'up', 'right', 'center_x', 'radial', 'down', 'left',  'vortex'];
+    const sequence = ['off', 'up', 'right', 'center_x' ];
 
 
 
@@ -2189,11 +2195,8 @@ function cycleBreatheEvoMode() {
 
 // --- NEW: Spiral UI and Cycling ---
 function updateSpiralButtonUI() {
-
-dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mode-a', 'mode-b', 'mode-magnet', 'mode-cosmic_magnet', 'mode-time_magnet', 'simulation-active');
-
-
-
+    // הוספנו לניקוי את radial, down, left - אחרת הם נתקעים על הכפתור!
+    dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mode-a', 'mode-b', 'mode-magnet', 'mode-cosmic_magnet', 'mode-time_magnet', 'mode-radial', 'mode-down', 'mode-left', 'simulation-active');
 
     if (spiralMode !== 'off') {
         dom.btnSpiral.classList.add('mode-' + spiralMode);
@@ -2203,9 +2206,10 @@ dom.btnSpiral.classList.remove('mode-classic', 'mode-vortex', 'mode-expand', 'mo
     }
 }
 
+
 function cycleSpiralMode() {
     const oldMode = spiralMode;
-const sequence = ['off', 'b', 'expand', 'time_magnet', 'vortex', 'a'];
+const sequence = ['off', 'b', 'vortex',  'left', 'a', 'radial', 'down', ];
 
 
 
@@ -2235,9 +2239,12 @@ const sequence = ['off', 'b', 'expand', 'time_magnet', 'vortex', 'a'];
 // --- END: Spiral Functions ---
 
 // --- NEW: Magnet Button Functions ---
+
 function updateMagnetButtonUI() {
     if (!dom.btnMagnetModes) return;
-    dom.btnMagnetModes.classList.remove('mode-magnet', 'mode-cosmic_magnet', 'simulation-active');
+    // הוספנו לניקוי את time_magnet ואת expand!
+    dom.btnMagnetModes.classList.remove('mode-magnet', 'mode-cosmic_magnet', 'mode-time_magnet', 'mode-expand', 'simulation-active');
+    
     if (magnetMode !== 'off') {
         dom.btnMagnetModes.classList.add('mode-' + magnetMode);
         if (armedSimulation === 'magnet') {
@@ -2246,9 +2253,10 @@ function updateMagnetButtonUI() {
     }
 }
 
+
 function cycleMagnetMode() {
     const oldMode = magnetMode;
-    const sequence = ['off', 'magnet', 'cosmic_magnet'];
+    const sequence = ['off', 'magnet', 'cosmic_magnet', 'time_magnet', 'expand'];
     const currentIndex = sequence.indexOf(magnetMode);
     const nextIndex = (currentIndex + 1) % sequence.length;
     magnetMode = sequence[nextIndex];
