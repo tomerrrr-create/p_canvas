@@ -273,12 +273,12 @@ const TURING_PRESETS = {
 
 
   'Spots': { feed: 0.055, kill: 0.064, dA: 1.0, dB: 0.5, timeStep: 1.0 },
-    'Cells': { feed: 0.018, kill: 0.051, dA: 1.0, dB: 0.5, timeStep: 1.0 },
+    'Cells': { feed: 0.034, kill: 0.058, dA: 1.0, dB: 0.5, timeStep: 1.0 },
     'Boiling': { feed: 0.075, kill: 0.064, dA: 1.0, dB: 0.5, timeStep: 1.0 },
-    'USkate': { feed: 0.014, kill: 0.054, dA: 1.0, dB: 0.5, timeStep: 1.0 },
+    'USkate': { feed: 0.015, kill: 0.048, dA: 1.0, dB: 0.5, timeStep: 1.0 },
     'Chaos': { feed: 0.034, kill: 0.056, dA: 1.0, dB: 0.5, timeStep: 1.0 },
 
-    'Waves': { feed: 0.025, kill: 0.052, dA: 1.0, dB: 0.5, timeStep: 1.0 }
+    'Waves': { feed: 0.030, kill: 0.054, dA: 1.0, dB: 0.5, timeStep: 1.0 }
 };
 
 function closeTuringSettingsModal() {
