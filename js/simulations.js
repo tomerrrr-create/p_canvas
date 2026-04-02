@@ -1671,6 +1671,24 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
         cachedMovedThisFrame.fill(0);
     }
 
+// --- תוספת: סריקה מקדימה למציאת העוגן (הצבע הכהה ביותר שקיים כרגע) ---
+    let darkestPresentIndex = Infinity;
+    for (let i = 0; i < n * n; i++) {
+        if (nextBoardState[i].isGold) continue;
+        const currentK = nextBoardState[i].k;
+        if (currentK < darkestPresentIndex) {
+            darkestPresentIndex = currentK;
+        }
+        if (darkestPresentIndex === 0) break; // עצירה מוקדמת לאופטימיזציה
+    }
+    if (darkestPresentIndex === Infinity) darkestPresentIndex = 0;
+    
+    const targetColorIndex = darkestPresentIndex; // המשתנה בו נשתמש מעכשיו
+    // --------------------------------------------------------------------
+
+
+
+
     switch (method) {
         case 'magnet': {
             // --- מגנט רגיל: תנועה זורמת עם עקיפת פקקים ---
@@ -1679,7 +1697,8 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
 
             // איסוף חורים שחורים בקצוות
             for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+if (nextBoardState[i].k === targetColorIndex && !nextBoardState[i].isGold) {
+
                     const r = Math.floor(i / n);
                     const c = i % n;
                     let isEdge = false;
@@ -1691,8 +1710,7 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
                             const nc = c + dc;
                             
                             if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                if (nextBoardState[nr * n + nc].k > 0) {
-                                    isEdge = true;
+if (nextBoardState[nr * n + nc].k > targetColorIndex) {                                    isEdge = true;
                                     break;
                                 }
                             }
@@ -1723,7 +1741,7 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
                     
                     if (cachedMovedThisFrame[i] === 1) continue;
                     if (nextBoardState[i].isGold) continue;
-                    if (nextBoardState[i].k === 0) continue; 
+if (nextBoardState[i].k === targetColorIndex) continue;
 
                     let minDist = Infinity;
                     let targetR = row;
@@ -1821,7 +1839,8 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
             cachedAnchors.length = 0; 
 
             for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+if (nextBoardState[i].k === targetColorIndex && !nextBoardState[i].isGold) {
+
                     const r = Math.floor(i / n);
                     const c = i % n;
                     let isEdge = false;
@@ -1833,7 +1852,7 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
                             const nc = c + dc;
                             
                             if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                if (nextBoardState[nr * n + nc].k > 0) {
+if (nextBoardState[nr * n + nc].k > targetColorIndex) {
                                     isEdge = true;
                                     break;
                                 }
@@ -1865,7 +1884,7 @@ const nextBoardState = currentBoardState; // Zero Allocation! מוטציה על 
                     
                     if (cachedMovedThisFrame[i] === 1) continue;
                     if (nextBoardState[i].isGold) continue;
-                    if (nextBoardState[i].k === 0) continue; 
+if (nextBoardState[i].k === targetColorIndex) continue;
 
                     let minDist = Infinity;
                     let targetR = row;
@@ -1952,7 +1971,8 @@ case 'time_magnet': {
 
             // 2. איסוף חורים שחורים בקצוות (ללא עטיפת מסך)
             for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+if (nextBoardState[i].k === targetColorIndex && !nextBoardState[i].isGold) {
+
                     const r = Math.floor(i / n);
                     const c = i % n;
                     let isEdge = false;
@@ -1964,7 +1984,7 @@ case 'time_magnet': {
                             const nc = c + dc;
                             
                             if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                if (nextBoardState[nr * n + nc].k > 0) {
+if (nextBoardState[nr * n + nc].k > targetColorIndex) {
                                     isEdge = true;
                                     break;
                                 }
@@ -1997,7 +2017,7 @@ case 'time_magnet': {
                     
                     if (cachedMovedThisFrame[i] === 1) continue;
                     if (nextBoardState[i].isGold) continue;
-                    if (nextBoardState[i].k === 0) continue; 
+if (nextBoardState[i].k === targetColorIndex) continue;
 
                     // --- קסם הביצועים (Early Exit) + פרלקסה רגילה ---
                     // משקל הצבע: 0.0 (הכי כהה) עד 1.0 (הכי בהיר)
@@ -2119,7 +2139,8 @@ case 'time_magnet': {
 
             // 2. איסוף חורים שחורים בקצוות 
             for (let i = 0; i < n * n; i++) {
-                if (nextBoardState[i].k === 0 && !nextBoardState[i].isGold) {
+if (nextBoardState[i].k === targetColorIndex && !nextBoardState[i].isGold) {
+
                     const r = Math.floor(i / n);
                     const c = i % n;
                     let isEdge = false;
@@ -2131,8 +2152,7 @@ case 'time_magnet': {
                             const nc = c + dc;
                             
                             if (nr >= 0 && nr < n && nc >= 0 && nc < n) {
-                                if (nextBoardState[nr * n + nc].k > 0) {
-                                    isEdge = true;
+if (nextBoardState[nr * n + nc].k > targetColorIndex) {                                    isEdge = true;
                                     break;
                                 }
                             }
@@ -2164,7 +2184,7 @@ case 'time_magnet': {
                     
                     if (cachedMovedThisFrame[i] === 1) continue;
                     if (nextBoardState[i].isGold) continue;
-                    if (nextBoardState[i].k === 0) continue; 
+if (nextBoardState[i].k === targetColorIndex) continue;
 
                     // --- קסם הביצועים (Early Exit): הגרלת התנועה מתבצעת *לפני* החישובים הכבדים! ---
                     const colorWeight = 1.0 - (nextBoardState[i].k / pLen); 
