@@ -34,6 +34,11 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
 // 3. מבפנים החוצה - אדוות מים (טיפה שמתרחבת)
 { method: 'center-out', icon: '<circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M 9 9 Q 5 12 9 15 M 15 9 Q 19 12 15 15 M 9 9 Q 12 5 15 9 M 9 15 Q 12 19 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },          
 
+
+          // 7. מבחוץ פנימה - כהה בקצוות, בהיר במרכז
+          { method: 'outside-in', icon: '<path d="M 18 6 L 12 12 L 18 18 M 6 6 L 12 12 L 6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'},          
+
+
 { method: 'temperature', icon: '<circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 18 Q8 14 12 18 T20 18" fill="none" stroke="currentColor" stroke-width="1.5"/>' },
 
           // 4. מצב קשת - מינימליסטי (כמו האות 'ח')
@@ -41,6 +46,12 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
           
           // 5. קשת כהה - 'ח' מרכזית עם 2 קשתות פנימיות בגווני אפור
           { method: 'dark-rainbow', icon: '<path d="M 4 19 V 11 A 8 8 0 0 1 20 11 V 19"/><path d="M 7 19 V 11 A 5 5 0 0 1 17 11 V 19" stroke="#aaa"/><path d="M 10 19 V 11 A 2 2 0 0 1 14 11 V 19" stroke="#666"/>' }
+
+
+,
+// 6. זיג-זג - כהה, בהיר, כהה, בהיר...
+          { method: 'zig-zag', icon: '<path d="M 4 18 L 9 6 L 15 18 L 20 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' }
+
 
 
 
@@ -135,13 +146,51 @@ function getLuminance(hex) {
       let currentSortMethod = 'luminance'; // שיטת המיון הפעילה כברירת מחדל
 
 
-
 function sortColorsArray(colorsArray, method) {
           // קודם כל, ממיינים לפי בהירות כבסיס
           const sortedByLuminance = [...colorsArray].sort((a, b) => getLuminance(a) - getLuminance(b));
 
           switch (method) {
+case 'zig-zag': {
+                  const zigZagArray = [];
+                  let left = 0;
+                  let right = sortedByLuminance.length - 1;
+
+                  while (left <= right) {
+                      if (left === right) {
+                          zigZagArray.push(sortedByLuminance[left]);
+                          break;
+                      }
+                      zigZagArray.push(sortedByLuminance[left]); 
+                      zigZagArray.push(sortedByLuminance[right]); 
+                      left++;
+                      right--;
+                  }
+                  return zigZagArray;
+              }
+
+
+case 'outside-in': {
+                  const outsideInArray = new Array(sortedByLuminance.length);
+                  let left = 0;
+                  let right = sortedByLuminance.length - 1;
+                  for (let i = 0; i < sortedByLuminance.length; i++) {
+                      if (i % 2 === 0) {
+                          outsideInArray[left] = sortedByLuminance[i];
+                          left++;
+                      } else {
+                          outsideInArray[right] = sortedByLuminance[i];
+                          right--;
+                      }
+                  }
+                  return outsideInArray;
+              }
+
+
               case 'center-out':
+
+
+
                   const centerOut = new Array(sortedByLuminance.length);
                   let center = Math.floor(sortedByLuminance.length / 2);
                   let left = center - 1; let right = center + 1;
