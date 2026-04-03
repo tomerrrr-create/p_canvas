@@ -31,8 +31,6 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
           { method: 'reversed', icon: '<path d="M4 8h16M7 8 A5 5 0 0 0 17 8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/>' },
 
           
-// 3. מבפנים החוצה - אדוות מים (טיפה שמתרחבת)
-{ method: 'center-out', icon: '<circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M 9 9 Q 5 12 9 15 M 15 9 Q 19 12 15 15 M 9 9 Q 12 5 15 9 M 9 15 Q 12 19 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },          
 
 
 
@@ -47,14 +45,16 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
           
 
           // 7. מבחוץ פנימה - כהה בקצוות, בהיר במרכז
-          { method: 'outside-in', icon: '<path d="M 18 6 L 12 12 L 18 18 M 6 6 L 12 12 L 6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'},          
+        //   { method: 'outside-in', icon: '<path d="M 18 6 L 12 12 L 18 18 M 6 6 L 12 12 L 6 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'},          
 
 
           // 5. קשת כהה - 'ח' מרכזית עם 2 קשתות פנימיות בגווני אפור
-          { method: 'dark-rainbow', icon: '<path d="M 4 19 V 11 A 8 8 0 0 1 20 11 V 19"/><path d="M 7 19 V 11 A 5 5 0 0 1 17 11 V 19" stroke="#aaa"/><path d="M 10 19 V 11 A 2 2 0 0 1 14 11 V 19" stroke="#666"/>' }
+          { method: 'dark-rainbow', icon: '<path d="M 4 19 V 11 A 8 8 0 0 1 20 11 V 19"/><path d="M 7 19 V 11 A 5 5 0 0 1 17 11 V 19" stroke="#aaa"/><path d="M 10 19 V 11 A 2 2 0 0 1 14 11 V 19" stroke="#666"/>' },
+
+// 3. מבפנים החוצה - אדוות מים (טיפה שמתרחבת)
+{ method: 'center-out', icon: '<circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M 9 9 Q 5 12 9 15 M 15 9 Q 19 12 15 15 M 9 9 Q 12 5 15 9 M 9 15 Q 12 19 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },          
 
 
-,
 // 6. זיג-זג - כהה, בהיר, כהה, בהיר...
           { method: 'zig-zag', icon: '<path d="M 4 18 L 9 6 L 15 18 L 20 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' }
 
