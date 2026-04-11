@@ -21,34 +21,25 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
       let breatheEvoMode = 'off'; // 'off', 'solo' or 'group'
 
 
-
-
-/* 
 // --- הגדרות מיון פלטות ואייקוני SVG (עיצוב מינימליסטי ורוחני) ---
       const SORT_MODES = [
-
-
 // 1. מצב רגיל (בהירות) - זריחה (חושך לאור)
           { method: 'luminance', icon: '<path d="M4 16h16M7 16 A5 5 0 0 1 17 16" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="7" r="1.5" fill="currentColor"/>' },
-
 
           
 // 2. ריברס - שקיעה / שורשים (אור לחושך)
           { method: 'reversed', icon: '<path d="M4 8h16M7 8 A5 5 0 0 0 17 8" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="17" r="1.5" fill="currentColor"/>' },
 
-// 3. מבפנים החוצה (Center-Out) - התפשטות אלכימית (נקודה -> משולש -> מעגל)
-{ 
-    method: 'center-out', 
-    icon: '<circle cx="12" cy="12" r="1.35" fill="currentColor"/><path d="M12 4.5 L17.5 15.5 L6.5 15.5 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="1.5"/>' 
-},   
+          
 
-      
-// 6. זיג-זג - כהה, בהיר, כהה, בהיר...
-{ method: 'zig-zag', icon: '<path d="M 4 18 L 9 6 L 15 18 L 20 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' },
+// הריק / התפוגגות (קרבה לממוצע)
+          { method: 'zen-void', icon: '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4"/><circle cx="12" cy="12" r="2" fill="currentColor"/>'},
 
 
 { method: 'temperature', icon: '<circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 18 Q8 14 12 18 T20 18" fill="none" stroke="currentColor" stroke-width="1.5"/>' },
 
+// 6. זיג-זג - כהה, בהיר, כהה, בהיר...
+{ method: 'zig-zag', icon: '<path d="M 4 18 L 9 6 L 15 18 L 20 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' },
 
 
           // 4. מצב קשת - מינימליסטי (כמו האות 'ח')
@@ -57,103 +48,24 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
 
 
           // 5. קשת כהה - 'ח' מרכזית עם 2 קשתות פנימיות בגווני אפור
-          { method: 'dark-rainbow', icon: '<path d="M 4 19 V 11 A 8 8 0 0 1 20 11 V 19"/><path d="M 7 19 V 11 A 5 5 0 0 1 17 11 V 19" stroke="#aaa"/><path d="M 10 19 V 11 A 2 2 0 0 1 14 11 V 19" stroke="#666"/>' }
+          { method: 'dark-rainbow', icon: '<path d="M 4 19 V 11 A 8 8 0 0 1 20 11 V 19"/><path d="M 7 19 V 11 A 5 5 0 0 1 17 11 V 19" stroke="#aaa"/><path d="M 10 19 V 11 A 2 2 0 0 1 14 11 V 19" stroke="#666"/>' },
+
+// 3. מבפנים החוצה - אדוות מים (טיפה שמתרחבת)
+{ method: 'center-out', icon: '<circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M 9 9 Q 5 12 9 15 M 15 9 Q 19 12 15 15 M 9 9 Q 12 5 15 9 M 9 15 Q 12 19 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },          
+
 
          
+{ method: 'biomes', icon: '<path d="M3 10 Q7 4 12 10 T21 10 M3 14 Q7 20 12 14 T21 14" fill="none" stroke="currentColor" stroke-width="1.5"/>'  }
  
       ];
-*/
-
-
-// --- הגדרות מיון עיצוס אלכימיה
-const SORT_MODES = [
-
-//הבהרה (Luminance) -
-    { 
-        method: 'luminance', 
-        icon: '<circle cx="5.5" cy="12" r="3" fill="gray" stroke="none"/><path d="M 10.5 10 L 13.5 12 L 10.5 14" fill="none" stroke="currentColor" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18.5" cy="12" r="3" fill="white" stroke="none"/>' 
-    },
 
 
 
-//  קשת בענן (Hue) -
-    { 
-        method: 'hue', 
-        icon: '<circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3.5 4.5" stroke-linecap="round"/>' 
-    },
 
- // החשכה (Reversed) - 
-    { 
-        method: 'reversed', 
-        icon: '<circle cx="5.5" cy="12" r="3" fill="white" stroke="none"/><path d="M 10.5 10 L 13.5 12 L 10.5 14" fill="none" stroke="currentColor" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18.5" cy="12" r="3" fill="gray" stroke="none"/>' 
-    },
-
-
-
-// מבפנים החוצה (Center-Out) 
-    { 
-        method: 'center-out', 
-        icon: '<path d="M 4 12 Q 12 5 20 12 Q 12 19 4 12 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>' 
-    },
- 
- // טמפרטורה (Temperature) 
-    { 
-        method: 'temperature', 
-        icon: '<path d="M 7 6 L 17 6 L 12 12 Z M 7 18 L 17 18 L 12 12 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' 
-    },
-
-
-  //  הסטת פאזה / שבר (Zig-zag) -
-    { 
-        method: 'zig-zag', 
-        icon: '<path d="M 5 11 A 5 5 0 0 1 15 11 Z" fill="currentColor"/><path d="M 9 13 A 5 5 0 0 0 19 13 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>' 
-    },
-
-
-  // קשת כהה (Dark-Rainbow) -
-    { 
-        method: 'dark-rainbow', 
-        icon: '<circle cx="9" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M 12 7.39 A 5.5 5.5 0 0 1 12 16.61 A 5.5 5.5 0 0 1 12 7.39 Z" fill="currentColor"/>' 
-    }
-
-];
- 
 
 
 
       let currentSortIndex = 0;
-
-
-
-
-// --- לוגיקת ניווט חכמה לפלטות (לפי קבוצות) ---
-
-function getNextPaletteIndex(currentIndex) {
-    // מציאת הקבוצה שאליה שייכת הפלטה הנוכחית
-    const group = C.PALETTE_GROUPS.find(g => g.indexes.includes(currentIndex));
-    
-    // פולבאק למקרה שמשהו השתבש (התנהגות רגילה)
-    if (!group || group.indexes.length === 0) {
-        return (currentIndex + 1) % PALETTES.length; 
-    }
-
-    // מציאת המיקום שלנו בתוך הקבוצה ומעבר להבא (במעגל סגור)
-    const posInGroup = group.indexes.indexOf(currentIndex);
-    const nextPos = (posInGroup + 1) % group.indexes.length;
-    return group.indexes[nextPos];
-}
-
-function getPrevPaletteIndex(currentIndex) {
-    const group = C.PALETTE_GROUPS.find(g => g.indexes.includes(currentIndex));
-    
-    if (!group || group.indexes.length === 0) {
-        return (currentIndex - 1 + PALETTES.length) % PALETTES.length;
-    }
-
-    const posInGroup = group.indexes.indexOf(currentIndex);
-    const prevPos = (posInGroup - 1 + group.indexes.length) % group.indexes.length;
-    return group.indexes[prevPos];
-}
 
 
 
@@ -712,104 +624,25 @@ activePaletteIndex = paletteIdx >= 0 && paletteIdx < C.PALETTES.length ? palette
       }
       
 
-// משתנים גלובליים לציור מהיר (מחוץ לפונקציה כדי למחזר אותם)
-let offscreenRenderCanvas = null;
-let offscreenRenderCtx = null;
-let cachedImgData = null; // משתנה למניעת דליפת זיכרון!
+
 
 function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
     if (!targetCtx) return;
-    if (boardState.length === 0) return;
 
-    const currentPalette = palette();
-    const paletteAsRgb = currentPalette.map(hexToRgb);
-
-    // ---------------------------------------------------------
-    // נתיב אולטרה-מהיר: מצב סימולציה (בלי מרווחים - separatorPx === 0)
-    // ---------------------------------------------------------
-    if (separatorPx === 0) {
-        if (!offscreenRenderCanvas) {
-            offscreenRenderCanvas = document.createElement('canvas');
-            offscreenRenderCtx = offscreenRenderCanvas.getContext('2d', { willReadFrequently: true });
-        }
-        
-        // יצירת חלל הזיכרון *רק פעם אחת* (או כשהלוח משנה גודל) - סוגר את דליפת הזיכרון
-        if (offscreenRenderCanvas.width !== n) {
-            offscreenRenderCanvas.width = n;
-            offscreenRenderCanvas.height = n;
-            cachedImgData = offscreenRenderCtx.createImageData(n, n);
-        } else if (!cachedImgData) {
-            cachedImgData = offscreenRenderCtx.createImageData(n, n);
-        }
-
-        const imgData = cachedImgData;
-        const data = imgData.data;
-        const goldRgb = [255, 215, 0]; // C.GOLD in RGB
-
-        for (let i = 0; i < n * n; i++) {
-            const tileData = boardState[i];
-            if (!tileData) continue;
-
-            let rgb;
-
-            if (isLifePlaying && armedSimulation === 'breathe' && !tileData.isGold) {
-                const BREATHE_SPEED = 0.0015;
-                const elapsed = timestamp - breatheStartTime;
-                let wave = (breatheEvoMode === 'solo') 
-                    ? Math.sin(((elapsed - tileData.startDelay + (2 * Math.PI) / BREATHE_SPEED) % ((2 * Math.PI) / BREATHE_SPEED)) * BREATHE_SPEED)
-                    : Math.sin(elapsed * BREATHE_SPEED + tileData.k * 0.8);
-                
-                const fadeInProgress = Math.min(elapsed / 2000, 1.0);
-                const brightnessFactor = (1.0 * (1 - fadeInProgress)) + ((0.7 + wave * 0.3) * fadeInProgress);
-
-                const baseRgb = paletteAsRgb[norm(tileData.k)];
-                rgb = [
-                    Math.round(baseRgb[0] * brightnessFactor),
-                    Math.round(baseRgb[1] * brightnessFactor),
-                    Math.round(baseRgb[2] * brightnessFactor)
-                ];
-            } else if (tileData.isGold) {
-                rgb = goldRgb;
-            } else if (tileData.prevK !== null && timestamp) {
-                const elapsed = timestamp - tileData.animStart;
-                const progress = Math.min(elapsed / ANIMATION_DURATION, 1.0);
-                const fromRgb = paletteAsRgb[norm(tileData.prevK)];
-                const toRgb = paletteAsRgb[norm(tileData.k)];
-                rgb = [
-                    Math.round(lerp(fromRgb[0], toRgb[0], progress)),
-                    Math.round(lerp(fromRgb[1], toRgb[1], progress)),
-                    Math.round(lerp(fromRgb[2], toRgb[2], progress))
-                ];
-            } else {
-                rgb = paletteAsRgb[norm(tileData.k)];
-            }
-
-            // כתיבה ישירה לזיכרון התמונה (4 תאים לכל פיקסל: R, G, B, Alpha)
-            const dataIndex = i * 4;
-            data[dataIndex] = rgb[0];     // Red
-            data[dataIndex + 1] = rgb[1]; // Green
-            data[dataIndex + 2] = rgb[2]; // Blue
-            data[dataIndex + 3] = 255;    // Alpha (אטימות מלאה)
-        }
-
-        // צייר את המערך לקנבס הווירטואלי הקטן
-        offscreenRenderCtx.putImageData(imgData, 0, 0);
-
-        // מתיחת הקנבס הווירטואלי על פני הקנבס האמיתי
-        targetCtx.imageSmoothingEnabled = false; 
-        targetCtx.drawImage(offscreenRenderCanvas, 0, 0, width, height);
-        
-        return; // סיימנו את הרינדור המהיר!
+    if (separatorPx > 0) {
+        targetCtx.fillStyle = '#000000';
+        targetCtx.fillRect(0, 0, width, height);
+    } else {
+        targetCtx.clearRect(0, 0, width, height);
     }
 
-    // ---------------------------------------------------------
-    // נתיב רגיל וקלאסי (כשיש מרווחים, separatorPx > 0)
-    // ---------------------------------------------------------
-    targetCtx.fillStyle = '#000000';
-    targetCtx.fillRect(0, 0, width, height);
-
+    if (boardState.length === 0) return;
+    
     const totalGapSize = (n - 1) * separatorPx;
     const tileSize = (width - totalGapSize) / n;
+    
+    const currentPalette = palette();
+    const paletteAsRgb = currentPalette.map(hexToRgb);
 
     for (let i = 0; i < n * n; i++) {
         const tileData = boardState[i];
@@ -823,14 +656,16 @@ function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
             let wave;
 
             if (breatheEvoMode === 'solo') {
-                const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;
-                const effectiveElapsed = (elapsed - tileData.startDelay + cycleDuration) % cycleDuration;
-                wave = Math.sin(effectiveElapsed * BREATHE_SPEED);
-            } else { 
+const cycleDuration = (2 * Math.PI) / BREATHE_SPEED;
+            const effectiveElapsed = (elapsed - tileData.startDelay + cycleDuration) % cycleDuration;
+            wave = Math.sin(effectiveElapsed * BREATHE_SPEED); // השתמש בזמן האפקטיבי, ללא צורך בהיסט פאזה
+
+            } else { // 'group' mode
                 wave = Math.sin(elapsed * BREATHE_SPEED + tileData.k * 0.8);
             }
             
-            const fadeInProgress = Math.min(elapsed / 2000, 1.0);
+            const FADE_IN_DURATION = 2000;
+            const fadeInProgress = Math.min(elapsed / FADE_IN_DURATION, 1.0);
             const animatedFactor = 0.7 + wave * 0.3; 
             const brightnessFactor = (1.0 * (1 - fadeInProgress)) + (animatedFactor * fadeInProgress);
 
@@ -838,7 +673,7 @@ function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
             finalColor = adjustBrightness(originalColor, brightnessFactor);
 
         } else if (tileData.isGold) {
-            finalColor = C.GOLD || '#FFD700'; 
+            finalColor = C.GOLD;
         } else if (tileData.prevK !== null && timestamp) {
             const elapsed = timestamp - tileData.animStart;
             const progress = Math.min(elapsed / ANIMATION_DURATION, 1.0);
@@ -861,11 +696,13 @@ function renderBoard(targetCtx, width, height, timestamp = performance.now()) {
         const x = col * (tileSize + separatorPx);
         const y = row * (tileSize + separatorPx);
         
-        targetCtx.fillRect(x, y, tileSize, tileSize);
+        if (separatorPx === 0) {
+            targetCtx.fillRect(x - 0.5, y - 0.5, tileSize + 1, tileSize + 1);
+        } else {
+            targetCtx.fillRect(x, y, tileSize, tileSize);
+        }
     }
 }
-
-
 
       function renderToScreen(timestamp) {
         if (!ctx || !canvas) return;
@@ -1107,16 +944,10 @@ function applyNudgeLogic(direction) {
         hasPerformedInitialAutofill = true;
       }
       
-function handlePaletteSwitch(backwards = false) {
-        let nextIndex;
-        if (backwards) {
-            nextIndex = getPrevPaletteIndex(activePaletteIndex);
-        } else {
-            nextIndex = getNextPaletteIndex(activePaletteIndex);
-        }
-        switchToPalette(nextIndex);
+      function handlePaletteSwitch(backwards = false) {
+        const len = C.PALETTES.length;
+        switchToPalette((activePaletteIndex + (backwards ? -1 : 1) + len) % len);
       }
-
       
       function switchToPalette(index) {
         if (index === activePaletteIndex) return;
@@ -1630,7 +1461,7 @@ if (simulationName === 'magnet') {
         }
 
         // בדיקה: האם לסימולציה שנבחרה יש חלון הגדרות?
-        const simsWithSettings = ['gameOfLife', 'gravitationalSort', 'contour', 'spiral', 'sandpile', 'turing'];
+        const simsWithSettings = ['gameOfLife', 'gravitationalSort', 'contour', 'spiral', 'sandpile', 'turing', 'brightnessEvo'];
         if (dom.btnSimSettings && simsWithSettings.includes(simulationName)) {
             dom.btnSimSettings.classList.remove('hide-settings');
         }
@@ -2562,25 +2393,19 @@ function cycleMagnetMode() {
 
 
 function cycleSortMethod() {
-    // 1. עוצרים לולאות ציור כפולות כדי לשחרר את המעבד
-    if (animationLoopId) {
-        cancelAnimationFrame(animationLoopId);
-        animationLoopId = null;
-    }
+          performAction(() => { // עטפנו כדי שהשינוי יירשם בהיסטוריה
+              currentSortIndex = (currentSortIndex + 1) % SORT_MODES.length;
+              const nextMode = SORT_MODES[currentSortIndex];
+              
+              // עדכון ה-SVG בתוך הכפתור
+              if (dom.sortIconGroup) {
+                  dom.sortIconGroup.innerHTML = nextMode.icon;
+              }
+              
+              applySortMethod(nextMode.method);
+          });
+      }
 
-    // 2. הסרנו את העטיפה של performAction כדי למנוע דליפת זיכרון מפלצתית!
-    currentSortIndex = (currentSortIndex + 1) % SORT_MODES.length;
-    const nextMode = SORT_MODES[currentSortIndex];
-    
-    if (dom.sortIconGroup) {
-        dom.sortIconGroup.innerHTML = nextMode.icon;
-    }
-    
-    applySortMethod(nextMode.method);
-    
-    // 3. כופה על הלוח להתרנדר מיד מחדש עם הצבעים החדשים
-    renderToScreen(null);
-}
 // פונקציה חדשה: מנתבת את הלחיצה על גלגל השיניים למודל הנכון
       function openCurrentSimSettings() {
           switch(armedSimulation) {
@@ -2590,6 +2415,7 @@ function cycleSortMethod() {
               case 'spiral': modals.openSpiralSettingsModal(); break;
               case 'sandpile': modals.openChiFlowSettingsModal(); break;
               case 'turing': modals.openTuringSettingsModal(); break;
+              case 'brightnessEvo': modals.openBrightnessEvoSettingsModal(); break;
           }
       }
 
