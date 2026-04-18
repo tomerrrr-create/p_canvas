@@ -1577,6 +1577,16 @@ if (dom.btnSimSettings) dom.btnSimSettings.classList.add('hide-settings');
     if (!isTogglingOff) {
         armedSimulation = simulationName;
         
+        // === MINIMAL FIX: איפוס caches של מגנט אחרי כל החלפה של סימולציה ===
+        if (typeof Simulations.resetMagnetCaches === 'function') {
+            Simulations.resetMagnetCaches();
+        }
+
+    // === MINIMAL FIX: איפוס cache של Gravitational Sort בלבד ===
+    if (typeof Simulations !== 'undefined' && typeof Simulations.resetGravitationalSortCaches === 'function') {
+        Simulations.resetGravitationalSortCaches();
+    }
+
 
 
         // הגדרת דיפולט (ברירת מחדל) לכפתורים מחזוריים כשהם נדלקים
@@ -1828,10 +1838,21 @@ function handlePointerDownCtrl(e) {
             wasLongPress = true;
 
             if (btn.id === 'btnInvert') { modals.openAdvancedColorMappingModal(); return; }
-            if (btn.id === 'btnColorPicker') { modals.openColorPickerModal(); return; }
             if (btn.id === 'btnRandom') { performAction(shuffleExistingColors); return; }
             if (btn.id === 'btnToggleSimMode') { if (!isSimModeActive) toggleSimMode(); prepareBoardForSimMode(); return; }
-            if (btn.id === 'btnPalette') { modals.openPaletteModal(); return; }
+if (btn.id === 'btnColorPicker') {
+            // בחירת הצבע באינדקס 0 (המייצג את הצבע הכהה/הבסיס בפלטות הממוינות)
+            selectedColorIndex = 0;
+            selectedColor = palette()[0];
+            isRainbowModeActive = false;
+            
+            // עדכון המסגרת הזוהרת והאייקון של הכפתור
+            updateGlowEffect();
+            updateColorPickerButtonUI();
+            
+            return;
+        }
+
             if (btn.id === 'btnResizeUp' || btn.id === 'btnResizeDown') { modals.openResizeModal(); return; }
         }, C.LONG_PRESS_SHOW_MS);
       }
@@ -2594,7 +2615,61 @@ function cycleSortMethod() {
       }
 
 
+// --- Palette Click Combo Logic ---
+      let paletteClickTimer = null;
+      const DOUBLE_CLICK_DELAY = 150;
+
+      function handlePaletteClickCombo() {
+          if (paletteClickTimer === null) {
+              paletteClickTimer = setTimeout(() => {
+                  switchPalette(); 
+                  paletteClickTimer = null; 
+              }, DOUBLE_CLICK_DELAY);
+          } else {
+              clearTimeout(paletteClickTimer);
+              paletteClickTimer = null;
+              modals.openPaletteModal(); 
+          }
+      }
+      // ---------------------------------
+
+
+// --- Color Picker Click Combo Logic ---
+      let colorClickTimer = null;
+
+      function handleColorPickerClickCombo() {
+          if (colorClickTimer === null) {
+              colorClickTimer = setTimeout(() => {
+                  handleColorPickerClick(); 
+                  colorClickTimer = null; 
+              }, 150); // 150 מילישניות כמו שבחרת
+          } else {
+              clearTimeout(colorClickTimer);
+              colorClickTimer = null;
+              modals.openColorPickerModal(); 
+          }
+      }
+      // ---------------------------------
+
+
+
       async function initializeApp() {
+
+
+
+// --- Safari Aggressive Zoom Protections ---        
+        // מניעת זום של ספארי בלחיצה כפולה ברמת המסמך כולו
+        document.addEventListener('dblclick', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+
+        // מניעת זום של ספארי בצביטה (Pinch to zoom)
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+        
+        // ------------------------------------------
+
         const splashScreen = document.getElementById('splashScreen'), splashText = document.getElementById('splashText');
         initializeLanguage();
         onLanguageChange(updateAllUIText);
@@ -2676,7 +2751,7 @@ updateBrightnessEvoButtonUI();
         
         dom.btnRandom.addEventListener('click', (e) => handleCtrlClick(e, randomizeAll));
         dom.btnInvert.addEventListener('click', (e) => handleCtrlClick(e, invertGrid));
-        dom.btnPalette.addEventListener('click', (e) => handleCtrlClick(e, () => switchPalette()));
+dom.btnPalette.addEventListener('click', (e) => handleCtrlClick(e, handlePaletteClickCombo));
         dom.btnResetBoard.addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(resetToGoldAndDefaultPalette)));
         dom.btnSpecialReset.addEventListener('click', (e) => handleCtrlClick(e, () => animateBoardTransition(() => performAction(specialReset))));
         dom.btnResizeUp.addEventListener('click', (e) => handleCtrlClick(e, () => resizeGrid(true)));
@@ -2689,7 +2764,7 @@ updateBrightnessEvoButtonUI();
         dom.btnTutorial.addEventListener('click', (e) => handleCtrlClick(e, modals.openHelpModal));
         dom.btnSymmetry.addEventListener('click', (e) => handleCtrlClick(e, cycleSymmetryMode));
 dom.btnCycleSort.addEventListener('click', (e) => handleCtrlClick(e, cycleSortMethod));
-        dom.btnColorPicker.addEventListener('click', (e) => handleCtrlClick(e, handleColorPickerClick));
+dom.btnColorPicker.addEventListener('click', (e) => handleCtrlClick(e, handleColorPickerClickCombo));
         dom.btnDark.addEventListener('click', (e) => handleCtrlClick(e, goDarkAction));
         dom.btnToggleSimMode.addEventListener('click', (e) => handleCtrlClick(e, toggleSimMode));
         dom.btnGameOfLife.addEventListener('click', (e) => handleCtrlClick(e, () => armSimulation('gameOfLife')));
