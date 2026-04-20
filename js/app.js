@@ -42,9 +42,14 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
     icon: '<circle cx="12" cy="12" r="1.35" fill="currentColor"/><path d="M12 4.5 L17.5 15.5 L6.5 15.5 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="9.25" fill="none" stroke="currentColor" stroke-width="1.5"/>' 
 },   
 
-      
-// 6. זיג-זג - כהה, בהיר, כהה, בהיר...
-{ method: 'zig-zag', icon: '<path d="M 4 18 L 9 6 L 15 18 L 20 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' },
+
+  //  הסטת פאזה / שבר (Zig-zag) -
+    { 
+        method: 'zig-zag', 
+        icon: '<path d="M 5 11 A 5 5 0 0 1 15 11 Z" fill="currentColor"/><path d="M 9 13 A 5 5 0 0 0 19 13 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>' 
+    },
+
+
 
 
 { method: 'temperature', icon: '<circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 18 Q8 14 12 18 T20 18" fill="none" stroke="currentColor" stroke-width="1.5"/>' },
@@ -103,11 +108,6 @@ const SORT_MODES = [
     },
 
 
-  //  הסטת פאזה / שבר (Zig-zag) -
-    { 
-        method: 'zig-zag', 
-        icon: '<path d="M 5 11 A 5 5 0 0 1 15 11 Z" fill="currentColor"/><path d="M 9 13 A 5 5 0 0 0 19 13 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>' 
-    },
 
 
   // קשת כהה (Dark-Rainbow) -

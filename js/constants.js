@@ -43,7 +43,20 @@ export const PALETTES = [
   "colors": ["#6A0DAD", "#B284BE", "#E6E6FA", "#87CEEB", "#75AADB", "#FFFFFF", "#FFC72C", "#E60000", "#E03C8A", "#FFAA00", "#FF6700", "#C71585", "#7CFC00", "#5A6E44", "#34A853", "#004000", "#9B0000", "#000000", "#C68E65", "#3B2B20", "#0078AE", "#FCD116", "#B26B3B"]
 },
 
-
+{
+    originalName: "Aires de Primavera",
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><circle cx="12" cy="12" r="4" fill="#FCD116"/><g stroke="#FFC72C" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="4" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="20" y2="12"/><line x1="6.35" y1="6.35" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="17.65" y2="17.65"/><line x1="6.35" y1="17.65" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="17.65" y2="6.35"/></g></svg>',
+    colors: [
+        "#6A0DAD", "#8E49B6", "#B284BE", "#CCB5DC", "#E6E6FA", "#B6D9F2", "#87CEEB", "#7EBCED", 
+        "#75AADB", "#B9D5EC", "#FFFFFF", "#FFE396", "#FFC72C", "#F26316", "#E60000", "#E31E45", 
+        "#E03C8A", "#EF7145", "#FFAA00", "#FF8800", "#FF6700", "#E33E42", "#C71585", "#A18942", 
+        "#7CFC00", "#6BB622", "#5A6E44", "#478B4B", "#34A853", "#1A7429", "#004000", "#4D2000", 
+        "#9B0000", "#4D0000", "#000000", "#634732", "#C68E65", "#805D42", "#3B2B20", "#1E5167", 
+        "#0078AE", "#7E9771", "#FCD116", "#D79E28", "#B26B3B", "#9A5D33", "#824F2B", "#6A4123", 
+        "#52331B", "#3A2513", "#22170B", "#1C1C1F", "#2F2F3E", "#42425D", "#55557C", "#68689B", 
+        "#7B7BBA", "#8E8ED9", "#A1A1F8", "#B4B4FF", "#C7C7FF", "#DADAFF", "#EDEDFF", "#FFFFFF"
+    ]
+},
 
 {
     originalName: "Magma Flow",
@@ -191,10 +204,77 @@ isArchived: true,
         colors: ["#69476E", "#86688B", "#8F6AAD", "#A284C2", "#A389A4", "#BC8F8F", "#B59ECB", "#D4A3A3", "#C0A9BD", "#BDB0D0", "#C3B1E1", "#C9B7D4", "#E1B5B5", "#D8BFD8", "#E0BBE4", "#D6CADD", "#FBC4AB", "#EECBCB", "#FFC4D0", "#DCD0E2", "#FFD1DC", "#E6Dce5", "#F4DEDE", "#FFDDE1", "#F8E9E9"] 
     },
 
-    
+  
+
 
 {
-    originalName: "old 64",
+    originalName: "Mono",
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><rect x="4" y="4" width="7" height="7" fill="#333333" rx="1"/><rect x="13" y="4" width="7" height="7" fill="#888888" rx="1"/><rect x="4" y="13" width="7" height="7" fill="#CCCCCC" rx="1"/><rect x="13" y="13" width="7" height="7" fill="#FFFFFF" stroke="#999999" stroke-width="0.5" rx="1"/></svg>',
+    colors: [
+        "#FFFFFF", "#FCFCFC", "#F9F9F9", "#F3F3F3", "#F0F0F0", "#EDEDED", "#E7E7E7", "#E4E4E4", 
+        "#E1E1E1", "#DBDBDB", "#D8D8D8", "#D5D5D5", "#CFCFCF", "#CCCCCC", "#C9C9C9", "#C3C3C3", 
+        "#C0C0C0", "#BDBDBD", "#B7B7B7", "#B4B4B4", "#B1B1B1", "#ABABAB", "#A8A8A8", "#A5A5A5", 
+        "#9F9F9F", "#9C9C9C", "#999999", "#939393", "#909090", "#8D8D8D", "#878787", "#848484", 
+        "#818181", "#7B7B7B", "#787878", "#757575", "#6F6F6F", "#6C6C6C", "#696969", "#636363", 
+        "#606060", "#5D5D5D", "#575757", "#545454", "#515151", "#4B4B4B", "#484848", "#454545", 
+        "#3F3F3F", "#3C3C3C", "#393939", "#333333", "#2D2D2D", "#272727", "#212121", "#1B1B1B", 
+        "#151515", "#0F0F0F", "#0C0C0C", "#090909", "#060606", "#040404", "#020202", "#000000"
+    ]
+    },
+
+
+{
+    originalName: "Serenety",
+    emoji: '🕊️',
+    colors: [
+        "#FDFEFF", "#F8FAFB", "#F2F6F7", "#EFF4F6", "#ECF2F5", "#E6EEF3", "#E3ECF2", "#E0EAF1", 
+        "#DAE6EF", "#D7E4EE", "#D4E2ED", "#CEDDEA", "#CBDBE9", "#C8D9E8", "#C2D5E6", "#BFD3E5", 
+        "#BCD1E4", "#B6CCE2", "#B3CAE1", "#B0C8E0", "#AAC4DE", "#A7C2DD", "#A4C0DC", "#9EBBD9", 
+        "#9BB9D8", "#98B7D7", "#92B3D5", "#8FB1D4", "#8CAFD3", "#86AAD1", "#83A8D0", "#80A6CF", 
+        "#7AA2CD", "#77A0CC", "#749ECB", "#6E99C8", "#6B97C7", "#6895C6", "#6291C4", "#5F8FC3", 
+        "#5C8DC2", "#5688C0", "#5386BF", "#5084BE", "#4A80BC", "#477EBB", "#447CBA", "#3E77B7", 
+        "#3B75B6", "#3873B5", "#3270B0", "#2F6EAD", "#2D6CAB", "#2868A6", "#2565A3", "#2363A1", 
+        "#1E5F9C", "#195B97", "#145792", "#0F528D", "#0A4E88", "#054983", "#00457E", "#003F73"
+    ]
+},
+
+
+
+
+{
+    originalName: "Golden Midnight Extended", 
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path fill="none" stroke="#FFD700" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M10.5 15 C 9.5 15, 9 14, 9 13 C 9 11, 11 10.5, 12.5 10.5 C 15 10.5, 16.5 12.5, 16.5 15 C 16.5 18, 14 19.5, 11.5 19.5 C 8.5 19.5, 6 17.5, 6 14 C 6 10, 8.5 7, 11.5 7 L 11.5 3 C 11.5 1.5, 13.5 1.5, 13.5 3 C 13.5 5.5, 11.5 7.5, 11.5 10 L 11.5 21 C 11.5 22.5, 9.5 23, 8.5 22 C 7.5 21, 8 20, 8 20" /><circle cx="8" cy="20" r="1" fill="#FFD700" /></svg>', 
+    colors: [
+        "#000000", "#030201", "#050401", "#080602", "#0a0802", "#0d0a02", "#0f0c03", "#120e03",
+        "#141105", "#171305", "#1a1506", "#1c1807", "#1f1a08", "#221c09", "#251f09", "#28210a",
+        "#2b240b", "#2e260c", "#31290d", "#352c0e", "#382f0f", "#3c3210", "#3f3511", "#433812",
+        "#463a13", "#4b3e14", "#4f4115", "#524416", "#554618", "#5a4a19", "#5f4e1b", "#62511c",
+        "#65531d", "#6a571f", "#6f5b21", "#725e22", "#766123", "#7c6625", "#826b27", "#856d28",
+        "#887029", "#8e752b", "#947a2c", "#987d2e", "#9b8030", "#a58834", "#af9038", "#b9993c",
+        "#c4a241", "#ceab46", "#d9b44b", "#e4bd50", "#efc756", "#f7cf5c", "#ffd763", "#ffdb70",
+        "#ffde7d", "#ffe189", "#ffe598", "#ffe8a6", "#ffecb3", "#fff2ce", "#fff9e9", "#ffffff"
+    ]
+},
+
+
+{ 
+    originalName: "Electric Dreams Extended", 
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M13 2 L3 14 H12 L11 22 L21 10 H12 Z" fill="none" stroke="#00A3FF" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2 L3 14 H12 L11 22 L21 10 H12 Z" fill="#00376F" opacity="0.4"/></svg>',
+    colors: [
+        "#000000", "#000306", "#00060C", "#000911", "#000C17", "#000F1D", "#001223", "#001429", 
+        "#00172F", "#001A34", "#001D3A", "#002040", "#002346", "#00264C", "#002952", "#002C57", 
+        "#002F5D", "#003263", "#003469", "#00376F", "#003A75", "#003D7A", "#004080", "#004386", 
+        "#00468C", "#004991", "#004C97", "#004F9D", "#0052A2", "#0054A8", "#0057AE", "#005AB4", 
+        "#005DBA", "#0060BF", "#0063C5", "#0066CB", "#0069D0", "#006CD6", "#006FDC", "#0072E2", 
+        "#0074E8", "#0077ED", "#007AF3", "#0080F7", "#0086FB", "#008CFF", "#0092FF", "#0098FF", 
+        "#009DFF", "#00A3FF", "#00A9FF", "#00AEFF", "#00B4FF", "#00BAFF", "#00C0FF", "#00C6FF", 
+        "#00CBFF", "#00D1FF", "#00D9FF", "#00E0FF", "#00E8FF", "#00F0FF", "#00F7FF", "#00FFFF"
+    ] 
+    },
+  
+
+{
+    originalName: "Ancient",
     iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path fill="#FFD700" d="M12 3 L22 20 L2 20 Z" /><path fill="#B8860B" d="M12 3 L22 20 L12 20 Z" /></svg>',
     colors: [
         "#FFD700", "#FFC107", "#FFEE58", "#FDD835", "#FBC02D", "#FFE082", "#FFCA28", "#FFF176",
@@ -239,21 +319,20 @@ isArchived: true,
     },
 
 
-
-{
-    originalName: "Healing Aura",
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 21 C 12 21 4 16 4 10 C 4 7 7 6 9 8 C 10 9 12 13 12 13 C 12 13 14 9 15 8 C 17 6 20 7 20 10 C 20 16 12 21 12 21 Z" fill="none" stroke="#F9C6C5" stroke-width="1.5"/><path d="M12 21 C 12 21 9 14 9 10 C 9 8 11 7 12 9 C 13 7 15 8 15 10 C 15 14 12 21 12 21 Z" fill="#80D0C7" opacity="0.6"/><path d="M12 2 L 12 4 M 12 6 L 12 7" stroke="#FFDEAD" stroke-width="1.5" stroke-linecap="round"/></svg>',
+{ 
+    originalName: "Jasmine Dream 64", 
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', 
     colors: [
-        "#1A3A3A", "#405B5B", "#667C7C", "#8C9C9C", "#B3BDBD", "#D9DEDE", "#FFFFFF", "#FADADD", 
-        "#F9C6C5", "#F7A3A2", "#E88282", "#F4AE9E", "#FFDAB9", "#FFC3A0", "#FFDEB6", "#FFFACD", 
-        "#FAFAD2", "#FFDEAD", "#F3D6A3", "#DEB887", "#D2B48C", "#E1DABE", "#F0FFF0", "#D3F2D3", 
-        "#B3E0B3", "#98D8AA", "#77C38B", "#58A16F", "#75BB99", "#92D4C4", "#AFEEEE", "#A5E1E1", 
-        "#80D0C7", "#64BDB3", "#48A9A6", "#3E8E7E", "#66AA9E", "#8FC6BE", "#B8E3DF", "#E0FFFF", 
-        "#CDEAF5", "#B0E0E6", "#87CEEB", "#76BAD8", "#64A6C4", "#4682B4", "#6E9BC6", "#96B4D7", 
-        "#BECDE8", "#E6E6FA", "#D8BFD8", "#C3B1E1", "#B19CD9", "#9370DB", "#7A68A6", "#A397B8", 
-        "#CCC6CA", "#F5F5DC", "#F5DEB3", "#D3D3D3", "#C0C0C0", "#A9A9A9", "#949494", "#808080"
-    ]
-        },
+        "#4B0082", "#530C8E", "#5A189A", "#61218A", "#682A7A", "#692489", "#6A1E97", "#731E91", "#7B1E8A", 
+        "#743993", "#7A3D92", "#804090", "#834481", "#854772", "#89487D", "#8C4888", "#8E508A", "#8F588C", 
+        "#986089", "#9A5D96", "#9B5AA3", "#9E5F87", "#A0636A", "#9F6975", "#9E6F80", "#A56D9C", "#AB6BB7", 
+        "#A97585", "#A97691", "#A8769C", "#AB7A8F", "#AE7E82", "#B47F72", "#B97F62", "#B9828A", "#B885B1", 
+        "#B39178", "#B49187", "#B59095", "#BD918A", "#C4927E", "#C5967D", "#C69A7B", "#CC9B6B", "#D29B5A", 
+        "#C59EAA", "#C4A49C", "#C2AA8E", "#C6AC7F", "#C9AD70", "#D4AE74", "#DEAE77", "#D8B38D", "#D2B7A3", 
+        "#E1B674", "#D9BC7E", "#D0C187", "#DAC078", "#E3BF68", "#E2C782", "#E0CF9C", "#E3D38E", "#E5D680", 
+        "#F0E595"
+    ] 
+    },
 
 
 
@@ -277,70 +356,6 @@ isArchived: true,
 
 
 
-{
-    originalName: "Golden Midnight Extended", 
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path fill="none" stroke="#FFD700" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M10.5 15 C 9.5 15, 9 14, 9 13 C 9 11, 11 10.5, 12.5 10.5 C 15 10.5, 16.5 12.5, 16.5 15 C 16.5 18, 14 19.5, 11.5 19.5 C 8.5 19.5, 6 17.5, 6 14 C 6 10, 8.5 7, 11.5 7 L 11.5 3 C 11.5 1.5, 13.5 1.5, 13.5 3 C 13.5 5.5, 11.5 7.5, 11.5 10 L 11.5 21 C 11.5 22.5, 9.5 23, 8.5 22 C 7.5 21, 8 20, 8 20" /><circle cx="8" cy="20" r="1" fill="#FFD700" /></svg>', 
-    colors: [
-        "#000000", "#030201", "#050401", "#080602", "#0a0802", "#0d0a02", "#0f0c03", "#120e03",
-        "#141105", "#171305", "#1a1506", "#1c1807", "#1f1a08", "#221c09", "#251f09", "#28210a",
-        "#2b240b", "#2e260c", "#31290d", "#352c0e", "#382f0f", "#3c3210", "#3f3511", "#433812",
-        "#463a13", "#4b3e14", "#4f4115", "#524416", "#554618", "#5a4a19", "#5f4e1b", "#62511c",
-        "#65531d", "#6a571f", "#6f5b21", "#725e22", "#766123", "#7c6625", "#826b27", "#856d28",
-        "#887029", "#8e752b", "#947a2c", "#987d2e", "#9b8030", "#a58834", "#af9038", "#b9993c",
-        "#c4a241", "#ceab46", "#d9b44b", "#e4bd50", "#efc756", "#f7cf5c", "#ffd763", "#ffdb70",
-        "#ffde7d", "#ffe189", "#ffe598", "#ffe8a6", "#ffecb3", "#fff2ce", "#fff9e9", "#ffffff"
-    ]
-},
-
-
-
-{
-    originalName: "Mono",
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><rect x="4" y="4" width="7" height="7" fill="#333333" rx="1"/><rect x="13" y="4" width="7" height="7" fill="#888888" rx="1"/><rect x="4" y="13" width="7" height="7" fill="#CCCCCC" rx="1"/><rect x="13" y="13" width="7" height="7" fill="#FFFFFF" stroke="#999999" stroke-width="0.5" rx="1"/></svg>',
-    colors: [
-        "#FFFFFF", "#FCFCFC", "#F9F9F9", "#F3F3F3", "#F0F0F0", "#EDEDED", "#E7E7E7", "#E4E4E4", 
-        "#E1E1E1", "#DBDBDB", "#D8D8D8", "#D5D5D5", "#CFCFCF", "#CCCCCC", "#C9C9C9", "#C3C3C3", 
-        "#C0C0C0", "#BDBDBD", "#B7B7B7", "#B4B4B4", "#B1B1B1", "#ABABAB", "#A8A8A8", "#A5A5A5", 
-        "#9F9F9F", "#9C9C9C", "#999999", "#939393", "#909090", "#8D8D8D", "#878787", "#848484", 
-        "#818181", "#7B7B7B", "#787878", "#757575", "#6F6F6F", "#6C6C6C", "#696969", "#636363", 
-        "#606060", "#5D5D5D", "#575757", "#545454", "#515151", "#4B4B4B", "#484848", "#454545", 
-        "#3F3F3F", "#3C3C3C", "#393939", "#333333", "#2D2D2D", "#272727", "#212121", "#1B1B1B", 
-        "#151515", "#0F0F0F", "#0C0C0C", "#090909", "#060606", "#040404", "#020202", "#000000"
-    ]
-    },
-
-
-{
-    originalName: "Serenety",
-    emoji: '🕊️',
-    colors: [
-        "#FDFEFF", "#F8FAFB", "#F2F6F7", "#EFF4F6", "#ECF2F5", "#E6EEF3", "#E3ECF2", "#E0EAF1", 
-        "#DAE6EF", "#D7E4EE", "#D4E2ED", "#CEDDEA", "#CBDBE9", "#C8D9E8", "#C2D5E6", "#BFD3E5", 
-        "#BCD1E4", "#B6CCE2", "#B3CAE1", "#B0C8E0", "#AAC4DE", "#A7C2DD", "#A4C0DC", "#9EBBD9", 
-        "#9BB9D8", "#98B7D7", "#92B3D5", "#8FB1D4", "#8CAFD3", "#86AAD1", "#83A8D0", "#80A6CF", 
-        "#7AA2CD", "#77A0CC", "#749ECB", "#6E99C8", "#6B97C7", "#6895C6", "#6291C4", "#5F8FC3", 
-        "#5C8DC2", "#5688C0", "#5386BF", "#5084BE", "#4A80BC", "#477EBB", "#447CBA", "#3E77B7", 
-        "#3B75B6", "#3873B5", "#3270B0", "#2F6EAD", "#2D6CAB", "#2868A6", "#2565A3", "#2363A1", 
-        "#1E5F9C", "#195B97", "#145792", "#0F528D", "#0A4E88", "#054983", "#00457E", "#003F73"
-    ]
-},
-
-{ 
-    originalName: "Electric Dreams Extended", 
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M13 2 L3 14 H12 L11 22 L21 10 H12 Z" fill="none" stroke="#00A3FF" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2 L3 14 H12 L11 22 L21 10 H12 Z" fill="#00376F" opacity="0.4"/></svg>',
-    colors: [
-        "#000000", "#000306", "#00060C", "#000911", "#000C17", "#000F1D", "#001223", "#001429", 
-        "#00172F", "#001A34", "#001D3A", "#002040", "#002346", "#00264C", "#002952", "#002C57", 
-        "#002F5D", "#003263", "#003469", "#00376F", "#003A75", "#003D7A", "#004080", "#004386", 
-        "#00468C", "#004991", "#004C97", "#004F9D", "#0052A2", "#0054A8", "#0057AE", "#005AB4", 
-        "#005DBA", "#0060BF", "#0063C5", "#0066CB", "#0069D0", "#006CD6", "#006FDC", "#0072E2", 
-        "#0074E8", "#0077ED", "#007AF3", "#0080F7", "#0086FB", "#008CFF", "#0092FF", "#0098FF", 
-        "#009DFF", "#00A3FF", "#00A9FF", "#00AEFF", "#00B4FF", "#00BAFF", "#00C0FF", "#00C6FF", 
-        "#00CBFF", "#00D1FF", "#00D9FF", "#00E0FF", "#00E8FF", "#00F0FF", "#00F7FF", "#00FFFF"
-    ] 
-    },
-
-
 
 { 
 isArchived: true,  
@@ -361,25 +376,25 @@ colors: [
 
 
 
-{ 
-    originalName: "Jasmine Dream 64", 
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', 
+{
+    originalName: "Healing Aura",
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 21 C 12 21 4 16 4 10 C 4 7 7 6 9 8 C 10 9 12 13 12 13 C 12 13 14 9 15 8 C 17 6 20 7 20 10 C 20 16 12 21 12 21 Z" fill="none" stroke="#F9C6C5" stroke-width="1.5"/><path d="M12 21 C 12 21 9 14 9 10 C 9 8 11 7 12 9 C 13 7 15 8 15 10 C 15 14 12 21 12 21 Z" fill="#80D0C7" opacity="0.6"/><path d="M12 2 L 12 4 M 12 6 L 12 7" stroke="#FFDEAD" stroke-width="1.5" stroke-linecap="round"/></svg>',
     colors: [
-        "#4B0082", "#530C8E", "#5A189A", "#61218A", "#682A7A", "#692489", "#6A1E97", "#731E91", "#7B1E8A", 
-        "#743993", "#7A3D92", "#804090", "#834481", "#854772", "#89487D", "#8C4888", "#8E508A", "#8F588C", 
-        "#986089", "#9A5D96", "#9B5AA3", "#9E5F87", "#A0636A", "#9F6975", "#9E6F80", "#A56D9C", "#AB6BB7", 
-        "#A97585", "#A97691", "#A8769C", "#AB7A8F", "#AE7E82", "#B47F72", "#B97F62", "#B9828A", "#B885B1", 
-        "#B39178", "#B49187", "#B59095", "#BD918A", "#C4927E", "#C5967D", "#C69A7B", "#CC9B6B", "#D29B5A", 
-        "#C59EAA", "#C4A49C", "#C2AA8E", "#C6AC7F", "#C9AD70", "#D4AE74", "#DEAE77", "#D8B38D", "#D2B7A3", 
-        "#E1B674", "#D9BC7E", "#D0C187", "#DAC078", "#E3BF68", "#E2C782", "#E0CF9C", "#E3D38E", "#E5D680", 
-        "#F0E595"
-    ] 
-    },
+        "#1A3A3A", "#405B5B", "#667C7C", "#8C9C9C", "#B3BDBD", "#D9DEDE", "#FFFFFF", "#FADADD", 
+        "#F9C6C5", "#F7A3A2", "#E88282", "#F4AE9E", "#FFDAB9", "#FFC3A0", "#FFDEB6", "#FFFACD", 
+        "#FAFAD2", "#FFDEAD", "#F3D6A3", "#DEB887", "#D2B48C", "#E1DABE", "#F0FFF0", "#D3F2D3", 
+        "#B3E0B3", "#98D8AA", "#77C38B", "#58A16F", "#75BB99", "#92D4C4", "#AFEEEE", "#A5E1E1", 
+        "#80D0C7", "#64BDB3", "#48A9A6", "#3E8E7E", "#66AA9E", "#8FC6BE", "#B8E3DF", "#E0FFFF", 
+        "#CDEAF5", "#B0E0E6", "#87CEEB", "#76BAD8", "#64A6C4", "#4682B4", "#6E9BC6", "#96B4D7", 
+        "#BECDE8", "#E6E6FA", "#D8BFD8", "#C3B1E1", "#B19CD9", "#9370DB", "#7A68A6", "#A397B8", 
+        "#CCC6CA", "#F5F5DC", "#F5DEB3", "#D3D3D3", "#C0C0C0", "#A9A9A9", "#949494", "#808080"
+    ]
+        },
+
 
 
 { 
         originalName: "Jasmine Stardust Aura",
-isArchived: true,   
         iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="auraGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3B0066"/><stop offset="50%" stop-color="#AB6BB7"/><stop offset="100%" stop-color="#FDF9EB"/></linearGradient></defs><circle cx="5" cy="5" r="0.6" fill="#FDF9EB"/><circle cx="19" cy="7" r="0.8" fill="#FDF9EB"/><circle cx="4" cy="18" r="0.5" fill="#FDF9EB"/><circle cx="20" cy="19" r="0.7" fill="#FDF9EB"/><circle cx="12" cy="12" r="1.5" fill="#FDF9EB"/><path d="M12 20C7.5 20 4 16.5 4 12C4 7.5 7.5 4 12 4" fill="none" stroke="url(#auraGrad)" stroke-width="2.8" stroke-linecap="round"/><path d="M12 4C16.5 4 20 7.5 20 12C20 16.5 16.5 20 12 20" fill="none" stroke="url(#auraGrad)" stroke-width="2.8" stroke-linecap="round" opacity="0.6"/><path d="M12 8 Q 12 12, 16 12 Q 12 12, 12 16 Q 12 12, 8 12 Q 12 12, 12 8" fill="url(#auraGrad)"/></svg>', 
         colors: [
             "#3B0066", "#420075", "#4B0082", "#510B89", "#5A189A", "#60218A", "#682A7A", "#692488",
@@ -407,7 +422,7 @@ isArchived: true,
         emoji: '🌸', 
         colors: ["#4A148C", "#B39DDB", "#F48FB1", "#64B5F6", "#81C784", "#90CAF9", "#87CEFA", "#81D4FA", "#A5D6A7", "#D1C4E9", "#FFB7C5", "#F8BBD0", "#80DEEA", "#FFC0CB", "#C1E1C1", "#FFD1DC", "#B3E5FC", "#DCEDC8", "#E6E6FA", "#FFECB3", "#A7FFEB", "#FFF59D", "#FFF9C4", "#FFF8DC"] 
     },
-  
+ 
 
   { 
         originalName: "Brazilian Summer", 
