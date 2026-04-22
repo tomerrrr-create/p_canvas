@@ -43,20 +43,6 @@ export const PALETTES = [
   "colors": ["#6A0DAD", "#B284BE", "#E6E6FA", "#87CEEB", "#75AADB", "#FFFFFF", "#FFC72C", "#E60000", "#E03C8A", "#FFAA00", "#FF6700", "#C71585", "#7CFC00", "#5A6E44", "#34A853", "#004000", "#9B0000", "#000000", "#C68E65", "#3B2B20", "#0078AE", "#FCD116", "#B26B3B"]
 },
 
-{
-    originalName: "Aires de Primavera",
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><circle cx="12" cy="12" r="4" fill="#FCD116"/><g stroke="#FFC72C" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="4" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="4" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="20" y2="12"/><line x1="6.35" y1="6.35" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="17.65" y2="17.65"/><line x1="6.35" y1="17.65" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="17.65" y2="6.35"/></g></svg>',
-    colors: [
-        "#6A0DAD", "#8E49B6", "#B284BE", "#CCB5DC", "#E6E6FA", "#B6D9F2", "#87CEEB", "#7EBCED", 
-        "#75AADB", "#B9D5EC", "#FFFFFF", "#FFE396", "#FFC72C", "#F26316", "#E60000", "#E31E45", 
-        "#E03C8A", "#EF7145", "#FFAA00", "#FF8800", "#FF6700", "#E33E42", "#C71585", "#A18942", 
-        "#7CFC00", "#6BB622", "#5A6E44", "#478B4B", "#34A853", "#1A7429", "#004000", "#4D2000", 
-        "#9B0000", "#4D0000", "#000000", "#634732", "#C68E65", "#805D42", "#3B2B20", "#1E5167", 
-        "#0078AE", "#7E9771", "#FCD116", "#D79E28", "#B26B3B", "#9A5D33", "#824F2B", "#6A4123", 
-        "#52331B", "#3A2513", "#22170B", "#1C1C1F", "#2F2F3E", "#42425D", "#55557C", "#68689B", 
-        "#7B7BBA", "#8E8ED9", "#A1A1F8", "#B4B4FF", "#C7C7FF", "#DADAFF", "#EDEDFF", "#FFFFFF"
-    ]
-},
 
 {
     originalName: "Magma Flow",
@@ -273,6 +259,22 @@ isArchived: true,
     },
   
 
+{ 
+    originalName: "Jasmine Dream 64", 
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', 
+    colors: [
+        "#4B0082", "#530C8E", "#5A189A", "#61218A", "#682A7A", "#692489", "#6A1E97", "#731E91", "#7B1E8A", 
+        "#743993", "#7A3D92", "#804090", "#834481", "#854772", "#89487D", "#8C4888", "#8E508A", "#8F588C", 
+        "#986089", "#9A5D96", "#9B5AA3", "#9E5F87", "#A0636A", "#9F6975", "#9E6F80", "#A56D9C", "#AB6BB7", 
+        "#A97585", "#A97691", "#A8769C", "#AB7A8F", "#AE7E82", "#B47F72", "#B97F62", "#B9828A", "#B885B1", 
+        "#B39178", "#B49187", "#B59095", "#BD918A", "#C4927E", "#C5967D", "#C69A7B", "#CC9B6B", "#D29B5A", 
+        "#C59EAA", "#C4A49C", "#C2AA8E", "#C6AC7F", "#C9AD70", "#D4AE74", "#DEAE77", "#D8B38D", "#D2B7A3", 
+        "#E1B674", "#D9BC7E", "#D0C187", "#DAC078", "#E3BF68", "#E2C782", "#E0CF9C", "#E3D38E", "#E5D680", 
+        "#F0E595"
+    ] 
+    },
+
+
 {
     originalName: "Ancient",
     iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path fill="#FFD700" d="M12 3 L22 20 L2 20 Z" /><path fill="#B8860B" d="M12 3 L22 20 L12 20 Z" /></svg>',
@@ -287,6 +289,22 @@ isArchived: true,
         "#FFFFFF", "#F5F5F5", "#E0E0E0", "#BDBDBD", "#9E9E9E", "#757575", "#424242", "#000000"
     ]
 },
+
+{
+    originalName: "Aires de Primavera",
+iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><line x1="4" y1="22" x2="20" y2="22" stroke="#34A853" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="8" r="3.5" fill="#FFC72C"/><polygon points="9.5,22 11.5,5 12,3 12,22" fill="#FFFFFF"/><polygon points="14.5,22 12.5,5 12,3 12,22" fill="#75AADB"/><circle cx="8" cy="19" r="2.5" fill="#B284BE"/><circle cx="10" cy="20" r="3" fill="#6A0DAD"/><circle cx="16" cy="20" r="2.5" fill="#8E49B6"/><circle cx="13" cy="21" r="2" fill="#CCB5DC"/></svg>',
+    colors: [
+        "#6A0DAD", "#8E49B6", "#B284BE", "#CCB5DC", "#E6E6FA", "#B6D9F2", "#87CEEB", "#7EBCED", 
+        "#75AADB", "#B9D5EC", "#FFFFFF", "#FFE396", "#FFC72C", "#F26316", "#E60000", "#E31E45", 
+        "#E03C8A", "#EF7145", "#FFAA00", "#FF8800", "#FF6700", "#E33E42", "#C71585", "#A18942", 
+        "#7CFC00", "#6BB622", "#5A6E44", "#478B4B", "#34A853", "#1A7429", "#004000", "#4D2000", 
+        "#9B0000", "#4D0000", "#000000", "#634732", "#C68E65", "#805D42", "#3B2B20", "#1E5167", 
+        "#0078AE", "#7E9771", "#FCD116", "#D79E28", "#B26B3B", "#9A5D33", "#824F2B", "#6A4123", 
+        "#52331B", "#3A2513", "#22170B", "#1C1C1F", "#2F2F3E", "#42425D", "#55557C", "#68689B", 
+        "#7B7BBA", "#8E8ED9", "#A1A1F8", "#B4B4FF", "#C7C7FF", "#DADAFF", "#EDEDFF", "#FFFFFF"
+    ]
+},
+
 
 {
     originalName: "Focus 64",
@@ -316,22 +334,6 @@ isArchived: true,
         // משפחת האינדיגו (נוספו 2 צבעים)
         "#1A237E", "#25318E", "#303F9F", "#3F51B5", "#5C6BC0", "#7D89CD", "#9FA8DA", "#C5CAE9"
     ]
-    },
-
-
-{ 
-    originalName: "Jasmine Dream 64", 
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="jasmineGradient" gradientTransform="rotate(90)"><stop offset="5%" stop-color="#AB6BB7" /><stop offset="95%" stop-color="#4B0082" /></linearGradient></defs><g transform="translate(12,12) rotate(18)"><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(0)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(72)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(144)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(216)" fill="url(#jasmineGradient)"/><path d="M0,-11 C 5,-6 5,5 0,1 C -5,5 -5,-6 0,-11 Z" transform="rotate(288)" fill="url(#jasmineGradient)"/></g><circle cx="12" cy="12" r="2.5" fill="#FFD700"/></svg>', 
-    colors: [
-        "#4B0082", "#530C8E", "#5A189A", "#61218A", "#682A7A", "#692489", "#6A1E97", "#731E91", "#7B1E8A", 
-        "#743993", "#7A3D92", "#804090", "#834481", "#854772", "#89487D", "#8C4888", "#8E508A", "#8F588C", 
-        "#986089", "#9A5D96", "#9B5AA3", "#9E5F87", "#A0636A", "#9F6975", "#9E6F80", "#A56D9C", "#AB6BB7", 
-        "#A97585", "#A97691", "#A8769C", "#AB7A8F", "#AE7E82", "#B47F72", "#B97F62", "#B9828A", "#B885B1", 
-        "#B39178", "#B49187", "#B59095", "#BD918A", "#C4927E", "#C5967D", "#C69A7B", "#CC9B6B", "#D29B5A", 
-        "#C59EAA", "#C4A49C", "#C2AA8E", "#C6AC7F", "#C9AD70", "#D4AE74", "#DEAE77", "#D8B38D", "#D2B7A3", 
-        "#E1B674", "#D9BC7E", "#D0C187", "#DAC078", "#E3BF68", "#E2C782", "#E0CF9C", "#E3D38E", "#E5D680", 
-        "#F0E595"
-    ] 
     },
 
 
@@ -378,6 +380,7 @@ colors: [
 
 {
     originalName: "Healing Aura",
+isArchived: true,  
     iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 21 C 12 21 4 16 4 10 C 4 7 7 6 9 8 C 10 9 12 13 12 13 C 12 13 14 9 15 8 C 17 6 20 7 20 10 C 20 16 12 21 12 21 Z" fill="none" stroke="#F9C6C5" stroke-width="1.5"/><path d="M12 21 C 12 21 9 14 9 10 C 9 8 11 7 12 9 C 13 7 15 8 15 10 C 15 14 12 21 12 21 Z" fill="#80D0C7" opacity="0.6"/><path d="M12 2 L 12 4 M 12 6 L 12 7" stroke="#FFDEAD" stroke-width="1.5" stroke-linecap="round"/></svg>',
     colors: [
         "#1A3A3A", "#405B5B", "#667C7C", "#8C9C9C", "#B3BDBD", "#D9DEDE", "#FFFFFF", "#FADADD", 
@@ -395,6 +398,7 @@ colors: [
 
 { 
         originalName: "Jasmine Stardust Aura",
+isArchived: true,  
         iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><linearGradient id="auraGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3B0066"/><stop offset="50%" stop-color="#AB6BB7"/><stop offset="100%" stop-color="#FDF9EB"/></linearGradient></defs><circle cx="5" cy="5" r="0.6" fill="#FDF9EB"/><circle cx="19" cy="7" r="0.8" fill="#FDF9EB"/><circle cx="4" cy="18" r="0.5" fill="#FDF9EB"/><circle cx="20" cy="19" r="0.7" fill="#FDF9EB"/><circle cx="12" cy="12" r="1.5" fill="#FDF9EB"/><path d="M12 20C7.5 20 4 16.5 4 12C4 7.5 7.5 4 12 4" fill="none" stroke="url(#auraGrad)" stroke-width="2.8" stroke-linecap="round"/><path d="M12 4C16.5 4 20 7.5 20 12C20 16.5 16.5 20 12 20" fill="none" stroke="url(#auraGrad)" stroke-width="2.8" stroke-linecap="round" opacity="0.6"/><path d="M12 8 Q 12 12, 16 12 Q 12 12, 12 16 Q 12 12, 8 12 Q 12 12, 12 8" fill="url(#auraGrad)"/></svg>', 
         colors: [
             "#3B0066", "#420075", "#4B0082", "#510B89", "#5A189A", "#60218A", "#682A7A", "#692488",
