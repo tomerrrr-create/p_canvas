@@ -444,48 +444,9 @@ isArchived: true,
 },
 
 
-{
-    originalName: "Amethyst Dream 256",
-    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 2 L2 10 L12 22 L22 10 Z" fill="#955DCD"/><path d="M12 2 L2 10 L12 13 Z" fill="#C7AAE6"/><path d="M12 2 L22 10 L12 13 Z" fill="#E5D8F5"/><path d="M2 10 L12 22 L12 13 Z" fill="#662789"/><path d="M22 10 L12 22 L12 13 Z" fill="#3B184D"/></svg>',
-    colors: [
-        "#1A0B1E", "#1C0C20", "#1D0C22", "#1F0D25", "#200D27", "#220E29", "#240F2B", "#26102E", 
-        "#271030", "#291133", "#2B1235", "#2D1337", "#2E133A", "#30143C", "#31143F", "#331541", 
-        "#351643", "#361646", "#381748", "#39174B", "#3B184D", "#3D194F", "#3F1952", "#401A54", 
-        "#421A57", "#441B59", "#461C5B", "#471C5E", "#491D60", "#4A1D63", "#4C1E65", "#4E1F67", 
-        "#501F6A", "#51206C", "#53206F", "#552171", "#572273", "#582276", "#5A2378", "#5B237B", 
-        "#5D247D", "#5F257F", "#612582", "#622684", "#642687", "#662789", "#68288B", "#69288E", 
-        "#6B2990", "#6C2993", "#6E2A95", "#702B97", "#722B9A", "#732C9C", "#752C9F", "#772DA1", 
-        "#792EA3", "#7A2EA6", "#7C2FA8", "#7D2FAB", "#7F30AD", "#7F32AF", "#7F33B2", "#8035B4", 
-        "#8036B7", "#8038B9", "#8039BC", "#813BBE", "#813CC1", "#813EC3", "#8240C4", "#8443C4", 
-        "#8545C5", "#8747C6", "#8849C7", "#8A4CC7", "#8B4EC8", "#8C50C9", "#8E52C9", "#8F54CA", 
-        "#9157CB", "#9259CC", "#945BCC", "#955DCD", "#965FCE", "#9862CE", "#9964CF", "#9B66D0", 
-        "#9C68D1", "#9E6BD1", "#9F6DD2", "#A06FD3", "#A271D3", "#A373D4", "#A576D5", "#A678D6", 
-        "#A87AD6", "#A97CD7", "#AA7ED8", "#AC81D8", "#AD83D9", "#AF85DA", "#B087DB", "#B28ADB", 
-        "#B38CDC", "#B48EDD", "#B690DD", "#B792DE", "#B995DF", "#BA97E0", "#BC99E0", "#BD9BE1", 
-        "#BE9DE2", "#C09FE2", "#C1A1E3", "#C3A4E4", "#C4A6E5", "#C6A8E5", "#C7AAE6", "#C8ACE7", 
-        "#CAAFE7", "#CBB1E8", "#CDB3E9", "#CEB5EA", "#D0B8EA", "#D1BAEB", "#D2BCEC", "#D4BEEC", 
-        "#D5C0ED", "#D7C3EE", "#D8C5EF", "#DAC7EF", "#DBC9F0", "#DDCCF1", "#DECEF2", "#E0D0F2", 
-        "#E2D3F3", "#E3D6F4", "#E5D8F5", "#E6DAF6", "#E8DDF6", "#E9DFF7", "#EBE1F8", "#ECE3F9", 
-        "#EEE6F9", "#EFE8FA", "#F1EAFB", "#F2EDFC", "#F4F0FC", "#F6F2FD", "#F7F4FE", "#F9F7FF", 
-        "#F8F5FF", "#F7F2FF", "#F6F0FF", "#F5EEFF", "#F4ECFF", "#F3E9FF", "#F2E7FF", "#F1E4FF", 
-        "#F0E2FF", "#EFE0FF", "#EEDDFF", "#EDDBFF", "#ECD8FF", "#EBD6FF", "#EAD4FF", "#E9D1FF", 
-        "#E8CFFF", "#E7CCFF", "#E6CAFF", "#E5C7FF", "#E4C5FF", "#E4C2FF", "#E3C0FF", "#E2BDFF", 
-        "#E1BAFF", "#E0B7FF", "#E0B5FF", "#DFB2FF", "#DEAFFF", "#DDACFF", "#DCAAFF", "#DBA7FF", 
-        "#DAA5FF", "#D9A2FF", "#D89FFF", "#D79CFF", "#D69AFF", "#D597FF", "#D494FF", "#D392FF", 
-        "#D28FFF", "#D28CFF", "#D18AFF", "#D088FF", "#CF85FF", "#CE82FF", "#CD80FF", "#CC7EFF", 
-        "#CC7BFF", "#CB78FF", "#CA76FF", "#C973FF", "#C870FF", "#C76EFF", "#C66BFF", "#C568FF", 
-        "#C466FF", "#C363FF", "#C260FF", "#C25EFF", "#C15CFF", "#C059FF", "#BF56FF", "#BE54FF", 
-        "#BE52FF", "#BD4FFF", "#BC4CFF", "#BB4AFF", "#B949FD", "#B747FB", "#B646F9", "#B444F7", 
-        "#B243F5", "#B042F3", "#AF42F0", "#AD41EE", "#AC41EB", "#AA40E9", "#A83FE7", "#A63EE4", 
-        "#A53EE2", "#A33DDF", "#A13CDD", "#9F3BDB", "#9E3BD8", "#9C3AD6", "#9B3AD3", "#9939D1", 
-        "#9738CF", "#9538CC", "#9437CA", "#9237C7", "#9036C5", "#8E35C3", "#8D35C0", "#8B34BE", 
-        "#8A34BB", "#8833B9", "#8532BA", "#8231BB", "#8030BC", "#7D30BD", "#7A2FBE", "#772EBF"
-    ]
-},
-
-
 
 {
+isArchived: true, 
   originalName: "Night Rainbow",
 iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><clipPath id="nrClip"><circle cx="12" cy="12" r="10.5"/></clipPath></defs><circle cx="12" cy="12" r="11" fill="#000000"/><g clip-path="url(#nrClip)" transform="rotate(-45 12 12)"><rect x="-5" y="3.75" width="34" height="1.5" fill="#8c28dc"/><rect x="-5" y="6.75" width="34" height="1.5" fill="#00b4ff"/><rect x="-5" y="9.75" width="34" height="1.5" fill="#109664"/><rect x="-5" y="12.75" width="34" height="1.5" fill="#ffc800"/><rect x="-5" y="15.75" width="34" height="1.5" fill="#eb5a5a"/><rect x="-5" y="18.75" width="34" height="1.5" fill="#ff3296"/></g></svg>',
   colors: (function() {
@@ -533,6 +494,95 @@ iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(
 },
 
 
+{
+  originalName: "Night Rainbow 264",
+  iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><defs><clipPath id="nrClip"><circle cx="12" cy="12" r="10.5"/></clipPath></defs><circle cx="12" cy="12" r="11" fill="#000000"/><g clip-path="url(#nrClip)" transform="rotate(-45 12 12)"><rect x="-5" y="3.75" width="34" height="1.5" fill="#8c28dc"/><rect x="-5" y="6.75" width="34" height="1.5" fill="#00b4ff"/><rect x="-5" y="9.75" width="34" height="1.5" fill="#109664"/><rect x="-5" y="12.75" width="34" height="1.5" fill="#ffc800"/><rect x="-5" y="15.75" width="34" height="1.5" fill="#eb5a5a"/><rect x="-5" y="18.75" width="34" height="1.5" fill="#ff3296"/></g></svg>',
+  colors: (function() {
+    // מותאם ל-264 צבעים (מ-0 עד 263)
+    const stops = [
+      { pos: 0,   r: 0,   g: 0,   b: 0 },      // שחור מוחלט
+      { pos: 15,  r: 15,  g: 0,   b: 30 },     // סגול עמוק (בסיס)
+      { pos: 33,  r: 140, g: 40,  b: 220 },    // שפיץ 1: סגול בוהק
+      { pos: 52,  r: 0,   g: 15,  b: 40 },     // כחול לילה
+      { pos: 70,  r: 0,   g: 180, b: 255 },    // שפיץ 2: תכלת זוהר
+      { pos: 88,  r: 0,   g: 25,  b: 15 },     // ירוק יער אפל
+      { pos: 107, r: 16,  g: 150, b: 100 },    // שפיץ 3: ירוק יער בקבוקי רך
+      { pos: 126, r: 25,  g: 20,  b: 0 },      // זית עמוק
+      { pos: 144, r: 255, g: 200, b: 0 },      // שפיץ 4: זהב בוהק
+      { pos: 163, r: 35,  g: 5,   b: 10 },     // בורדו אפל
+      { pos: 182, r: 235, g: 90,  b: 90 },     // שפיץ 5: אדום רך ונעים (Pastel/Coral)
+      { pos: 200, r: 25,  g: 0,   b: 20 },     // שזיף עמוק
+      { pos: 221, r: 255, g: 50,  b: 150 },    // שפיץ 6: ורוד מגנטה
+      { pos: 243, r: 15,  g: 0,   b: 10 },     // דעיכה חזרה
+      { pos: 263, r: 0,   g: 0,   b: 0 }       // שחור מוחלט
+    ];
+    
+    const out = [];
+    // רצים עד 264
+    for (let i = 0; i < 264; i++) {
+        let s = 0;
+        // מציאת המקטע הנוכחי
+        while (s < stops.length - 2 && i >= stops[s+1].pos) { s++; }
+        
+        const start = stops[s];
+        const end = stops[s+1];
+        const segmentLen = end.pos - start.pos;
+        const progress = segmentLen === 0 ? 0 : (i - start.pos) / segmentLen;
+        
+        // שימוש בפונקציית החלקה (Smoothstep) למעברים אורגניים וטבעיים
+        const ease = progress * progress * (3 - 2 * progress); 
+        
+        const r = Math.round(start.r + (end.r - start.r) * ease);
+        const g = Math.round(start.g + (end.g - start.g) * ease);
+        const b = Math.round(start.b + (end.b - start.b) * ease);
+        
+        out.push('#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join(''));
+    }
+    return out;
+  })()
+},
+
+
+{
+originalName: "Primavera Porteña 264",
+iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 21 C 12 18 10 17 10 13 C 10 9 13 8 15 7" fill="none" stroke="#004000" stroke-width="1.5" stroke-linecap="round"/><circle cx="15" cy="7" r="2.5" fill="#E03C8A"/><circle cx="10" cy="10" r="2.5" fill="#6A0DAD"/><circle cx="5" cy="13" r="2" fill="#87CEEB"/><circle cx="12" cy="11" r="3" fill="#FCD116"/><circle cx="18" cy="11" r="2" fill="#FFAA00"/><circle cx="12" cy="11" r="1.5" fill="#6A0DAD"/><circle cx="11.5" cy="10" r="0.5" fill="#FFFFFF"/><circle cx="12.5" cy="10" r="0.5" fill="#FFFFFF"/><path d="M11 12 C 11 13, 13 13, 13 12" fill="none" stroke="#6A0DAD" stroke-width="1.2" stroke-linecap="round"/></svg>',
+
+colors: [
+        "#6A0DAD", "#731CAF", "#7C2BB2", "#853AB4", "#8E49B6", "#9758B8", "#A066BA", "#A975BC",
+        "#B284BE", "#B890C6", "#BF9CCD", "#C6A9D4", "#CCB5DC", "#D2C1E4", "#D9CEEB", "#E0DAF2",
+        "#E6E6FA", "#D6E2F7", "#C6DDF5", "#B6D9F2", "#A6D5F0", "#97D2ED", "#87CEEB", "#82C5EC",
+        "#7EBCED", "#7AB3E4", "#75AADB", "#83B3DE", "#90BBE2", "#9EC4E5", "#ABCCE9", "#B9D5EC",
+        "#C7DDF0", "#D5E6F4", "#E3EEF7", "#F1F7FB", "#FFFFFF", "#FFFAEE", "#FFF6DC", "#FFF1CA",
+        "#FFECB9", "#FFE8A8", "#FFE396", "#FFDF87", "#FFDB78", "#FFD769", "#FFD359", "#FFCF4A",
+        "#FFCB3B", "#FFC72C", "#FDB628", "#FBA625", "#F89521", "#F6841D", "#F4741A", "#F26316",
+        "#F05212", "#EE420F", "#EC320B", "#EA2107", "#E81004", "#E60000", "#E5060E", "#E50C1C",
+        "#E41229", "#E41837", "#E31E45", "#E22453", "#E22A61", "#E1306E", "#E1367C", "#E03C8A",
+        "#E3477C", "#E6516E", "#E95C61", "#EC6653", "#EF7145", "#F27A3A", "#F4842E", "#F78E22",
+        "#FA9717", "#FCA00C", "#FFAA00", "#FF9900", "#FF8800", "#FF7800", "#FF6700", "#F95F0D",
+        "#F4571A", "#EE4E28", "#E94635", "#E33E42", "#DD364F", "#D82E5D", "#D2256A", "#CD1D78",
+        "#C71585", "#C2247D", "#BE3274", "#B9406C", "#B44F64", "#AF5E5B", "#AA6C53", "#A67A4A",
+        "#A18942", "#9C973A", "#98A632", "#93B429", "#8EC221", "#8AD119", "#85DF10", "#81EE08",
+        "#7CFC00", "#79EE07", "#75E00E", "#72D214", "#6EC41B", "#6BB622", "#68A829", "#649930",
+        "#618B36", "#5D7C3D", "#5A6E44", "#507C48", "#478B4B", "#3E9A4F", "#34A853", "#2E9B48",
+        "#278E3E", "#208134", "#1A7429", "#14671F", "#0D5A14", "#064D0A", "#004000", "#0F3A00",
+        "#1F3300", "#2E2D00", "#3E2600", "#4D2000", "#5D1A00", "#6C1300", "#7C0D00", "#8B0600",
+        "#9B0000", "#8B0000", "#7C0000", "#6C0000", "#5D0000", "#4D0000", "#3E0000", "#2E0000",
+        "#1F0000", "#0F0000", "#000000", "#0C0906", "#19120C", "#251B13", "#322419", "#3E2C1F",
+        "#4A3526", "#573E2C", "#634732", "#6F5038", "#7C593F", "#886245", "#946A4C", "#A17352",
+        "#AD7C58", "#BA855F", "#C68E65", "#BA865F", "#AF7E59", "#A37654", "#976D4E", "#8C6548",
+        "#805D42", "#74553C", "#694C37", "#5E4431", "#523C2B", "#463326", "#3B2B20", "#35332E",
+        "#2F3A3C", "#2A424B", "#244959", "#1E5167", "#185975", "#126183", "#0C6892", "#0670A0",
+        "#0078AE", "#107CA6", "#20809F", "#2F8497", "#3F8890", "#4F8B88", "#5E8F80", "#6E9379",
+        "#7E9771", "#8B9D68", "#97A35F", "#A4A856", "#B0AE4D", "#BDB444", "#CABA3A", "#D6C031",
+        "#E3C528", "#EFCB1F", "#FCD116", "#F3C41A", "#EAB81F", "#E0AB24", "#D79E28", "#CE912D",
+        "#C48432", "#BB7836", "#B26B3B", "#A66437", "#9A5D33", "#8E562F", "#824F2B", "#764827",
+        "#6A4123", "#5E3A1F", "#52331B", "#462C17", "#3A2513", "#2E1E0F", "#22170B", "#1F1A15",
+        "#1C1C1F", "#222229", "#292934", "#2F2F3E", "#353548", "#3C3C53", "#42425D", "#484867",
+        "#4F4F72", "#55557C", "#5B5B86", "#626291", "#68689B", "#6E6EA5", "#7575B0", "#7B7BBA",
+        "#8181C4", "#8888CF", "#8E8ED9", "#9494E3", "#9B9BEE", "#A1A1F8", "#AAAAFC", "#B4B4FF",
+        "#BEBEFF", "#C7C7FF", "#D0D0FF", "#DADAFF", "#E4E4FF", "#EDEDFF", "#F6F6FF", "#FFFFFF"
+    ]
+},
 
 {
   originalName: "Earth & Spirit",
@@ -615,6 +665,45 @@ iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(
 },
 
   
+{
+    originalName: "Amethyst Dream 264",
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path d="M12 2 L2 10 L12 22 L22 10 Z" fill="#955DCD"/><path d="M12 2 L2 10 L12 13 Z" fill="#C7AAE6"/><path d="M12 2 L22 10 L12 13 Z" fill="#E5D8F5"/><path d="M2 10 L12 22 L12 13 Z" fill="#662789"/><path d="M22 10 L12 22 L12 13 Z" fill="#3B184D"/></svg>',
+    colors: [
+        "#1A0B1E", "#1C0C20", "#1D0C22", "#1E0C24", "#1F0D25", "#200D27", "#220E29", "#240F2B",
+        "#25102C", "#26102E", "#271030", "#281032", "#291133", "#2B1235", "#2D1337", "#2E133A",
+        "#30143C", "#31143F", "#331541", "#351643", "#361646", "#381748", "#39174B", "#3B184D",
+        "#3D194F", "#3F1952", "#401A54", "#421A57", "#441B59", "#461C5B", "#471C5E", "#491D60",
+        "#4A1D63", "#4C1E65", "#4E1F67", "#501F6A", "#51206C", "#53206F", "#552171", "#572273",
+        "#582276", "#5A2378", "#5B237B", "#5D247D", "#5F257F", "#612582", "#622684", "#642687",
+        "#662789", "#68288B", "#69288E", "#6B2990", "#6C2993", "#6E2A95", "#702B97", "#722B9A",
+        "#732C9C", "#752C9F", "#772DA1", "#792EA3", "#7A2EA6", "#7C2FA8", "#7D2FAB", "#7F30AD",
+        "#7F32AF", "#7F33B2", "#8035B4", "#8036B7", "#8038B9", "#8039BC", "#813BBE", "#813CC1",
+        "#813EC3", "#8240C4", "#8443C4", "#8545C5", "#8747C6", "#8849C7", "#8A4CC7", "#8B4EC8",
+        "#8C50C9", "#8E52C9", "#8F54CA", "#9056CA", "#9157CB", "#9259CC", "#945BCC", "#955DCD",
+        "#965FCE", "#9862CE", "#9964CF", "#9B66D0", "#9C68D1", "#9E6BD1", "#9F6DD2", "#A06FD3",
+        "#A271D3", "#A373D4", "#A474D4", "#A576D5", "#A678D6", "#A87AD6", "#A97CD7", "#AA7ED8",
+        "#AC81D8", "#AD83D9", "#AF85DA", "#B087DB", "#B28ADB", "#B38CDC", "#B48EDD", "#B690DD",
+        "#B792DE", "#B894DE", "#B995DF", "#BA97E0", "#BC99E0", "#BD9BE1", "#BE9DE2", "#C09FE2",
+        "#C1A1E3", "#C2A2E4", "#C3A4E4", "#C4A6E5", "#C6A8E5", "#C7AAE6", "#C8ACE7", "#CAAFE7",
+        "#CBB1E8", "#CDB3E9", "#CEB5EA", "#D0B8EA", "#D1BAEB", "#D2BCEC", "#D4BEEC", "#D5C0ED",
+        "#D6C2EE", "#D7C3EE", "#D8C5EF", "#DAC7EF", "#DBC9F0", "#DDCCF1", "#DECEF2", "#E0D0F2",
+        "#E2D3F3", "#E3D6F4", "#E5D8F5", "#E6DAF6", "#E8DDF6", "#E9DFF7", "#EBE1F8", "#ECE3F9",
+        "#EEE6F9", "#EFE8FA", "#F1EAFB", "#F2EDFC", "#F4F0FC", "#F6F2FD", "#F7F4FE", "#F9F7FF",
+        "#F8F5FF", "#F7F2FF", "#F6F0FF", "#F5EEFF", "#F4ECFF", "#F3E9FF", "#F2E7FF", "#F1E4FF",
+        "#F0E2FF", "#EFE0FF", "#EEDDFF", "#EDDBFF", "#ECD8FF", "#EBD6FF", "#EAD4FF", "#E9D1FF",
+        "#E8CFFF", "#E7CCFF", "#E6CAFF", "#E5C7FF", "#E4C5FF", "#E4C2FF", "#E3C0FF", "#E2BDFF",
+        "#E1BAFF", "#E0B7FF", "#E0B5FF", "#DFB2FF", "#DEAFFF", "#DDACFF", "#DCAAFF", "#DBA7FF",
+        "#DAA5FF", "#D9A2FF", "#D89FFF", "#D79CFF", "#D69AFF", "#D597FF", "#D494FF", "#D392FF",
+        "#D28FFF", "#D28CFF", "#D18AFF", "#D088FF", "#CF85FF", "#CE82FF", "#CD80FF", "#CC7EFF",
+        "#CC7BFF", "#CB78FF", "#CA76FF", "#C973FF", "#C870FF", "#C76EFF", "#C66BFF", "#C568FF",
+        "#C466FF", "#C363FF", "#C260FF", "#C25EFF", "#C15CFF", "#C059FF", "#BF56FF", "#BE54FF",
+        "#BE52FF", "#BD4FFF", "#BC4CFF", "#BB4AFF", "#B949FD", "#B747FB", "#B646F9", "#B444F7",
+        "#B243F5", "#B042F3", "#AF42F0", "#AD41EE", "#AC41EB", "#AA40E9", "#A83FE7", "#A63EE4",
+        "#A53EE2", "#A33DDF", "#A13CDD", "#9F3BDB", "#9E3BD8", "#9C3AD6", "#9B3AD3", "#9939D1",
+        "#9738CF", "#9538CC", "#9437CA", "#9237C7", "#9036C5", "#8E35C3", "#8D35C0", "#8B34BE",
+        "#8A34BB", "#8833B9", "#8532BA", "#8231BB", "#8030BC", "#7D30BD", "#7A2FBE", "#772EBF"
+    ]
+},
 
 
     {
