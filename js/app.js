@@ -59,6 +59,12 @@ let lastNudgeTime = 0; // מווסת את מהירות תנועת ה-Nudge הא�
           // 4. מצב קשת - מינימליסטי (כמו האות 'ח')
           { method: 'hue', icon: '<path d="M 6 19 V 10 A 6 6 0 0 1 18 10 V 19"/>' }, 
           
+//  קשת בענן (Hue) -
+    { 
+        method: 'hue', 
+        icon: '<circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3.5 4.5" stroke-linecap="round"/>' 
+    },
+
 
 
           // 5. קשת כהה - 'ח' מרכזית עם 2 קשתות פנימיות בגווני אפור
@@ -80,13 +86,6 @@ const SORT_MODES = [
     },
 
 
-
-//  קשת בענן (Hue) -
-    { 
-        method: 'hue', 
-        icon: '<circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3.5 4.5" stroke-linecap="round"/>' 
-    },
-
  // החשכה (Reversed) - 
     { 
         method: 'reversed', 
@@ -101,6 +100,10 @@ const SORT_MODES = [
         icon: '<path d="M 4 12 Q 12 5 20 12 Q 12 19 4 12 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>' 
     },
  
+
+
+
+
  // טמפרטורה (Temperature) 
     { 
         method: 'temperature', 
@@ -111,10 +114,8 @@ const SORT_MODES = [
 
 
   // קשת כהה (Dark-Rainbow) -
-    { 
-        method: 'dark-rainbow', 
-        icon: '<circle cx="9" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M 12 7.39 A 5.5 5.5 0 0 1 12 16.61 A 5.5 5.5 0 0 1 12 7.39 Z" fill="currentColor"/>' 
-    }
+         {  
+        method: 'dark-rainbow', icon: '<path d="M 6 19 V 10 A 6 6 0 0 1 18 10 V 19"/>' }
 
 ];
  
