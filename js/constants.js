@@ -291,6 +291,76 @@ isArchived: true,
 },
 
 {
+    originalName: "Ancient 264",
+    iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><path fill="#FFD700" d="M12 3 L22 20 L2 20 Z" /><path fill="#B8860B" d="M12 3 L22 20 L12 20 Z" /></svg>',
+    colors: (function() {
+        const orig = [
+            "#FFD700", "#FFC107", "#FFEE58", "#FDD835", "#FBC02D", "#FFE082", "#FFCA28", "#FFF176",
+            "#FF8C00", "#FF9800", "#FB8C00", "#FFA726", "#FF7043", "#FF5722", "#F4511E", "#F57C00",
+            "#FF1744", "#F44336", "#E53935", "#D32F2F", "#C62828", "#B71C1C", "#FF5252", "#EF5350",
+            "#E91E63", "#F06292", "#FF4081", "#AD1457", "#D81B60", "#C2185B", "#EC407A", "#F48FB1",
+            "#9C27B0", "#7B1FA2", "#8E24AA", "#AB47BC", "#673AB7", "#5E35B1", "#3F51B5", "#3949AB",
+            "#2196F3", "#1976D2", "#1E88E5", "#42A5F5", "#00BCD4", "#26C6DA", "#0097A7", "#80DEEA",
+            "#4CAF50", "#43A047", "#2E7D32", "#66BB6A", "#8BC34A", "#9CCC65", "#CDDC39", "#AFB42B",
+            "#FFFFFF", "#F5F5F5", "#E0E0E0", "#BDBDBD", "#9E9E9E", "#757575", "#424242", "#000000"
+        ];
+        
+        function hexToRgb(h) {
+            return [parseInt(h.slice(1,3), 16), parseInt(h.slice(3,5), 16), parseInt(h.slice(5,7), 16)];
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => Math.round(x).toString(16).padStart(2, '0').toUpperCase()).join('');
+        }
+        
+        const rgbs = orig.map(hexToRgb);
+        const dists = [];
+        let totalDist = 0;
+        
+        // חישוב המרחקים בין 64 הצבעים המקוריים ליצירת מסלול רציף
+        for (let i = 0; i < rgbs.length - 1; i++) {
+            let d = Math.sqrt(Math.pow(rgbs[i+1][0] - rgbs[i][0], 2) + 
+                              Math.pow(rgbs[i+1][1] - rgbs[i][1], 2) + 
+                              Math.pow(rgbs[i+1][2] - rgbs[i][2], 2));
+            if (d === 0) d = 0.1; // מניעת חלוקה באפס
+            dists.push(d);
+            totalDist += d;
+        }
+        
+        const out = [];
+        // פריסה של 264 צבעים לאורך המסלול המחושב
+        for (let i = 0; i < 264; i++) {
+            if (i === 0) { out.push(orig[0]); continue; }
+            if (i === 263) { out.push(orig[orig.length - 1]); continue; }
+            
+            let targetDist = (i / 263) * totalDist;
+            let accum = 0;
+            let s = 0;
+            
+            // מציאת המקטע הנכון על בסיס המרחק
+            while (s < dists.length - 1 && accum + dists[s] <= targetDist) {
+                accum += dists[s];
+                s++;
+            }
+            
+            let progress = (targetDist - accum) / dists[s];
+            progress = Math.max(0, Math.min(1, progress));
+            
+            let c1 = rgbs[s];
+            let c2 = rgbs[s+1];
+            
+            let r = c1[0] + (c2[0] - c1[0]) * progress;
+            let g = c1[1] + (c2[1] - c1[1]) * progress;
+            let b = c1[2] + (c2[2] - c1[2]) * progress;
+            
+            out.push(rgbToHex(r, g, b));
+        }
+        return out;
+    })()
+},
+
+
+{
     originalName: "Aires de Primavera",
 iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(--icon-size);"><line x1="4" y1="22" x2="20" y2="22" stroke="#34A853" stroke-width="1.5" stroke-linecap="round"/><circle cx="16" cy="8" r="3.5" fill="#FFC72C"/><polygon points="9.5,22 11.5,5 12,3 12,22" fill="#FFFFFF"/><polygon points="14.5,22 12.5,5 12,3 12,22" fill="#75AADB"/><circle cx="8" cy="19" r="2.5" fill="#B284BE"/><circle cx="10" cy="20" r="3" fill="#6A0DAD"/><circle cx="16" cy="20" r="2.5" fill="#8E49B6"/><circle cx="13" cy="21" r="2" fill="#CCB5DC"/></svg>',
     colors: [
@@ -336,6 +406,75 @@ iconHTML: '<svg viewBox="0 0 24 24" style="width: var(--icon-size); height: var(
     ]
     },
 
+{
+    originalName: "Focus 264",
+    emoji: '🧘',
+    colors: (function() {
+        const orig = [
+            "#000000", "#1A0B2E", "#0B172E", "#333333", "#595959", "#7F7F7F", "#A5A5A5", "#CCCCCC", 
+            "#4A0072", "#8E24AA", "#A81E82", "#C2185B", "#E91E63", "#EC407A", "#F27DA5", "#F8BBD0", 
+            "#B71C1C", "#D32F2F", "#E34026", "#F4511E", "#FB8C00", "#FFA726", "#FFC96C", "#FFECB3", 
+            "#FBC02D", "#FDD835", "#FFEE58", "#FFF176", "#FFF9C4", "#FFFFFF", 
+            "#1B5E20", "#29762E", "#388E3C", "#4CAF50", "#66BB6A", "#81C784", "#A5D6A7", "#C6E5C8", 
+            "#E8F5E9", 
+            "#0D47A1", "#135EB9", "#1976D2", "#2196F3", "#319DF4", "#42A5F5", "#90CAF9", "#B9DEFB", 
+            "#E3F2FD", 
+            "#004D40", "#006355", "#00796B", "#009688", "#4DB6AC", "#66C0B8", "#80CBC4", "#B2DFDB", 
+            "#1A237E", "#25318E", "#303F9F", "#3F51B5", "#5C6BC0", "#7D89CD", "#9FA8DA", "#C5CAE9"
+        ];
+        
+        function hexToRgb(h) {
+            return [parseInt(h.slice(1,3), 16), parseInt(h.slice(3,5), 16), parseInt(h.slice(5,7), 16)];
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + [r, g, b].map(x => Math.round(x).toString(16).padStart(2, '0').toUpperCase()).join('');
+        }
+        
+        const rgbs = orig.map(hexToRgb);
+        const dists = [];
+        let totalDist = 0;
+        
+        // חישוב המרחקים בין 64 הצבעים המקוריים ליצירת מסלול רציף
+        for (let i = 0; i < rgbs.length - 1; i++) {
+            let d = Math.sqrt(Math.pow(rgbs[i+1][0] - rgbs[i][0], 2) + 
+                              Math.pow(rgbs[i+1][1] - rgbs[i][1], 2) + 
+                              Math.pow(rgbs[i+1][2] - rgbs[i][2], 2));
+            if (d === 0) d = 0.1; // מניעת חלוקה באפס
+            dists.push(d);
+            totalDist += d;
+        }
+        
+        const out = [];
+        // פריסה של 264 צבעים לאורך המסלול המחושב
+        for (let i = 0; i < 264; i++) {
+            if (i === 0) { out.push(orig[0]); continue; }
+            if (i === 263) { out.push(orig[orig.length - 1]); continue; }
+            
+            let targetDist = (i / 263) * totalDist;
+            let accum = 0;
+            let s = 0;
+            
+            while (s < dists.length - 1 && accum + dists[s] <= targetDist) {
+                accum += dists[s];
+                s++;
+            }
+            
+            let progress = (targetDist - accum) / dists[s];
+            progress = Math.max(0, Math.min(1, progress));
+            
+            let c1 = rgbs[s];
+            let c2 = rgbs[s+1];
+            
+            let r = c1[0] + (c2[0] - c1[0]) * progress;
+            let g = c1[1] + (c2[1] - c1[1]) * progress;
+            let b = c1[2] + (c2[2] - c1[2]) * progress;
+            
+            out.push(rgbToHex(r, g, b));
+        }
+        return out;
+    })()
+    },
 
 
 {
