@@ -86,6 +86,12 @@ const SORT_MODES = [
     },
 
 
+  // קשת כהה (Dark-Rainbow) -
+         {  
+        method: 'dark-rainbow', icon: '<path d="M 6 19 V 10 A 6 6 0 0 1 18 10 V 19"/>' },
+
+
+
  // החשכה (Reversed) - 
     { 
         method: 'reversed', 
@@ -102,20 +108,12 @@ const SORT_MODES = [
  
 
 
-
-
- // טמפרטורה (Temperature) 
+// טמפרטורה (Temperature) - צלזיוס מינימליסטי
     { 
         method: 'temperature', 
-        icon: '<path d="M 7 6 L 17 6 L 12 12 Z M 7 18 L 17 18 L 12 12 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' 
-    },
+        icon: '<path d="M 16 18 A 6 6 0 1 1 16 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="18" cy="6" r="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>' 
+    }
 
-
-
-
-  // קשת כהה (Dark-Rainbow) -
-         {  
-        method: 'dark-rainbow', icon: '<path d="M 6 19 V 10 A 6 6 0 0 1 18 10 V 19"/>' }
 
 ];
  
