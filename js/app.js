@@ -614,10 +614,12 @@ activePaletteIndex = paletteIdx >= 0 && paletteIdx < C.PALETTES.length ? palette
         }
 
         boardState = state.tiles.map(tileState => ({
-            ...tileState,
+k: tileState.k,
+            v: tileState.v !== undefined ? tileState.v : tileState.k,
             prevK: null,
             animStart: 0,
-            v: tileState.v !== undefined ? tileState.v : tileState.k
+            isGold: tileState.isGold,
+            startDelay: 0
         }));
         
         renderToScreen(null); 
@@ -674,7 +676,13 @@ activePaletteIndex = paletteIdx >= 0 && paletteIdx < C.PALETTES.length ? palette
           ctx.scale(dpr, dpr);
           
           if (createEmptyState) {
-            boardState = new Array(n * n).fill(null).map(() => ({ k: 0, prevK: null, animStart: 0, isGold: false, v: 0 }));
+boardState = new Array(n * n).fill(null).map(() => ({
+                k: 0,
+                v: 0,
+                prevK: null,
+                animStart: 0,
+                isGold: false,
+                startDelay: 0}));
             hasPerformedInitialAutofill = false;
           }
           renderToScreen(null);
